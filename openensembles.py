@@ -8,6 +8,7 @@ import sklearn.cluster as skc
 import matplotlib.pyplot as plt
 from sklearn import datasets
 import scipy.cluster.hierarchy as sch
+from sklearn import preprocessing
 import scipy.stats as stats
 
 
@@ -32,7 +33,8 @@ class data:
             self.x['parent'] = list(range(self.D['parent'].shape[1]))
 
     def transforms_available(self):
-        TXFM_FCN_DICT = {'zscore':0}  
+        TXFM_FCN_DICT = {'zscore':'zscore in a row-wise fashion', 
+                'minmax':'scale entire dataset between 0 and 1 or defined minValue and maxValue'}  
         return TXFM_FCN_DICT
 
 
@@ -64,20 +66,24 @@ class data:
             var_params = kwargs
             if 'Keep_NaN' in kwargs:
                 Keep_NaN_txfm = kwargs['Keep_NaN']
-            print "DEBUG: Keep_NaN_txfm is %d"%(Keep_NaN_txfm)
-######BEGIN TXFM BLOCK  ######
 
-        if txfm_name == 'zscore':
+        ######BEGIN TXFM BLOCK  ######
+
+        if txfm_fcn == 'zscore':
             X = self.x[source_name]
             DATA = stats.zscore(self.D[source_name], 1)
+        elif txfm_fcn == 'minmax':
+            X = self.x[source_name]
+            min_max_scaler = preprocessing.MinMaxScaler()
+            DATA = np.transpose(min_max_scaler.fit_transform(np.transpose(self.D[source_name])))
 
                  
-####EXCEPT: transform was not in list
+        ####EXCEPT: transform was not in list
         else:
             print "ERROR: the transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys())
             return -2
 
-#### FINAL staging, X, D and var_params have been set in transform block, now add each
+        #### FINAL staging, X, D and var_params have been set in transform block, now add each
         #check and print a warning if NaN values were created in the transformation
         boolCheck = np.isnan(DATA)
         numNaNs = sum(sum(boolCheck))
