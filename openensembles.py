@@ -73,8 +73,20 @@ class data:
             X = self.x[source_name]
             DATA = stats.zscore(self.D[source_name], 1)
         elif txfm_fcn == 'minmax':
+            if 'minValue' in kwargs:
+                minValue = kwargs['minValue']
+            else:
+                minValue = 0
+            if 'maxValue' in kwargs:
+                maxValue = kwargs['maxValue']
+            else:
+                maxValue = 1 
+            
+            if minValue > maxValue:
+                print "ERROR: Your requested minValue (%0.2f) is larger than the maximum value (%0.2f)"%(minValue, maxValue) 
+                return -2
             X = self.x[source_name]
-            min_max_scaler = preprocessing.MinMaxScaler()
+            min_max_scaler = preprocessing.MinMaxScaler(feature_range=(minValue, maxValue))
             DATA = np.transpose(min_max_scaler.fit_transform(np.transpose(self.D[source_name])))
 
                  
