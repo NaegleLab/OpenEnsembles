@@ -8,6 +8,7 @@ import sklearn.cluster as skc
 import matplotlib.pyplot as plt
 from sklearn import datasets
 import scipy.cluster.hierarchy as sch
+import scipy.stats as stats
 
 
 class data:
@@ -35,7 +36,7 @@ class data:
         return TXFM_FCN_DICT
 
 
-    def transform(self, source_name, txfm_fcn, txfm_name, var_params):
+    def transform(self, source_name, txfm_fcn, txfm_name, **kwargs):
         """
         This runs transform (txfm_fcn) on the data matrix defined by
         source_name with parameters that are variable for each transform. 
@@ -45,6 +46,8 @@ class data:
         Returns an ERROR -1 if not performed. Successful completion results in
         the addition of a new entry in the data dictionary with a key according
         to txfm_name.
+        Default Behavior:
+                Keep_NaN = 1 (this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs. 
         
         """
         #CHECK that the source exists
@@ -52,12 +55,39 @@ class data:
             print "ERROR: the source you requested for transformation does not exist by that name %s"%(source_name)
             return -1
         TXFM_FCN_DICT = self.transforms_available()
+        Keep_NaN_txfm = 1 #default value is to keep a transform, even if NaN values are created
+        paramDict = {}
 
+        if not kwargs:
+            var_params = []
+        else:
+            var_params = kwargs
+            if 'Keep_NaN' in kwargs:
+                Keep_NaN_txfm = kwargs['Keep_NaN']
+            print "DEBUG: Keep_NaN_txfm is %d"%(Keep_NaN_txfm)
+######BEGIN TXFM BLOCK  ######
 
         if txfm_name == 'zscore':
-            return 1
-                 
+            X = self.x[source_name]
+            DATA = stats.zscore(self.D[source_name], 1)
 
+                 
+####EXCEPT: transform was not in list
         else:
             print "ERROR: the transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys())
             return -2
+
+#### FINAL staging, X, D and var_params have been set in transform block, now add each
+        #check and print a warning if NaN values were created in the transformation
+        boolCheck = np.isnan(DATA)
+        numNaNs = sum(sum(boolCheck))
+        if numNaNs:
+            print "WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs) 
+            if not Keep_NaN_txfm:
+                return -3
+            
+        self.x[txfm_name] = X 
+        self.params[txfm_name] = var_params
+        self.D[txfm_name] = DATA 
+
+
