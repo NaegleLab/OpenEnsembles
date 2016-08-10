@@ -30,6 +30,11 @@ class data:
             print "ERROR: Size of x-values (%d) does not match that of of the dataframe dimensions (%d), replacing with an vector of integers of correct size"%(len(x), self.D['parent'].shape[1])
             self.x['parent'] = list(range(self.D['parent'].shape[1]))
 
+    def transforms_available(self):
+        TXFM_FCN_DICT = {'zscore':0}  
+        return TXFM_FCN_DICT
+
+
     def transform(self, source_name, txfm_fcn, txfm_name, var_params):
         """
         This runs transform (txfm_fcn) on the data matrix defined by
@@ -42,16 +47,17 @@ class data:
         to txfm_name.
         
         """
-        txfm_fcn_dict = {'zscore':0}  
         #CHECK that the source exists
         if source_name not in self.D:
             print "ERROR: the source you requested for transformation does not exist by that name %s"%(source_name)
             return -1
+        TXFM_FCN_DICT = self.transforms_available()
+
 
         if txfm_name == 'zscore':
             return 1
                  
 
         else:
-            print "ERROR: the transform function you requested does not exist, currently the following are supported %s"%(txfm_fcn_dict.keys)
+            print "ERROR: the transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys())
             return -2
