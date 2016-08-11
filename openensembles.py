@@ -1,7 +1,6 @@
 """
 OpenEnsembles is a resource for performing and analyzing ensemble clustering
 """
-
 import numpy as np 
 import pandas as pd 
 import sklearn.cluster as skc
@@ -10,8 +9,8 @@ from sklearn import datasets
 import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
 import scipy.stats as stats
-import transforms
-
+#from transforms import transforms
+import transforms as tx
 
 class data:
     
@@ -70,29 +69,26 @@ class data:
         if txfm_fcn not in TXFM_FCN_DICT:
             raise ValueError( "The transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys()))
 
-        try:
-            if txfm_fcn == 'zscore':
-                (X,DATA, var_params) = zscore(self.x[source_name], self.D[source_name])
-            elif txfm_fcn == 'minmax':
-                (X, DATA, var_params) = minmax(self.x[source_name], self.D[source_name], kwargs)
+        txfm = tx.transforms(self.x[source_name], self.D[source_name], kwargs)
+        if txfm_fcn == 'zscore':
+                txfm.zscore()
+        elif txfm_fcn == 'minmax':
+                txfm.minmax()
 
                  
-        except:
-            print "ERROR in transformation"
-            #raise("Error in transformation")
-            return -1
 
         #### FINAL staging, X, D and var_params have been set in transform block, now add each
         #check and print a warning if NaN values were created in the transformation
         
-        boolCheck = np.isnan(DATA)
+        boolCheck = np.isnan(txfm.data_out)
         numNaNs = sum(sum(boolCheck))
         if numNaNs:
             print "WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs) 
             if not Keep_NaN_txfm:
                 print "Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs) 
-        self.x[txfm_name] = X 
-        self.params[txfm_name] = var_params
-        self.D[txfm_name] = DATA 
+                return
+        self.x[txfm_name] = txfm.x_out 
+        self.params[txfm_name] = txfm.var_params
+        self.D[txfm_name] = txfm.data_out
 
 
