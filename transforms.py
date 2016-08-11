@@ -13,6 +13,7 @@ from sklearn import datasets
 import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
 import scipy.stats as stats
+from types import FunctionType
 
 class transforms:
     def __init__(self, x, data, kwargs):
@@ -26,6 +27,15 @@ class transforms:
         self.x_out = []
         self.data_out = []
         self.var_params = {}
+
+    def transforms_available(self):
+        methods =  [method for method in dir(self) if callable(getattr(self, method))]
+        methods.remove('__init__')
+        methods.remove('transforms_available')
+        methodDict = {}
+        for method in methods:
+            methodDict[method] = ''
+        return methodDict
 
 
     def zscore(self):
@@ -51,3 +61,29 @@ class transforms:
         min_max_scaler = preprocessing.MinMaxScaler(feature_range=(minValue, maxValue))
         self.data_out = np.transpose(min_max_scaler.fit_transform(np.transpose(self.data)))
         self.var_params = {'minValue':minValue, 'maxValue':maxValue}
+        
+    def log(self):
+        if 'base' in self.args:
+            base = self.args['base']
+        else:
+            base = 2 
+        self.var_params['base'] = base
+        self.x_out = self.x
+        if isinstance(base, basestring):
+            if base == 'e' or base=='ln':
+                self.data_out = np.log(self.data)
+        elif isinstance(base, int):
+            if base == 10:
+                self.data_out = np.log10(self.data)
+            if base == 2:
+                self.data_out = np.log2(self.data)
+            else:
+                raise ValueError('Requested base for logarithm was not recognized as either e, 2, or 10)')
+        else:
+                raise ValueError('Requested base for logarithm was not recognized as either int or string for e, 2, or 10)')
+
+
+
+
+        
+

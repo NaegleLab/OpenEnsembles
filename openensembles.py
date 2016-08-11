@@ -32,8 +32,9 @@ class data:
             raise ValueError("ERROR: Size of x-values (%d) does not match that of of the dataframe dimensions (%d), replacing with an vector of integers of correct size"%(len(x), self.D['parent'].shape[1]))
 
     def transforms_available(self):
-        TXFM_FCN_DICT = {'zscore':'zscore in a row-wise fashion', 
-                'minmax':'scale entire dataset between 0 and 1 or defined minValue and maxValue'}  
+        txfm = tx.transforms(self.x, self.D, {})
+        TXFM_FCN_DICT = txfm.transforms_available()
+       
         return TXFM_FCN_DICT
 
 
@@ -70,10 +71,17 @@ class data:
             raise ValueError( "The transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys()))
 
         txfm = tx.transforms(self.x[source_name], self.D[source_name], kwargs)
-        if txfm_fcn == 'zscore':
-                txfm.zscore()
-        elif txfm_fcn == 'minmax':
-                txfm.minmax()
+        func = getattr(txfm,txfm_fcn)
+        func()
+ 
+        #if txfm_fcn == 'zscore':
+        #        txfm.zscore()
+        #elif txfm_fcn == 'log':
+        #        txfm.log()
+        #elif txfm_fcn == 'minmax':
+        #        txfm.minmax()
+        #else:
+        #    raise ValueError("You requested a transformation that does not exist, available transforms are: %s"%(TXFM_FCN_DICT.keys()))
 
                  
 
