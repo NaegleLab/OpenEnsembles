@@ -10,6 +10,7 @@ from sklearn import datasets
 import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
 import scipy.stats as stats
+import transforms
 
 
 class data:
@@ -29,8 +30,7 @@ class data:
 
         #check that the number of x-values matches the array
         if(len(x) != self.D['parent'].shape[1]):
-            print "ERROR: Size of x-values (%d) does not match that of of the dataframe dimensions (%d), replacing with an vector of integers of correct size"%(len(x), self.D['parent'].shape[1])
-            self.x['parent'] = list(range(self.D['parent'].shape[1]))
+            raise ValueError("ERROR: Size of x-values (%d) does not match that of of the dataframe dimensions (%d), replacing with an vector of integers of correct size"%(len(x), self.D['parent'].shape[1]))
 
     def transforms_available(self):
         TXFM_FCN_DICT = {'zscore':'zscore in a row-wise fashion', 
@@ -54,8 +54,7 @@ class data:
         """
         #CHECK that the source exists
         if source_name not in self.D:
-            print "ERROR: the source you requested for transformation does not exist by that name %s"%(source_name)
-            return -1
+            raise ValueError("ERROR: the source you requested for transformation does not exist by that name %s"%(source_name))
         TXFM_FCN_DICT = self.transforms_available()
         Keep_NaN_txfm = 1 #default value is to keep a transform, even if NaN values are created
         paramDict = {}
@@ -68,42 +67,30 @@ class data:
                 Keep_NaN_txfm = kwargs['Keep_NaN']
 
         ######BEGIN TXFM BLOCK  ######
+        if txfm_fcn not in TXFM_FCN_DICT:
+            raise ValueError( "The transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys()))
 
-        if txfm_fcn == 'zscore':
-            X = self.x[source_name]
-            DATA = stats.zscore(self.D[source_name], 1)
-        elif txfm_fcn == 'minmax':
-            if 'minValue' in kwargs:
-                minValue = kwargs['minValue']
-            else:
-                minValue = 0
-            if 'maxValue' in kwargs:
-                maxValue = kwargs['maxValue']
-            else:
-                maxValue = 1 
-            
-            if minValue > maxValue:
-                print "ERROR: Your requested minValue (%0.2f) is larger than the maximum value (%0.2f)"%(minValue, maxValue) 
-                return -2
-            X = self.x[source_name]
-            min_max_scaler = preprocessing.MinMaxScaler(feature_range=(minValue, maxValue))
-            DATA = np.transpose(min_max_scaler.fit_transform(np.transpose(self.D[source_name])))
+        try:
+            if txfm_fcn == 'zscore':
+                (X,DATA, var_params) = zscore(self.x[source_name], self.D[source_name])
+            elif txfm_fcn == 'minmax':
+                (X, DATA, var_params) = minmax(self.x[source_name], self.D[source_name], kwargs)
 
                  
-        ####EXCEPT: transform was not in list
-        else:
-            print "ERROR: the transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys())
-            return -2
+        except:
+            print "ERROR in transformation"
+            #raise("Error in transformation")
+            return -1
 
         #### FINAL staging, X, D and var_params have been set in transform block, now add each
         #check and print a warning if NaN values were created in the transformation
+        
         boolCheck = np.isnan(DATA)
         numNaNs = sum(sum(boolCheck))
         if numNaNs:
             print "WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs) 
             if not Keep_NaN_txfm:
-                return -3
-            
+                print "Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs) 
         self.x[txfm_name] = X 
         self.params[txfm_name] = var_params
         self.D[txfm_name] = DATA 
