@@ -35,7 +35,7 @@ class TestFunctions(unittest.TestCase):
     def test_transform_error_noTxfm(self):
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'zscoreGobblyGook', 'zscore'))
 
-    def test_transform(self):
+    def test_all_transform(self):
         #check to see that a new entry in D, x and params are added for every
         #transform available
         TXFM_FCN_DICT = self.data.transforms_available()
