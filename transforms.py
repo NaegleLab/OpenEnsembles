@@ -63,24 +63,27 @@ class transforms:
         self.var_params = {'minValue':minValue, 'maxValue':maxValue}
         
     def log(self):
+        """
+        Log transformation will default to taking the log2 of all elements in the matrix. 
+        Use base=2, base=10, base='e' or base='ln'
+        It is a good idea to check for the presence of infinite values created
+        """
         if 'base' in self.args:
             base = self.args['base']
         else:
             base = 2 
+        print "DEBUG base is %d"%(base)
         self.var_params['base'] = base
         self.x_out = self.x
         if isinstance(base, basestring):
             if base == 'e' or base=='ln':
                 self.data_out = np.log(self.data)
-        elif isinstance(base, int):
-            if base == 10:
-                self.data_out = np.log10(self.data)
-            if base == 2:
-                self.data_out = np.log2(self.data)
-            else:
-                raise ValueError('Requested base for logarithm was not recognized as either e, 2, or 10)')
+        elif int(base) == 10:
+            self.data_out = np.log10(self.data)
+        elif int(base) == 2:
+            self.data_out = np.log2(self.data)
         else:
-                raise ValueError('Requested base for logarithm was not recognized as either int or string for e, 2, or 10)')
+            raise ValueError('Requested base for logarithm was not recognized as either e, 2, or 10)')
 
 
 

@@ -32,6 +32,10 @@ class TestFunctions(unittest.TestCase):
         self.data.transform('parent', 'zscore', 'zscore', Keep_NaN=0)
         self.assertEqual(1, len(self.data.D))
 
+    def test_transform_NoInf(self):
+        self.data.transform('parent', 'log', 'log10', base=10, Keep_Inf=0)
+        self.assertEqual(1, len(self.data.D))
+
     def test_transform_error_noTxfm(self):
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'zscoreGobblyGook', 'zscore'))
 

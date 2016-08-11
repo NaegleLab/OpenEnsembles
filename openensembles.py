@@ -57,6 +57,7 @@ class data:
             raise ValueError("ERROR: the source you requested for transformation does not exist by that name %s"%(source_name))
         TXFM_FCN_DICT = self.transforms_available()
         Keep_NaN_txfm = 1 #default value is to keep a transform, even if NaN values are created
+        Keep_Inf_txfm = 1 #default value is to keep a transform, even if NaN values are created
         paramDict = {}
 
         if not kwargs:
@@ -65,6 +66,8 @@ class data:
             var_params = kwargs
             if 'Keep_NaN' in kwargs:
                 Keep_NaN_txfm = kwargs['Keep_NaN']
+            if 'Keep_Inf' in kwargs:
+                Keep_Inf_txfm = kwargs['Keep_Inf']
 
         ######BEGIN TXFM BLOCK  ######
         if txfm_fcn not in TXFM_FCN_DICT:
@@ -74,17 +77,6 @@ class data:
         func = getattr(txfm,txfm_fcn)
         func()
  
-        #if txfm_fcn == 'zscore':
-        #        txfm.zscore()
-        #elif txfm_fcn == 'log':
-        #        txfm.log()
-        #elif txfm_fcn == 'minmax':
-        #        txfm.minmax()
-        #else:
-        #    raise ValueError("You requested a transformation that does not exist, available transforms are: %s"%(TXFM_FCN_DICT.keys()))
-
-                 
-
         #### FINAL staging, X, D and var_params have been set in transform block, now add each
         #check and print a warning if NaN values were created in the transformation
         
@@ -95,6 +87,14 @@ class data:
             if not Keep_NaN_txfm:
                 print "Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs) 
                 return
+        infCheck = np.isinf(txfm.data_out)
+        numInf = sum(sum(infCheck))
+        if numInf:
+            print "WARNING: transformation %s resulted in %d Inf values"%(txfm_fcn, numInf) 
+        if not Keep_Inf_txfm:
+            print "Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf) 
+            return
+
         self.x[txfm_name] = txfm.x_out 
         self.params[txfm_name] = txfm.var_params
         self.D[txfm_name] = txfm.data_out
