@@ -9,8 +9,8 @@ from sklearn import datasets
 import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
 import scipy.stats as stats
-#from transforms import transforms
 import transforms as tx
+import clustering_algorithms as ca 
 
 class data:
     
@@ -34,9 +34,7 @@ class data:
     def transforms_available(self):
         txfm = tx.transforms(self.x, self.D, {})
         TXFM_FCN_DICT = txfm.transforms_available()
-       
         return TXFM_FCN_DICT
-
 
     def transform(self, source_name, txfm_fcn, txfm_name, **kwargs):
         """
@@ -50,6 +48,7 @@ class data:
         to txfm_name.
         Default Behavior:
                 Keep_NaN = 1 (this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs. 
+                Keep_Inf = 1 (this will add transformed data even if infinite values are produced. Set to 0 to prevent addition of data transforms containing Inf. 
         
         """
         #CHECK that the source exists
@@ -99,4 +98,49 @@ class data:
         self.params[txfm_name] = txfm.var_params
         self.D[txfm_name] = txfm.data_out
 
+class cluster:
+    def __init__(self, dataObj):
+        """
+        dataObj is an openensembles.data class, which can consist of many data matrices, but at the 
+        very least, consists of 'parent'
+        """
+        self.dataObj = dataObj 
+        self.cluster_name= {} #key here is the name like HC_parent for hierarchically clustered parent
+        self.cluster_source = {} # keep track of the key to the data source in object used
+        self.params = {}
 
+    def algorithms_available(self):
+        algorithms = ca.clustering_algorithms(self.dataObj.D['parent'], {})
+        ALG_FCN_DICT = algorithms.clustering_algorithms_available()
+
+    def cluster(self, source_name, algorithm, output_name, K=2, **kwargs):
+
+        """
+        This runs clustering algorithms on the data matrix defined by
+        source_name with parameters that are variable for each algorithm. Note that K is 
+        required for most algorithms and is given a default of K=2. 
+        For example, clusterObj.cluster('parent', 'kmeans','kmeans_parent', K=5) will run the
+        perform k-means clustering, with K=5, on the parent data matrix that belongs to the 
+        data object used to instantiate clusterObj = oe.cluster(dataObj) 
+        
+        """
+        #CHECK that the source exists
+        if source_name not in self.dataObj.D:
+            raise ValueError("ERROR: the source you requested for clustering does not exist by that name %s"%(source_name))
+        ALG_FCN_DICT = self.algorithms_available()
+        paramDict = {}
+
+        if not kwargs:
+            var_params = {} 
+        else:
+            var_params = kwargs
+
+        ######BEGIN CLUSTERING BLOCK  ######
+        if algorithm not in ALG_FCN_DICT:
+            raise ValueError( "The algorithm you requested does not exist, currently the following are supported %s"%(ALG_FCN_DICT.keys()))
+
+        c = ca.clustering_algorihms(dataObj.D[source_name], var_params)
+        func = getattr(c,algorithm)
+        func()
+ 
+        #### FINAL staging, c now contains a finished assignment and c.params has final parameters used.

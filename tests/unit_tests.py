@@ -51,4 +51,16 @@ class TestFunctions(unittest.TestCase):
             self.assertEqual(len_expected, len(self.data.params))
             len_expected += 1
 
+    def test_clustering_setup(self):
+        c = oe.cluster(self.data)
+        self.assertEqual(1, len(c.dataObj.D))
+
+    def test_clustering_NoSource(self):
+        c = oe.cluster(self.data)
+        self.assertRaises(ValueError, lambda: c.cluster('parentZ', 'kmeans', 'bad'))
+
+    def test_clustering_NoAlgorithm(self):
+        c = oe.cluster(self.data)
+        self.assertRaises(ValueError, lambda: c.cluster('parent', 'gobblygook', 'bad'))
+
 
