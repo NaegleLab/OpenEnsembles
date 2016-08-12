@@ -63,4 +63,15 @@ class TestFunctions(unittest.TestCase):
         c = oe.cluster(self.data)
         self.assertRaises(ValueError, lambda: c.cluster('parent', 'gobblygook', 'bad'))
 
+    def test_clustering_namingTestRequireUnique(self):
+        c = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans', K=2)
+        self.assertRaises(ValueError, lambda: c.cluster('parent', 'kmeans', 'kmeans', Require_Unique=1, K=2))
+
+    def test_clustering_namingTestRequireNotUnique(self):
+        c = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans', K=2)
+        c.cluster('parent', 'kmeans', 'kmeans', Require_Unique=0, K=2)
+        self.assertEqual(2, len(c.labels))
+
 

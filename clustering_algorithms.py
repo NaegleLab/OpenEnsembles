@@ -40,6 +40,16 @@ class clustering_algorithms:
     def kmeans(self):
         """
             skc.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1)
+            Default Parameters:
+                params['init'] = 'k-means++'
+                params['n_init'] = 10
+                params['max_iter'] = 300
+                params['tol'] = 0.0001
+                params['precompute_distances'] = 'auto'
+                params['verbose'] = 0
+                params['random_state'] = None
+                params['copy_x'] = True
+                params['n_jobs'] = 1
 
         """
         params={}
@@ -111,6 +121,34 @@ class clustering_algorithms:
         self.var_params = params #update dictionary of parameters to match that used.
 
 
-       
+    def agglomerative(self):
+        """
+        This calls:
+        sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', memory=Memory(cachedir=None), connectivity=None, 
+        n_components=None, compute_full_tree='auto', linkage='ward', pooling_func=<function mean>)
+                params['affinity'] = 'euclidean'
+                params['memory'] = Memory(cachedir=None)
+                params['connectivity']= None
+                params['n_components'] = None
+                params['compute_full_tree'] = auto
+                params['linkage'] = 'ward'
+                params['pooling_func'] = np.mean
+        """
+        params = {}
+        params['affinity'] = 'euclidean'
+        params['memory'] = Memory(cachedir=None)
+        params['connectivity']= None
+        params['n_components'] = None
+        params['compute_full_tree'] = auto
+        params['linkage'] = 'ward'
+        params['pooling_func'] = np.mean
 
-
+        overlap = set(params.keys()) & set(self.var_params.keys())
+        for key in overlap:
+            params[key] = self.var_params[key]
+        solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
+            memory=params['memory'], connectivity=params['connectivity'], n_components= params['n_components'],
+            compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
+        solution.fit(self.data)
+        self.out = solution.labels_
+        self.var_params = params #update dictionary of parameters to match that used.

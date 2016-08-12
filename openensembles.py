@@ -12,6 +12,8 @@ import scipy.stats as stats
 import transforms as tx
 import clustering_algorithms as ca 
 import mixture_model as mm
+import warnings
+from random import randint
 
 class data:
     
@@ -109,13 +111,15 @@ class cluster:
         self.labels= {} #key here is the name like HC_parent for hierarchically clustered parent
         self.data_source = {} # keep track of the key to the data source in object used
         self.params = {}
+        self.clusterNumbers = {}
+
 
     def algorithms_available(self):
         algorithms = ca.clustering_algorithms(self.dataObj.D['parent'], {})
         ALG_FCN_DICT = algorithms.clustering_algorithms_available()
         return ALG_FCN_DICT
 
-    def cluster(self, source_name, algorithm, output_name, K=2, **kwargs):
+    def cluster(self, source_name, algorithm, output_name, K=2, Require_Unique=0, **kwargs):
 
         """
         This runs clustering algorithms on the data matrix defined by
@@ -124,6 +128,11 @@ class cluster:
         For example, clusterObj.cluster('parent', 'kmeans','kmeans_parent', K=5) will run the
         perform k-means clustering, with K=5, on the parent data matrix that belongs to the 
         data object used to instantiate clusterObj = oe.cluster(dataObj) 
+
+        This will warn if the number of clusters is differen than what was requested
+
+        DEFAULT Behavior: 
+            This will add a number to a requested output_name, if that name exists already, unless Require_Unique=1
         
         """
         #CHECK that the source exists
@@ -137,6 +146,17 @@ class cluster:
         else:
             var_params = kwargs
         
+        ##### Check to see if the same name exists for clustering solution name and decide what to do according to Require_Unique
+        if output_name in self.labels.keys():
+            if Require_Unique:
+                raise ValueError('The name of the clustering solution is redundant and you required unique')
+            else:
+                test_name = "%s_%d"%(output_name, randint(0,10000))
+                while test_name in self.labels:
+                    test_name = "%s_%d"%(output_name, randint(0,10000))
+                output_name = test_name
+                warnings.warn('For uniqueness, altered output_name to be %s'%(output_name), UserWarning)
+
         ######BEGIN CLUSTERING BLOCK  ######
         if algorithm not in ALG_FCN_DICT:
             raise ValueError( "The algorithm you requested does not exist, currently the following are supported %s"%(ALG_FCN_DICT.keys()))
@@ -149,9 +169,15 @@ class cluster:
         #### FINAL staging, c now contains a finished assignment and c.params has final parameters used.
 
         # CHECK that K is as requested 
+        uniqueClusters = np.unique(c.out)
+        if len(uniqueClusters) != K:
+            warnings.warn('Number of unique clusters returned does not match number requested', UserWarning)
+
+
         self.labels[output_name] = c.out
         self.data_source[output_name] = source_name
         self.params[output_name] = c.var_params
+        self.clusterNumbers[output_name] = uniqueClusters
 
     def mixture_model(self, K=2, iterations=10):
         """
