@@ -11,6 +11,7 @@ from sklearn import preprocessing
 import scipy.stats as stats
 import transforms as tx
 import clustering_algorithms as ca 
+import mixture_model as mm
 
 class data:
     
@@ -151,3 +152,20 @@ class cluster:
         self.labels[output_name] = c.out
         self.data_source[output_name] = source_name
         self.params[output_name] = c.var_params
+
+    def mixture_model(self, K=2, iterations=10):
+        """
+        Operates on entire ensemble of clustering solutions in self, to create a mixture model
+        """
+
+        #check to make sure more than one solution exists in ensemble
+        if len(self.params) < 2:
+            raise ValueError("Mixture Model is a finsihing technique for an ensemble, the cluster object must contain more than one solution")
+        N = self.dataObj.D['parent'].shape[0]
+        parg = []
+        for solution in self.labels:
+            parg.append(self.labels[solution])
+
+        mixtureObj = mm.mixture_model(parg, N, nEnsCluster=K, iterations=iterations)
+        mixtureObj.emProcess()
+        return mixtureObj
