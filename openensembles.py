@@ -150,4 +150,4 @@ class cluster:
         # CHECK that K is as requested 
         self.labels[output_name] = c.out
         self.data_source[output_name] = source_name
-        self.params = c.var_params
+        self.params[output_name] = c.var_params
