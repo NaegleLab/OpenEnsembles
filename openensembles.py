@@ -105,13 +105,14 @@ class cluster:
         very least, consists of 'parent'
         """
         self.dataObj = dataObj 
-        self.cluster_name= {} #key here is the name like HC_parent for hierarchically clustered parent
-        self.cluster_source = {} # keep track of the key to the data source in object used
+        self.labels= {} #key here is the name like HC_parent for hierarchically clustered parent
+        self.data_source = {} # keep track of the key to the data source in object used
         self.params = {}
 
     def algorithms_available(self):
         algorithms = ca.clustering_algorithms(self.dataObj.D['parent'], {})
         ALG_FCN_DICT = algorithms.clustering_algorithms_available()
+        return ALG_FCN_DICT
 
     def cluster(self, source_name, algorithm, output_name, K=2, **kwargs):
 
@@ -134,13 +135,19 @@ class cluster:
             var_params = {} 
         else:
             var_params = kwargs
-
+        
         ######BEGIN CLUSTERING BLOCK  ######
         if algorithm not in ALG_FCN_DICT:
             raise ValueError( "The algorithm you requested does not exist, currently the following are supported %s"%(ALG_FCN_DICT.keys()))
 
-        c = ca.clustering_algorihms(dataObj.D[source_name], var_params)
+
+        c = ca.clustering_algorithms(self.dataObj.D[source_name], var_params, K)
         func = getattr(c,algorithm)
         func()
  
         #### FINAL staging, c now contains a finished assignment and c.params has final parameters used.
+
+        # CHECK that K is as requested 
+        self.labels[output_name] = c.out
+        self.data_source[output_name] = source_name
+        self.params = c.var_params
