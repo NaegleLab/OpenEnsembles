@@ -91,11 +91,11 @@ class data:
                 return
         infCheck = np.isinf(txfm.data_out)
         numInf = sum(sum(infCheck))
-        if numInf:
+        if numInf > 0:
             print "WARNING: transformation %s resulted in %d Inf values"%(txfm_fcn, numInf) 
-        if not Keep_Inf_txfm:
-            print "Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf) 
-            return
+            if not Keep_Inf_txfm:
+                print "Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf) 
+                return
 
         self.x[txfm_name] = txfm.x_out 
         self.params[txfm_name] = txfm.var_params

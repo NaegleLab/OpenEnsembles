@@ -152,3 +152,28 @@ class clustering_algorithms:
         solution.fit(self.data)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
+
+    def DBSCAN(self):
+        """
+        sklearn.cluster.DBSCAN(eps=0.5, min_samples=5, metric='euclidean', algorithm='auto', leaf_size=30, p=None, random_state=None)
+
+        """
+        params = {}
+        params['eps']=0.5
+        params['min_samples']=5
+        params['metric']='euclidean'
+        params['algorithm']='auto'
+        params['leaf_size']=30, 
+        params['p']=None, 
+        params['random_state']=None
+
+        overlap = set(params.keys()) & set(self.var_params.keys())
+        for key in overlap:
+            params[key] = self.var_params[key]
+
+        solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
+            algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
+            p=params['p'], random_state=params['random_state']) 
+        solution.fit(self.data)
+        self.out = solution.labels_
+        self.var_params = params #update dictionary of parameters to match that used.

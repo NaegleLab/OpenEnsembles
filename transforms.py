@@ -72,7 +72,6 @@ class transforms:
             base = self.args['base']
         else:
             base = 2 
-        print "DEBUG base is %d"%(base)
         self.var_params['base'] = base
         self.x_out = self.x
         if isinstance(base, basestring):
