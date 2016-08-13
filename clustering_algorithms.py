@@ -124,10 +124,9 @@ class clustering_algorithms:
     def agglomerative(self):
         """
         This calls:
-        sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', memory=Memory(cachedir=None), connectivity=None, 
+        sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', connectivity=None, 
         n_components=None, compute_full_tree='auto', linkage='ward', pooling_func=<function mean>)
                 params['affinity'] = 'euclidean'
-                params['memory'] = Memory(cachedir=None)
                 params['connectivity']= None
                 params['n_components'] = None
                 params['compute_full_tree'] = auto
@@ -136,10 +135,10 @@ class clustering_algorithms:
         """
         params = {}
         params['affinity'] = 'euclidean'
-        params['memory'] = Memory(cachedir=None)
+        #params['memory'] = 'Memory(cachedir=None)'
         params['connectivity']= None
         params['n_components'] = None
-        params['compute_full_tree'] = auto
+        params['compute_full_tree'] = 'auto'
         params['linkage'] = 'ward'
         params['pooling_func'] = np.mean
 
@@ -147,7 +146,7 @@ class clustering_algorithms:
         for key in overlap:
             params[key] = self.var_params[key]
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
-            memory=params['memory'], connectivity=params['connectivity'], n_components= params['n_components'],
+            connectivity=params['connectivity'], n_components= params['n_components'],
             compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
         solution.fit(self.data)
         self.out = solution.labels_
