@@ -11,7 +11,8 @@ from sklearn import preprocessing
 import scipy.stats as stats
 import transforms as tx
 import clustering_algorithms as ca 
-import mixture_model as mm
+import finishing as finish
+import cooccurrence as co
 import warnings
 from random import randint
 
@@ -179,6 +180,11 @@ class cluster:
         self.params[output_name] = c.var_params
         self.clusterNumbers[output_name] = uniqueClusters
 
+    def co_occurrence_matrix(self, data_source_name):
+        coMat = co.coMat(self, data_source_name)
+        return coMat
+
+
     def mixture_model(self, K=2, iterations=10):
         """
         Operates on entire ensemble of clustering solutions in self, to create a mixture model
@@ -192,6 +198,6 @@ class cluster:
         for solution in self.labels:
             parg.append(self.labels[solution])
 
-        mixtureObj = mm.mixture_model(parg, N, nEnsCluster=K, iterations=iterations)
+        mixtureObj = finish.mixture_model(parg, N, nEnsCluster=K, iterations=iterations)
         mixtureObj.emProcess()
         return mixtureObj
