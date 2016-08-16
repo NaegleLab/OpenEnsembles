@@ -15,6 +15,7 @@ from sklearn import preprocessing
 import scipy.stats as stats
 from types import FunctionType
 import collections
+import re
 
 class transforms:
     def __init__(self, x, data, kwargs):
@@ -31,11 +32,11 @@ class transforms:
 
     def transforms_available(self):
         methods =  [method for method in dir(self) if isinstance(getattr(self, method), collections.Callable)]
-        methods.remove('__init__')
         methods.remove('transforms_available')
         methodDict = {}
         for method in methods:
-            methodDict[method] = ''
+            if not re.match('__', method):
+                methodDict[method] = ''
         return methodDict
 
 
