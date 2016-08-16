@@ -3,6 +3,7 @@ import numpy as np
 import pylab
 import pandas as pd
 import scipy.cluster.hierarchy as sch
+from scipy.spatial import distance as ssd
 
 class coMat:
     '''
@@ -22,6 +23,7 @@ class coMat:
         self.nEnsembles = len(self.parg)
         co_matrix = self.gather_partitions()
         self.co_matrix = co_matrix
+        self.avg_dist = np.mean(ssd.squareform(1-self.co_matrix))
 
     def gather_partitions(self):
          dim = self.N
@@ -68,20 +70,37 @@ class coMat:
                 df = df.append(s)
         return df
 
+    def link(self, linkage='average'):
+        """
+        Link a co-occurrence matrix. This is required so that co-occurrence is properly treated as a distance matrix
+        during scipy.cluster.hierarchy.linkage
+        Returns a linkage object
+        """
+        #arr = self.co_matrix
+        #set diagonal to zero
+        arr = 1 - self.co_matrix
+        lnk = sch.linkage(ssd.squareform(arr), method=linkage, metric='euclidean')
+        return lnk
+
 
      
-    def plot(self):
+    def plot(self, **kwargs):#dist_thresh=self.avg_dist):
+        if "distance_threshold" in kwargs:
+            dist_thresh = kwargs['distance_threshold']
+        else:
+            dist_thresh = self.avg_dist
+
         fig = pylab.figure(figsize=(10,10))
         panel3 = fig.add_axes([0,0,1,1])
         panel3.axis('off')
         ax1 = add_subplot_axes(panel3,[0.0,0.3,0.10,.6])
-        lnk1 = sch.linkage(self.co_matrix, method='ward',metric='euclidean')
-        Z_pp = sch.dendrogram(lnk1, orientation='right')
+        lnk1 = self.link(linkage='average')
+        Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh)
         idx_pp = Z_pp['leaves']
         ax1 = add_subplot_axes(panel3,[0.0,0.3,0.10,.6])
         ax1.set_yticks([])
         fig.gca().invert_yaxis() # must couple with matshow origin='upper',
-        ax1.set_xticks([])
+        #ax1.set_xticks([])
         for side in ['top','right','bottom','left']:
             ax1.spines[side].set_visible(False)
 

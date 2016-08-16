@@ -219,21 +219,21 @@ class mixture_model:
 class co_occurrence_linkage:
 	"""
 	Returns a final solution to the ensemble that is the agglomerative clustering of the co_occurrence matrix 
-	according to the linkage passed by linkage (default is Ward)
-
+	according to the linkage passed by linkage (default is Ward). K=2 is also default.
 
 	"""
-	def __init__(self, parg, K=2, linkage='Ward'):
-		
-		self.parg = parg #list of lists of solutions
-		self.N = N# number of data points
-		self.nEnsCluster = nEnsCluster #number of clusters to make from ensemble
-		self.iterations = iterations
-
-		self.y = self.gatherPartitions()
-		self.y
-		self.K = self.genKj()
-		self.alpha, self.v, self.ExpZ = self.initParameters()
+	def __init__(self, cObj, K=2, linkage='Ward'):
+		self.cObj = cObj
+		self.coMat = cObj.co_occurrence_matrix()
+		self.K= K #number of clusters to make from ensemble
 		self.labels = []
-		self.piFinishing = {}
+		self.linkage = linkage
+
+	#def link(self):
+	"""
+	This is the function that is called ona  co_occurrence_linkage object that agglomeratively clusters the co_occurrence_matrix (self.coMat.co_matrix)
+	According to self.linkage (linkage parameter set in initialization of object) with clusters equal to self.K (also set in intialization)
+	"""
+
+
 
