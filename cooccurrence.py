@@ -82,6 +82,13 @@ class coMat:
         lnk = sch.linkage(ssd.squareform(arr), method=linkage, metric='euclidean')
         return lnk
 
+    def cut(self, lnk, threshold):
+        """
+        Given the calculation of a linkage (self.lnk(linkage='average')), cut the resulting linkage
+        at the given threshold and return the labels that are the resulting clustering. 
+        """
+        ind = sch.fcluster(lnk, threshold, 'distance')
+        return ind
 
      
     def plot(self, **kwargs):#dist_thresh=self.avg_dist):

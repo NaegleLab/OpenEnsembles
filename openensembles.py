@@ -212,3 +212,21 @@ class cluster:
         c = oe.cluster(self.dataObj)
         c.labels['mixture_model'] = mixtureObj.labels
         return c
+
+    def finish_co_occ_linkage(self, threshold, linkage='average'):
+        """
+        The finishing technique that calculates a co-occurrence matrix on all cluster solutions in the ensemble and 
+        then hierarchically clusters the co-occurrence, treating it as a similarity matrix. The clusters are defined by 
+        the threshold of the distance used to cut. To determine this visually, do the following:
+            coMat = c.co_occurrence(linkage=<linkage>)
+            coMat.plot(threshold=<threshold>)
+        The resulting clusters from a cut made at <threshold> will be colored accordingly.
+        """
+
+        coL = finish.co_occurrence_linkage(self, threshold, linkage=linkage)
+        coL.finish()
+        c = oe.cluster(self.dataObj)
+        c.labels['co_occ_linkage'] = coL.labels
+        return c
+
+

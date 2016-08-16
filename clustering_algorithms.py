@@ -31,7 +31,7 @@ class clustering_algorithms:
 
     def clustering_algorithms_available(self):
         """
-        self.clustering_algorithms_available() returns a dictionary, whose keys are the available algorithms 
+        self.clustering_algorithms_available() returns a dictionary, whose keys are the available algorithms
         """
         methods =  [method for method in dir(self) if callable(getattr(self, method))]
         methods.remove('clustering_algorithms_available')

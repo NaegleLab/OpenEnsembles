@@ -219,21 +219,29 @@ class mixture_model:
 class co_occurrence_linkage:
 	"""
 	Returns a final solution to the ensemble that is the agglomerative clustering of the co_occurrence matrix 
-	according to the linkage passed by linkage (default is Ward). K=2 is also default.
+	according to the linkage passed by linkage (default is Average). 
 
 	"""
-	def __init__(self, cObj, K=2, linkage='Ward'):
+	def __init__(self, cObj, threshold, linkage='average'):
 		self.cObj = cObj
-		self.coMat = cObj.co_occurrence_matrix()
-		self.K= K #number of clusters to make from ensemble
+		self.coMat = cObj.co_occurrence_matrix('parent')
+		self.K= 0 #number of clusters made by the cut, to be replaced
 		self.labels = []
 		self.linkage = linkage
+		self.threshold = threshold
 
-	#def link(self):
-	"""
-	This is the function that is called ona  co_occurrence_linkage object that agglomeratively clusters the co_occurrence_matrix (self.coMat.co_matrix)
-	According to self.linkage (linkage parameter set in initialization of object) with clusters equal to self.K (also set in intialization)
-	"""
+	def finish(self):
+		"""
+		This is the function that is called ona  co_occurrence_linkage object that agglomeratively clusters the co_occurrence_matrix (self.coMat.co_matrix)
+		According to self.linkage (linkage parameter set in initialization of object) with clusters equal to self.K (also set in intialization)
+		"""
+		#first get linkage, then cut
+		lnk = self.coMat.link(linkage=self.linkage)
+		labels = self.coMat.cut(lnk, self.threshold)
+		self.K = len(np.unique(labels)) 
+		self.labels = labels
+		return labels
+
 
 
 
