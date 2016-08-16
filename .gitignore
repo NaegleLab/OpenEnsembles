@@ -2,3 +2,4 @@
 *.swp
 examples/.ipynb_checkpoints/
 tests/.ipynb_checkpoints/
+*.bak

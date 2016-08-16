@@ -8,6 +8,8 @@
 #
 
 import unittest
+#from . import __init__ as test
+#from .tests import __init__
 import __init__ as test
 
 # build and run the test suite

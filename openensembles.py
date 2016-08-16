@@ -74,7 +74,7 @@ class data:
 
         ######BEGIN TXFM BLOCK  ######
         if txfm_fcn not in TXFM_FCN_DICT:
-            raise ValueError( "The transform function you requested does not exist, currently the following are supported %s"%(TXFM_FCN_DICT.keys()))
+            raise ValueError( "The transform function you requested does not exist, currently the following are supported %s"%(list(TXFM_FCN_DICT.keys())))
 
         txfm = tx.transforms(self.x[source_name], self.D[source_name], kwargs)
         func = getattr(txfm,txfm_fcn)
@@ -86,16 +86,16 @@ class data:
         boolCheck = np.isnan(txfm.data_out)
         numNaNs = sum(sum(boolCheck))
         if numNaNs:
-            print "WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs) 
+            print("WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs)) 
             if not Keep_NaN_txfm:
-                print "Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs) 
+                print("Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs)) 
                 return
         infCheck = np.isinf(txfm.data_out)
         numInf = sum(sum(infCheck))
         if numInf > 0:
-            print "WARNING: transformation %s resulted in %d Inf values"%(txfm_fcn, numInf) 
+            print("WARNING: transformation %s resulted in %d Inf values"%(txfm_fcn, numInf)) 
             if not Keep_Inf_txfm:
-                print "Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf) 
+                print("Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf)) 
                 return
 
         self.x[txfm_name] = txfm.x_out 
@@ -148,7 +148,7 @@ class cluster:
             var_params = kwargs
         
         ##### Check to see if the same name exists for clustering solution name and decide what to do according to Require_Unique
-        if output_name in self.labels.keys():
+        if output_name in list(self.labels.keys()):
             if Require_Unique:
                 raise ValueError('The name of the clustering solution is redundant and you required unique')
             else:
@@ -160,7 +160,7 @@ class cluster:
 
         ######BEGIN CLUSTERING BLOCK  ######
         if algorithm not in ALG_FCN_DICT:
-            raise ValueError( "The algorithm you requested does not exist, currently the following are supported %s"%(ALG_FCN_DICT.keys()))
+            raise ValueError( "The algorithm you requested does not exist, currently the following are supported %s"%(list(ALG_FCN_DICT.keys())))
 
 
         c = ca.clustering_algorithms(self.dataObj.D[source_name], var_params, K)

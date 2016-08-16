@@ -14,6 +14,7 @@ import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
 import scipy.stats as stats
 from types import FunctionType
+import collections
 
 class transforms:
     def __init__(self, x, data, kwargs):
@@ -29,7 +30,7 @@ class transforms:
         self.var_params = {}
 
     def transforms_available(self):
-        methods =  [method for method in dir(self) if callable(getattr(self, method))]
+        methods =  [method for method in dir(self) if isinstance(getattr(self, method), collections.Callable)]
         methods.remove('__init__')
         methods.remove('transforms_available')
         methodDict = {}
@@ -74,7 +75,7 @@ class transforms:
             base = 2 
         self.var_params['base'] = base
         self.x_out = self.x
-        if isinstance(base, basestring):
+        if isinstance(base, str):
             if base == 'e' or base=='ln':
                 self.data_out = np.log(self.data)
         elif int(base) == 10:
