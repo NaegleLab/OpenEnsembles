@@ -12,6 +12,7 @@ import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
 import scipy.stats as stats
 from types import FunctionType
+import re
 
 class clustering_algorithms:
     def __init__(self, data, kwargs, K=2):
@@ -30,11 +31,11 @@ class clustering_algorithms:
 
     def clustering_algorithms_available(self):
         methods =  [method for method in dir(self) if callable(getattr(self, method))]
-        methods.remove('__init__')
         methods.remove('clustering_algorithms_available')
         methodDict = {}
         for method in methods:
-            methodDict[method] = ''
+            if not re.match('__', method):
+                methodDict[method] = ''
         return methodDict
 
     def kmeans(self):
