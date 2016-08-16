@@ -12,9 +12,10 @@ import sys
 import os
 
 class mixture_model:
-	'''
+	"""
 	Implementation of the article Mixture Models for Ensemble CLustering
-	'''
+	Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
+	"""
 
 	def __init__(self, parg, N, nEnsCluster=2, iterations=10):
 		
@@ -213,5 +214,26 @@ class mixture_model:
 		self.piFinishing = piFinishing
 		self.labels = np.asarray(labels)
 		#	return piFinishing, labels
-    		
+		return labels
+
+class co_occurrence_linkage:
+	"""
+	Returns a final solution to the ensemble that is the agglomerative clustering of the co_occurrence matrix 
+	according to the linkage passed by linkage (default is Ward)
+
+
+	"""
+	def __init__(self, parg, K=2, linkage='Ward'):
+		
+		self.parg = parg #list of lists of solutions
+		self.N = N# number of data points
+		self.nEnsCluster = nEnsCluster #number of clusters to make from ensemble
+		self.iterations = iterations
+
+		self.y = self.gatherPartitions()
+		self.y
+		self.K = self.genKj()
+		self.alpha, self.v, self.ExpZ = self.initParameters()
+		self.labels = []
+		self.piFinishing = {}
 

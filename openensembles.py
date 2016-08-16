@@ -15,6 +15,7 @@ import finishing as finish
 import cooccurrence as co
 import warnings
 from random import randint
+import openensembles as oe
 
 class data:
     
@@ -181,6 +182,11 @@ class cluster:
         self.clusterNumbers[output_name] = uniqueClusters
 
     def co_occurrence_matrix(self, data_source_name):
+        """
+        coMat = self.co_occurrence_matrix(data_source_name) creates a co_occurrence object that is linked to a particular source of data, such as 'parent'. 
+        coMat.co_matrix is an NxN matrix, whose entries indicate the number of times the pair of objects in positon (i,j) cluster across the ensemble
+        of clustering labels that exist in self.labels, where labels is a dictionary of solutions 
+        """
         coMat = co.coMat(self, data_source_name)
         return coMat
 
@@ -188,6 +194,9 @@ class cluster:
     def mixture_model(self, K=2, iterations=10):
         """
         Operates on entire ensemble of clustering solutions in self, to create a mixture model
+        See finishing.mixture_model for more details. This implementation is based on 
+        Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
+        Returns a new clustering object with c.labels['mixture_model'] set to the final solution. 
         """
 
         #check to make sure more than one solution exists in ensemble
@@ -200,4 +209,6 @@ class cluster:
 
         mixtureObj = finish.mixture_model(parg, N, nEnsCluster=K, iterations=iterations)
         mixtureObj.emProcess()
-        return mixtureObj
+        c = oe.cluster(self.dataObj)
+        c.labels['mixture_model'] = mixtureObj.labels
+        return c

@@ -30,6 +30,9 @@ class clustering_algorithms:
         #    raise ValueError('clustering_algorithms should have an instantiated K as part of kwargs key, pair')
 
     def clustering_algorithms_available(self):
+        """
+        self.clustering_algorithms_available() returns a dictionary, whose keys are the available algorithms 
+        """
         methods =  [method for method in dir(self) if callable(getattr(self, method))]
         methods.remove('clustering_algorithms_available')
         methodDict = {}
