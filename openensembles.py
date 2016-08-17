@@ -13,6 +13,7 @@ import transforms as tx
 import clustering_algorithms as ca 
 import finishing as finish
 import cooccurrence as co
+import validation as val
 import warnings
 from random import randint
 import openensembles as oe
@@ -228,5 +229,45 @@ class cluster:
         c = oe.cluster(self.dataObj)
         c.labels['co_occ_linkage'] = coL.labels
         return c
+
+class validation:
+    """
+    validation is a class to calculate any number of validation metrics on clustering solutions in data. 
+    An individual validation metric must be called on a particular instantiation of the data matrix (like 'parent' or 'zscore')
+    and a specific solution in cObj. 
+    """
+    def __init__(self, dataObj, cObj):
+        """ instantiate the object to create a dictionary of validation measurements """
+        self.dataObj = dataObj 
+        self.cObj = cObj
+        self.validation = {} #key here is the name like HC_parent for hierarchically clustered parent
+        self.params = {}
+        self.description = {} #here is a quick description of the validation metric
+
+    def validation_metrics_available(self):
+        """ Return all available validation metrics """ 
+        validation = val.validation(self.dataObj.D['parent'], [])
+        FCN_DICT = validation.validation_metrics_available()
+        return FCN_DICT
+
+
+    def calculate(self, validation, cluster_name, source_name='parent'):
+        """
+        Calls the function titled by validation_name on the data matrix set by source_name (default 'parent') and clustering solution by cluster_name
+        """
+
+        #CHECK that the source exists
+        if source_name not in self.dataObj.D:
+            raise ValueError("ERROR: the source you requested for validation does not exist by that name %s"%(source_name))
+        if cluster_name not in self.cObj:
+            raise ValueError("ERROR: the clustering solution you requested for validation does not exist by the name %s"%(source_name))
+        
+        FCN_DICT = self.validation_metrics_available()
+        
+        if validation not in FCN_DICT:
+            raise ValueError( "The validation metric you requested does not exist, currently the following are supported %s"%(list(FCN_DICT.keys())))
+ 
+        pass
+
 
 

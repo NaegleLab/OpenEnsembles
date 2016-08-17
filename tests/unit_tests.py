@@ -74,4 +74,14 @@ class TestFunctions(unittest.TestCase):
         c.cluster('parent', 'kmeans', 'kmeans', Require_Unique=0, K=2)
         self.assertEqual(2, len(c.labels))
 
+    def test_validation_badSourceAndCluster(self):
+        c = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans', K=2)
+        v = oe.validation(self.data, c)
+        self.assertRaises(ValueError, lambda: v.calculate('Ball_Hall_Index', 'parent', 'gobblygook'))
+        self.assertRaises(ValueError, lambda: v.calculate('Ball_Hall_Index', 'gobblygook', 'kmeans'))
+        self.assertRaises(ValueError, lambda: v.calculate('GobblyGook', 'parent', 'kmeans'))
+
+
+
 
