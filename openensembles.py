@@ -88,16 +88,16 @@ class data:
         boolCheck = np.isnan(txfm.data_out)
         numNaNs = sum(sum(boolCheck))
         if numNaNs:
-            print("WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs)) 
+            warnings.warn("WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs), UserWarning) 
             if not Keep_NaN_txfm:
-                print("Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs)) 
+                #print("Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs)) 
                 return
         infCheck = np.isinf(txfm.data_out)
         numInf = sum(sum(infCheck))
         if numInf > 0:
-            print("WARNING: transformation %s resulted in %d Inf values"%(txfm_fcn, numInf)) 
+            warnings.warn("WARNING: transformation %s resulted in %d Inf values"%(txfm_fcn, numInf), UserWarning) 
             if not Keep_Inf_txfm:
-                print("Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf)) 
+                #print("Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf)) 
                 return
 
         self.x[txfm_name] = txfm.x_out 
@@ -241,7 +241,8 @@ class validation:
         self.dataObj = dataObj 
         self.cObj = cObj
         self.validation = {} #key here is the name like HC_parent for hierarchically clustered parent
-        self.params = {}
+        self.source_name = {}
+        self.cluster_name = {}
         self.description = {} #here is a quick description of the validation metric
 
     def validation_metrics_available(self):
@@ -251,23 +252,40 @@ class validation:
         return FCN_DICT
 
 
-    def calculate(self, validation, cluster_name, source_name='parent'):
+    def calculate(self, validation_name, cluster_name, source_name='parent'):
         """
         Calls the function titled by validation_name on the data matrix set by source_name (default 'parent') and clustering solution by cluster_name
+        Appends to validation with key value equal to the validation_name+source_name+cluster_name
         """
+
+        output_name = "%s_%s_%s"%(validation_name, source_name, cluster_name)
+
+        #check that the validation has not already been calcluated
+        if output_name in self.validation:
+            warnings.warn('Validation of type requested already exists and will not be added to validation dictionary', UserWarning)
+            return
 
         #CHECK that the source exists
         if source_name not in self.dataObj.D:
             raise ValueError("ERROR: the source you requested for validation does not exist by that name %s"%(source_name))
-        if cluster_name not in self.cObj:
+        if cluster_name not in self.cObj.labels:
             raise ValueError("ERROR: the clustering solution you requested for validation does not exist by the name %s"%(source_name))
         
         FCN_DICT = self.validation_metrics_available()
         
-        if validation not in FCN_DICT:
+        if validation_name not in FCN_DICT:
             raise ValueError( "The validation metric you requested does not exist, currently the following are supported %s"%(list(FCN_DICT.keys())))
  
-        pass
+        v = val.validation(self.dataObj.D[source_name], self.cObj.labels[cluster_name])
+        func = getattr(v,validation_name)
+        func()
+ 
+        
+        self.validation[output_name] = v.validation
+        self.description[output_name] = v.description
+        self.source_name[output_name] = source_name
+        self.cluster_name[output_name] = cluster_name
+
 
 
 

@@ -78,9 +78,38 @@ class TestFunctions(unittest.TestCase):
         c = oe.cluster(self.data)
         c.cluster('parent', 'kmeans', 'kmeans', K=2)
         v = oe.validation(self.data, c)
-        self.assertRaises(ValueError, lambda: v.calculate('Ball_Hall_Index', 'parent', 'gobblygook'))
-        self.assertRaises(ValueError, lambda: v.calculate('Ball_Hall_Index', 'gobblygook', 'kmeans'))
-        self.assertRaises(ValueError, lambda: v.calculate('GobblyGook', 'parent', 'kmeans'))
+        self.assertRaises(ValueError, lambda: v.calculate('Ball_Hall', 'kmeans', 'gobblygook'))
+        self.assertRaises(ValueError, lambda: v.calculate('Ball_Hall', 'gobblygook', 'parent'))
+        self.assertRaises(ValueError, lambda: v.calculate('GobblyGook', 'kmeans', 'parent'))
+
+    def test_ReplicateValidation(self):
+        c = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans', K=2)
+        v = oe.validation(self.data, c)
+        len_expected = 0
+        self.assertEqual(len_expected, len(v.validation))
+        v.calculate('Ball_Hall', 'kmeans', 'parent')
+        len_expected = 1
+        self.assertEqual(len_expected, len(v.validation))
+        v.calculate('Ball_Hall', 'kmeans', 'parent')
+        self.assertEqual(len_expected, len(v.validation))
+
+
+
+    def test_allValidationMetrics(self):
+        c = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans', K=2)
+        v = oe.validation(self.data, c)
+        FCN_DICT = v.validation_metrics_available()
+        len_expected = 1
+        for validation_name in FCN_DICT:
+            v.calculate(validation_name, 'kmeans', 'parent')
+            self.assertEqual(len_expected, len(v.validation))
+            self.assertEqual(len_expected, len(v.description))
+            self.assertEqual(len_expected, len(v.source_name))
+            self.assertEqual(len_expected, len(v.cluster_name))
+            len_expected += 1
+
 
 
 
