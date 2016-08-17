@@ -6,8 +6,15 @@ import numpy as np
 import itertools
 import re
 import warnings
+from sklearn import metrics
 
 class validation:
+	"""
+	validation is a class for calculating validation metrics on a data matrix, data, given the clustering labels in labels. 
+	Instantiation sets validation to NaN and a description to ''. Once a metric is performed, these are replaced (unless)
+	validation did not yield a valid mathematical number, which can happen in certain cases, such as when a cluster 
+	consists of only one member. Such results will warn the user.
+	"""
 	def __init__(self, data, labels):
 		self.dataMatrix = data
 		self.classLabel = labels
@@ -26,7 +33,6 @@ class validation:
 				methodDict[method] = ''
 		return methodDict
 
-	## Ball-Hall index BHI
 	def Ball_Hall(self):
 		"""
 		Ball-Hall Index is the mean of the mean dispersion across all clusters
@@ -74,3 +80,49 @@ class validation:
 				self.validation = sumTotal
 		return self.validation
 		
+		## The Baker-HUbert Gamma Index BHG
+
+	def silhouette(self):
+		"""
+		Silhouette: Compactness and connectedness combination that measures a ratio of within cluster distances to closest neighbors
+		outside of cluster.
+		"""
+		self.description = 'Silhouette: A combination of connectedness and compactness that measures within versus to the nearest neighbor outside a cluster. A smaller value, the better the solution'
+		
+		metric = metrics.silhouette_score(self.dataMatrix, self.classLabel, metric='euclidean')
+		self.validation = metric
+		return self.validation 
+
+	def Baker_Hubert_Gamma(self):	
+		"""
+		Baker-Hubert Gamma Index: A measure of compactness, based on similarity between points in a cluster, compared to similarity 
+		with points in other clusters
+		"""
+		self.description = 'Gamma Index: a measure of compactness'
+		splus=0
+		sminus=0
+		pairDis=distance.pdist(self.dataMatrix)
+		numPair=len(pairDis)
+		temp=np.zeros((len(self.classLabel),2))
+		temp[:,0]=self.classLabel
+		vecB=distance.pdist(temp)
+		#iterate through all the pairwise comparisons
+		for i in range(numPair-1):
+			for j in range(i+1,numPair):
+				if vecB[i]>0 and vecB[j]==0:
+					#heter points smaller than homo points
+					if pairDis[i]<pairDis[j]:
+						splus=splus+1
+					#heter points larger than homo points
+					if pairDis[i]>vecB[j]:
+						sminus=sminus+1
+				if vecB[i]==0 and vecB[j]>0:
+					#heter points smaller than homo points
+					if pairDis[j]<pairDis[i]:
+						splus=splus+1
+					#heter points larger than homo points
+					if pairDis[j]>vecB[i]:
+						sminus=sminus+1
+		#compute the fitness
+		self.validation = (splus-sminus)/(splus+sminus)
+		return self.validation

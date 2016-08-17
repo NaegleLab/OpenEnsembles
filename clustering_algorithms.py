@@ -13,6 +13,7 @@ from sklearn import preprocessing
 import scipy.stats as stats
 from types import FunctionType
 import re
+import warnings
 
 class clustering_algorithms:
     def __init__(self, data, kwargs, K=2):
@@ -67,9 +68,7 @@ class clustering_algorithms:
         params['copy_x'] = True
         params['n_jobs'] = 1
         #for anything in self.var_params that may replace defaults, update the param list
-        overlap = set(params.keys()) & set(self.var_params.keys())
-        for key in overlap:
-            params[key] = self.var_params[key]
+        params = returnParams(self.var_params, params)
         solution=skc.KMeans(n_clusters=self.K, init=params['init'], 
             n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'],
             precompute_distances=params['precompute_distances'], verbose=params['verbose'],
@@ -111,10 +110,7 @@ class clustering_algorithms:
         params['kernel_params']=None
 
         #for anything in self.var_params that may replace defaults, update the param list
-        overlap = set(params.keys()) & set(self.var_params.keys())
-        for key in overlap:
-            params[key] = self.var_params[key]
-
+        params = returnParams(self.var_params, params)
  
         solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
                         eigen_solver=params['eigen_solver'], random_state=params['random_state'], n_init=params['n_init'],
@@ -146,9 +142,7 @@ class clustering_algorithms:
         params['linkage'] = 'ward'
         params['pooling_func'] = np.mean
 
-        overlap = set(params.keys()) & set(self.var_params.keys())
-        for key in overlap:
-            params[key] = self.var_params[key]
+        params = returnParams(self.var_params, params)
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
             connectivity=params['connectivity'], n_components= params['n_components'],
             compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
@@ -170,9 +164,10 @@ class clustering_algorithms:
         params['p']=None, 
         params['random_state']=None
 
-        overlap = set(params.keys()) & set(self.var_params.keys())
-        for key in overlap:
-            params[key] = self.var_params[key]
+        params = returnParams(self.var_params, params)
+        #overlap = set(params.keys()) & set(self.var_params.keys())
+        #for key in overlap:
+        #    params[key] = self.var_params[key]
 
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
@@ -180,3 +175,23 @@ class clustering_algorithms:
         solution.fit(self.data)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
+
+def returnParams(paramsSent, paramsExpected):
+    """
+    A utility for variable parameter setting in clustering algorithms
+    Takes two dictionaries of parameter key, value pairs and replaces that in paramsExpected 
+    with anything in paramsSent. Will warn users if a key in sent does not appear in expected.
+    """
+    overlap = set(paramsSent.keys()) & set(paramsExpected.keys())
+    params = paramsExpected
+    paramsToCheck = paramsSent
+    for key in overlap:
+        params[key] = paramsSent[key]
+        del paramsToCheck[key]
+
+    #warn if there are keys in paramsToCheck (means they were sent, but not expected)
+    for key in paramsToCheck:
+        warnings.warn("Parameter %s was not expected and will be ignored"%(key), UserWarning)
+
+    return params
+
