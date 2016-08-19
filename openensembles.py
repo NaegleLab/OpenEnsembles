@@ -17,6 +17,7 @@ import validation as val
 import warnings
 from random import randint
 import openensembles as oe
+from matplotlib.pyplot import cm
 
 class data:
     
@@ -41,6 +42,56 @@ class data:
         txfm = tx.transforms(self.x, self.D, {})
         TXFM_FCN_DICT = txfm.transforms_available()
         return TXFM_FCN_DICT
+
+    def plot_data(self, source_name, fig_num=1, **kwargs):
+        """ Plot the data matrix that belongs to source_name
+            fig_num can be set to a different figure number
+            Variable arguments:
+                class_labels: this is a vector that assigns points to classes, and will be used to color the plots differently
+                fig_num: a different figure number, default ==1
+                title 
+        """
+        m = self.D[source_name].shape[0] 
+        n = self.D[source_name].shape[1]
+        if 'title' in kwargs:
+            title = kwargs['title']
+        else:
+            title = ''
+        if 'class_labels' not in kwargs:
+            class_labels = np.ones(n)
+        else:
+            class_labels = kwargs['class_labels']
+
+        clusters = np.unique(class_labels)
+        #Scatter plot if dimensionality is less than 3 dimensions
+        if n < 3:
+            fig = plt.figure(fig_num, figsize=(6, 6))
+            if n==3:
+                ax = fig.add_subplot(111, projection='3d')
+            else:
+                #ax = fig.add_subplot(111)
+                ax = fig.add_axes(rect= [0,0,0.95,1])
+
+            plt.clf() # clear the current figure
+            #fig.add_axes(rect= [0,0,0.95,1])
+
+            plt.cla() # clear the current axis
+
+            plt.hold(True)
+            color=iter(cm.rainbow(np.linspace(0,1,len(clusters))))
+            for clusterNum in clusters:
+                indexes = np.where(class_labels==clusterNum)
+                plt.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], c=next(color))
+
+            plt.xlabel(self.x[source_name][0])
+            plt.ylabel(self.x[source_name][1])
+            plt.title(title)
+            plt.show()
+            return fig
+
+        else:
+            pass
+
 
     def transform(self, source_name, txfm_fcn, txfm_name, **kwargs):
         """
@@ -242,6 +293,11 @@ class cluster:
         c.data_source[name] = 'parent'
         c.clusterNumbers[name] = np.unique(c.labels[name])
         return c
+
+    def get_cluster_members(self, solution_name, clusterNum):
+        """ Return the dataframe row indexes of a cluster number in solution named by solution_name """
+        indexes = np.where(self.labels[solution_name]==clusterNum)
+        return indexes
 
 class validation:
     """
