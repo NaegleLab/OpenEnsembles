@@ -126,3 +126,40 @@ class validation:
 		#compute the fitness
 		self.validation = (splus-sminus)/(splus+sminus)
 		return self.validation
+
+
+	## The Det_Ratio index DRI
+	def det_ratio(self):
+		"""
+		The determinant ratio index, a measure of connectedness
+		"""
+		#compute the attributes number and cluster number
+		self.description = 'Determinant ratio, a measure of connectedness'
+		attributes=len(self.dataMatrix[0])
+		xData=self.dataMatrix
+		wg=np.zeros((attributes,attributes))
+		numCluster=max(self.classLabel)+1
+		#compute cluster scatter matrix
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			xCluster=clusterMember
+			#iterate through attributes
+			for j in range(attributes):
+				columnVec=clusterMember[:,j]
+				columnCenter=np.mean(columnVec)
+				#compute xk
+				xCluster[:,j]=columnVec-columnCenter
+			#add to wg
+			wg=wg+np.dot(np.transpose(xCluster),xCluster)	
+		#compute data scatter matrix	
+		for i in range(attributes):
+			columnVec=self.dataMatrix[:,i]
+			columnCenter=np.mean(columnVec)
+			#data scatter matrix
+			xData[:,i]=columnVec-columnCenter
+
+		t=np.dot(np.transpose(xData),xData)
+		#compute the fitness
+		self.validation = np.linalg.det(t)/np.linalg.det(wg)
+		return 

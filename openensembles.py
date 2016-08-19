@@ -199,6 +199,9 @@ class cluster:
         Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
         Returns a new clustering object with c.labels['mixture_model'] set to the final solution. 
         """
+        params = {}
+        params['iterations'] = iterations
+        params['K'] = K
 
         #check to make sure more than one solution exists in ensemble
         if len(self.params) < 2:
@@ -211,7 +214,11 @@ class cluster:
         mixtureObj = finish.mixture_model(parg, N, nEnsCluster=K, iterations=iterations)
         mixtureObj.emProcess()
         c = oe.cluster(self.dataObj)
-        c.labels['mixture_model'] = mixtureObj.labels
+        name = 'mixture_model'
+        c.labels[name] = mixtureObj.labels
+        c.data_source[name] = 'parent'
+        c.clusterNumbers[name] = np.unique(c.labels[name])
+        c.params[name] = params
         return c
 
     def finish_co_occ_linkage(self, threshold, linkage='average'):
@@ -223,11 +230,17 @@ class cluster:
             coMat.plot(threshold=<threshold>)
         The resulting clusters from a cut made at <threshold> will be colored accordingly.
         """
-
+        params={}
+        params['linkage'] = linkage
+        params['threshold'] = threshold
         coL = finish.co_occurrence_linkage(self, threshold, linkage=linkage)
         coL.finish()
         c = oe.cluster(self.dataObj)
-        c.labels['co_occ_linkage'] = coL.labels
+        name = 'co_occ_linkage'
+        c.labels[name] = coL.labels
+        c.params[name] = params
+        c.data_source[name] = 'parent'
+        c.clusterNumbers[name] = np.unique(c.labels[name])
         return c
 
 class validation:
