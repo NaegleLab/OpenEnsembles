@@ -16,6 +16,7 @@ import scipy.stats as stats
 from types import FunctionType
 import collections
 import re
+from sklearn.decomposition import PCA
 
 class transforms:
     def __init__(self, x, data, kwargs):
@@ -86,6 +87,27 @@ class transforms:
         else:
             raise ValueError('Requested base for logarithm was not recognized as either e, 2, or 10)')
 
+
+    def PCA(self):
+        """
+        Applies PCA to data matrix. If variable argument n_components is set, it will keep the first n_components of the 
+        post-transformed data.
+        set n_components to a number between 0 and 1 to reduce dimensionality based on %variance explained.
+        """
+
+        if 'n_components' in self.args:
+            n_components = self.args['n_components']
+        else:
+            n_components = self.data.shape[1]
+        self.var_params['n_components'] = n_components
+        pca = PCA(n_components=n_components)
+        pca.fit(self.data)
+        self.data_out = pca.transform(self.data)
+        self.x_out = []
+        for i in range(0, self.data_out.shape[1]):
+            self.x_out.append("PC%d"%(i+1))
+            
+        return pca
 
 
 
