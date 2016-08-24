@@ -18,6 +18,7 @@ import warnings
 from random import randint
 import openensembles as oe
 from matplotlib.pyplot import cm
+from mpl_toolkits.mplot3d import Axes3D
 
 class data:
     
@@ -64,32 +65,42 @@ class data:
 
         clusters = np.unique(class_labels)
         #Scatter plot if dimensionality is less than 3 dimensions
-        if n < 3:
+        if n <= 3:
             fig = plt.figure(fig_num, figsize=(6, 6))
             if n==3:
-                ax = fig.add_subplot(111, projection='3d')
+                #ax = fig.add_subplot(111, projection='3d')
+                ax = fig.gca(projection='3d')
             else:
                 #ax = fig.add_subplot(111)
-                ax = fig.add_axes(rect= [0,0,0.95,1])
+                #ax = fig.add_axes(rect= [0,0,0.95,1])
+                ax = fig.add_subplot(111)
 
-            plt.clf() # clear the current figure
+            #plt.clf() # clear the current figure
             #fig.add_axes(rect= [0,0,0.95,1])
 
-            plt.cla() # clear the current axis
+            #plt.cla() # clear the current axis
 
             plt.hold(True)
+            ax.hold(True)
             color=iter(cm.rainbow(np.linspace(0,1,len(clusters))))
             for clusterNum in clusters:
                 indexes = np.where(class_labels==clusterNum)
-                plt.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], c=next(color))
+                if n==2:
+                    plt.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], c=next(color))
+                elif n==3:
+                    ax.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], self.D[source_name][indexes,2], c=next(color), s=10)
+
 
             plt.xlabel(self.x[source_name][0])
             plt.ylabel(self.x[source_name][1])
+            if n==3:
+                ax.set_zlabel(self.x[source_name][2])
             plt.title(title)
             plt.show()
             return fig
 
         else:
+
             pass
 
 
