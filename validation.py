@@ -217,3 +217,29 @@ class validation:
 		#return fitness
 		self.validation =  2*sminus/(numPair*(numPair-1))
 		return self.validation
+
+	def ksq_detw_index(self):
+		"""
+		The Ksq_DetW Index, a measure of connectedness
+		"""
+		self.description = "The Ksq_DetW index, a measure of connectedness"
+		#compute the attributes number and cluster number
+		attributes=len(self.dataMatrix[0])
+		wg=np.zeros((attributes,attributes))
+		numCluster=max(self.classLabel)+1
+		#compute cluster scatter matrix
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			xCluster=clusterMember
+			#iterate through attributes
+			for j in range(attributes):
+				columnVec=clusterMember[:,j]
+				columnCenter=np.mean(columnVec)
+				#compute xk
+				xCluster[:,j]=columnVec-columnCenter
+			#add to wg
+			wg=wg+np.dot(np.transpose(xCluster),xCluster)
+		#compute fitness
+		self.validation = math.pow(numCluster,2)*np.linalg.det(wg)
+		return self.validation
