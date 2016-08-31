@@ -295,8 +295,8 @@ class cluster:
         params={}
         params['linkage'] = linkage
         params['threshold'] = threshold
-        N = self.dataObj.D['parent'].shape[0]
-        coL = finish.co_occurrence_linkage(self, N, threshold, linkage=linkage)
+        coMatObj = self.co_occurrence_matrix('parent')
+        coL = finish.co_occurrence_linkage(coMatObj, threshold, linkage=linkage)
         coL.finish()
         c = oe.cluster(self.dataObj)
         name = 'co_occ_linkage'

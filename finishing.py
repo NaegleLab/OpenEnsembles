@@ -224,10 +224,9 @@ class co_occurrence_linkage:
 	according to the linkage passed by linkage (default is Average). 
 
 	"""
-	def __init__(self, cObj, N, threshold, linkage='average'):
-		self.cObj = cObj
-		self.coMat = cObj.co_occurrence_matrix('parent')
-		self.N = N# number of data points
+	def __init__(self, co_occ_object, threshold, linkage='average'):
+		self.coMat = co_occ_object
+		self.N = len(self.coMat.co_matrix)
 		self.labels = np.empty(self.N)
 		self.K= 0 #number of clusters made by the cut, to be replaced
 		self.linkage = linkage
