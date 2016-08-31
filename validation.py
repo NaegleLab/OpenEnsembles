@@ -10,9 +10,9 @@ from sklearn import metrics
 
 class validation:
 	"""
-	validation is a class for calculating validation metrics on a data matrix, data, given the clustering labels in labels. 
+	validation is a class for calculating validation metrics on a data matrix, data, given the clustering labels in labels.
 	Instantiation sets validation to NaN and a description to ''. Once a metric is performed, these are replaced (unless)
-	validation did not yield a valid mathematical number, which can happen in certain cases, such as when a cluster 
+	validation did not yield a valid mathematical number, which can happen in certain cases, such as when a cluster
 	consists of only one member. Such results will warn the user.
 	"""
 	def __init__(self, data, labels):
@@ -68,7 +68,7 @@ class validation:
 			indices=[t for t, x in enumerate(self.classLabel) if x == i]
 			clusterMember=self.dataMatrix[indices,:]
 			#compute the center of the cluster
-			clusterCenter=np.mean(clusterMember,0)		
+			clusterCenter=np.mean(clusterMember,0)
 			#iterate through all the members
 			for member in clusterMember:
 				sumDis=sumDis+math.pow(distance.euclidean(member, clusterCenter),2)
@@ -79,7 +79,7 @@ class validation:
 		#return the fitness
 				self.validation = sumTotal
 		return self.validation
-		
+
 		## The Baker-HUbert Gamma Index BHG
 
 	def silhouette(self):
@@ -88,14 +88,14 @@ class validation:
 		outside of cluster.
 		"""
 		self.description = 'Silhouette: A combination of connectedness and compactness that measures within versus to the nearest neighbor outside a cluster. A smaller value, the better the solution'
-		
+
 		metric = metrics.silhouette_score(self.dataMatrix, self.classLabel, metric='euclidean')
 		self.validation = metric
-		return self.validation 
+		return self.validation
 
-	def Baker_Hubert_Gamma(self):	
+	def Baker_Hubert_Gamma(self):
 		"""
-		Baker-Hubert Gamma Index: A measure of compactness, based on similarity between points in a cluster, compared to similarity 
+		Baker-Hubert Gamma Index: A measure of compactness, based on similarity between points in a cluster, compared to similarity
 		with points in other clusters
 		"""
 		self.description = 'Gamma Index: a measure of compactness'
@@ -151,8 +151,8 @@ class validation:
 				#compute xk
 				xCluster[:,j]=columnVec-columnCenter
 			#add to wg
-			wg=wg+np.dot(np.transpose(xCluster),xCluster)	
-		#compute data scatter matrix	
+			wg=wg+np.dot(np.transpose(xCluster),xCluster)
+		#compute data scatter matrix
 		for i in range(attributes):
 			columnVec=self.dataMatrix[:,i]
 			columnCenter=np.mean(columnVec)
@@ -162,4 +162,32 @@ class validation:
 		t=np.dot(np.transpose(xData),xData)
 		#compute the fitness
 		self.validation = np.linalg.det(t)/np.linalg.det(wg)
-		return 
+		return
+
+	def c_index(self):
+		"""
+		The C-Index, a measure of compactness
+		"""
+		self.description = 'The C-Index, a measure of cluster compactness'
+		sw=0
+		nw=0
+		numCluster=max(self.classLabel)+1
+		#iterate through all the clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute distance of every pair of points
+			list_clusterDis=distance.pdist(clusterMember)
+			sw=sw+sum(list_clusterDis)
+			nw=nw+len(list_clusterDis)
+		#compute the pairwise distance of the whole dataset
+		list_dataDis=distance.pdist(self.dataMatrix)
+		#compute smin
+		sortedList=sorted(list_dataDis)
+		smin=sum(sortedList[0:nw])
+		#compute smax
+		sortedList=sorted(list_dataDis,reverse=True)
+		smax=sum(sortedList[0:nw])
+		#compute the fitness
+		self.validation = (sw-smin)/(smax-smin)
+		return self.validation
