@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import sklearn.cluster
 import sys
 import os
+import networkx as nx
+from collections import defaultdict
 
 class mixture_model:
 	"""
@@ -214,7 +216,7 @@ class mixture_model:
 		self.piFinishing = piFinishing
 		self.labels = np.asarray(labels)
 		#	return piFinishing, labels
-		return labels
+		return self.labels
 
 class co_occurrence_linkage:
 	"""
@@ -222,11 +224,12 @@ class co_occurrence_linkage:
 	according to the linkage passed by linkage (default is Average). 
 
 	"""
-	def __init__(self, cObj, threshold, linkage='average'):
+	def __init__(self, cObj, N, threshold, linkage='average'):
 		self.cObj = cObj
 		self.coMat = cObj.co_occurrence_matrix('parent')
+		self.N = N# number of data points
+		self.labels = np.empty(self.N)
 		self.K= 0 #number of clusters made by the cut, to be replaced
-		self.labels = []
 		self.linkage = linkage
 		self.threshold = threshold
 
@@ -240,8 +243,67 @@ class co_occurrence_linkage:
 		labels = self.coMat.cut(lnk, self.threshold)
 		self.K = len(np.unique(labels)) 
 		self.labels = labels
-		return labels
+		return self.labels
 
+class graph_closure:
+	"""
+	Returns a final solution of the ensemble based on treating the co-occurrence matrix as a weighted graph whose 
+	solution is found from identifying network components within the graph
+	"""
+	def __init__(self, co_occ_matrix, threshold, clique_size = 3):
+		self.co_matrix = co_occ_matrix
+		self.K= 0 #number of clusters made 
+		self.N = len(co_occ_matrix)
+		self.labels = np.empty(self.N)
+		self.threshold = threshold
+		self.coMat_binary = np.array(self.co_matrix >= threshold).astype(int)
+		self.clique_size = clique_size
+
+	def finish(self):
+		""" Finishes the ensemble by taking a binary adjacency matrix, defined in initilization according to the threshold given
+		and percolates the cliques"""
+
+		# From ConradLee on GitHUB
+		def get_percolated_cliques(G, k):
+		    perc_graph = nx.Graph()
+		    cliques = [frozenset(c) for c in nx.find_cliques(G) if len(c) >= k]
+		    perc_graph.add_nodes_from(cliques)
+
+		    # First index which nodes are in which cliques
+		    membership_dict = defaultdict(list)
+		    for clique in cliques:
+		        for node in clique:
+		            membership_dict[node].append(clique)
+
+		    # For each clique, see which adjacent cliques percolate
+		    for clique in cliques:
+		        for adj_clique in get_adjacent_cliques(clique, membership_dict):
+		            if len(clique.intersection(adj_clique)) >= (k - 1):
+		                perc_graph.add_edge(clique, adj_clique)
+
+		    # Connected components of clique graph with perc edges
+		    # are the percolated cliques
+		    for component in nx.connected_components(perc_graph):
+		        yield(frozenset.union(*component))
+
+		def get_adjacent_cliques(clique, membership_dict):
+		    adjacent_cliques = set()
+		    for n in clique:
+		        for adj_clique in membership_dict[n]:
+		            if clique != adj_clique:
+		                adjacent_cliques.add(adj_clique)
+		    return adjacent_cliques
+
+		G = nx.from_numpy_matrix(self.coMat_binary)
+		y = get_percolated_cliques(G, self.clique_size)
+		z = list(y)
+		clusterNum = 0
+		while z:
+		    l = list(z.pop())
+		    self.labels[l] = int(clusterNum)
+		    clusterNum+=1
+
+		return self.labels
 
 
 
