@@ -191,3 +191,29 @@ class validation:
 		#compute the fitness
 		self.validation = (sw-smin)/(smax-smin)
 		return self.validation
+
+	def g_plus_index(self):
+		"""
+		The G_plus index, the proportion of discordant pairs among all the pairs of distinct point, a measure of connectedness
+		"""
+		self.description = "The G_plus index, a measure of connectedness"
+		sminus=0
+		pairDis=distance.pdist(self.dataMatrix)
+		numPair=len(pairDis)
+		temp=np.zeros((len(self.classLabel),2))
+		temp[:,0]=self.classLabel
+		vecB=distance.pdist(temp)
+		#iterate through all the pairwise comparisons
+		for i in range(numPair-1):
+			for j in range(i+1,numPair):
+				if vecB[i]>0 and vecB[j]==0:
+					#heter points larger than homo points
+					if pairDis[i]>vecB[j]:
+						sminus=sminus+1
+				if vecB[i]==0 and vecB[j]>0:
+					#heter points larger than homo points
+					if pairDis[j]>vecB[i]:
+						sminus=sminus+1
+		#return fitness
+		self.validation =  2*sminus/(numPair*(numPair-1))
+		return self.validation
