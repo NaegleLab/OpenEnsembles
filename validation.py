@@ -243,3 +243,12 @@ class validation:
 		#compute fitness
 		self.validation = math.pow(numCluster,2)*np.linalg.det(wg)
 		return self.validation
+
+	def log_det_ratio(self):
+		"""
+		The log determinant ratio index, a measure of connectedness
+		"""
+		self.description = "The log determinant ratio index, a measure of connectedness"
+		numObj=len(self.classLabel)
+		self.validation = numObj*math.log(self.det_ratio())
+		return self.validation
