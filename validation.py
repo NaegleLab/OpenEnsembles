@@ -252,3 +252,30 @@ class validation:
 		numObj=len(self.classLabel)
 		self.validation = numObj*math.log(self.det_ratio())
 		return self.validation
+
+	def log_ss_ratio(self):
+		"""
+		The log ss ratio, a measure of connectedness
+		"""
+		self.description = "The log ss ratio, a measure of connectedness"
+		bgss=0
+		wgss=0
+		numCluster=max(self.classLabel)+1
+		#compute the dataset center
+		dataCenter=np.mean(self.dataMatrix,0)
+		#iterate through the cluster
+		for i in range(numCluster):
+			sumTemp=0
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			#add to bgss
+			bgss=bgss+len(indices)*math.pow(distance.euclidean(clusterCenter, dataCenter),2)
+			#iterate through all the members of the cluster
+			for member in clusterMember:
+				sumTemp=sumTemp+math.pow(distance.euclidean(member, clusterCenter),2)
+			wgss=wgss+sumTemp
+		#compute the fitness
+		self.validation = math.log(bgss/wgss)
+		return self.validation
