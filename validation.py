@@ -162,7 +162,7 @@ class validation:
 		t=np.dot(np.transpose(xData),xData)
 		#compute the fitness
 		self.validation = np.linalg.det(t)/np.linalg.det(wg)
-		return
+		return self.validation
 
 	def c_index(self):
 		"""
