@@ -295,7 +295,8 @@ class cluster:
         params={}
         params['linkage'] = linkage
         params['threshold'] = threshold
-        coL = finish.co_occurrence_linkage(self, threshold, linkage=linkage)
+        coMatObj = self.co_occurrence_matrix('parent')
+        coL = finish.co_occurrence_linkage(coMatObj, threshold, linkage=linkage)
         coL.finish()
         c = oe.cluster(self.dataObj)
         name = 'co_occ_linkage'
@@ -305,10 +306,35 @@ class cluster:
         c.clusterNumbers[name] = np.unique(c.labels[name])
         return c
 
+    def finish_graph_closure(self, threshold, clique_size = 3):
+        """ 
+        The finishing technique that treats the co-occurrence matrix as a graph, that is binarized by the threshold (>=threshold 
+        becomes an unweighted, undirected edge in an adjacency matrix). This graph object is then subjected to clique formation
+        according to clique_size (such as triangles if clique_size=3). The cliques are then combined in the graph to create unique
+        cluster formations. 
+        """
+        params = {}
+        params['threshold'] = threshold
+        params['clique_size'] = clique_size
+        coMatObj = self.co_occurrence_matrix('parent')
+
+        c_G = finish.graph_closure(coMatObj.co_matrix, threshold, clique_size=clique_size)
+        c_G.finish()
+        c = oe.cluster(self.dataObj)
+        name = 'graph_closure'
+        c.labels[name] = c_G.labels
+        c.params[name] = params
+        c.data_source[name] = 'parent'
+        c.clusterNumbers[name] = np.unique(c.labels[name])
+        return c
+
+
     def get_cluster_members(self, solution_name, clusterNum):
         """ Return the dataframe row indexes of a cluster number in solution named by solution_name """
         indexes = np.where(self.labels[solution_name]==clusterNum)
         return indexes
+
+
 
 class validation:
     """
