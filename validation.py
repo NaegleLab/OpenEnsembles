@@ -279,3 +279,32 @@ class validation:
 		#compute the fitness
 		self.validation = math.log(bgss/wgss)
 		return self.validation
+
+	def McClain_Rao(self):
+		sw=0
+		sb=0
+		nw=0
+		numObj=len(self.classLabel)
+		numCluster=max(self.classLabel)+1
+		#iterate through all the clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute pairwise distance
+			pairDis=distance.pdist(clusterMember)
+			#add to sw and nw
+			sw=sw+sum(pairDis)
+			nw=nw+len(pairDis)
+			#iterate the clusters again for between-cluster distance
+			for j in range(numCluster):
+				if j>i:
+					indices2=[t for t, x in enumerate(self.classLabel) if x == j]
+					clusterMember2=self.dataMatrix[indices2,:]
+					betweenDis=distance.cdist(clusterMember,clusterMember2)
+					#add to sb
+					sb=sb+sum(list(itertools.chain(*betweenDis)))
+		#compute nb
+		nb=numObj*(numObj-1)/2-nw
+		#compute fitness
+		self.validation = nb*sw/(nw*sb)
+		return self.validation
