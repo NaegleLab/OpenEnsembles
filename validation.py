@@ -281,6 +281,10 @@ class validation:
 		return self.validation
 
 	def McClain_Rao(self):
+		"""
+		The McClain-Rao Index, a measure of compactness
+		"""
+		self.description = "The McClain-Rao Index, a measure of compactness"
 		sw=0
 		sb=0
 		nw=0
@@ -307,4 +311,32 @@ class validation:
 		nb=numObj*(numObj-1)/2-nw
 		#compute fitness
 		self.validation = nb*sw/(nw*sb)
+		return self.validation
+
+	def PBM_index(self):
+		"""
+		The PBM index, a measure of compactness
+		"""
+		self.description = "The PBM index, a measure of compactness"
+		ew=0
+		et=0
+		list_centerDis=[]
+		numCluster=max(self.classLabel)+1
+		#compute the center of the dataset
+		dataCenter=np.mean(self.dataMatrix,0)
+		#iterate through the  clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			#compute the center distance
+			list_centerDis.append(distance.euclidean(dataCenter, clusterCenter))
+			#iterate through the member of the  cluster
+			for  member in clusterMember:
+				ew=ew+distance.euclidean(member, clusterCenter)
+				et=et+distance.euclidean(member, dataCenter)
+		db=max(list_centerDis)
+		#compute the fitness
+		self.validation = math.pow(et*db/(numCluster*ew),2)
 		return self.validation
