@@ -340,3 +340,66 @@ class validation:
 		#compute the fitness
 		self.validation = math.pow(et*db/(numCluster*ew),2)
 		return self.validation
+
+	def point_biserial(self):
+		"""
+		The Point-Biserial index, a measure of connectedness
+		"""
+		self.description = "The Point-Biserial index, a measure of connectedness"
+		sw=0
+		sb=0
+		nw=0
+		numObj=len(self.classLabel)
+		numCluster=max(self.classLabel)+1
+		nt=numObj*(numObj-1)/2
+		#iterate through all the clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute pairwise distance
+			pairDis=distance.pdist(clusterMember)
+			#add to sw and nw
+			sw=sw+sum(pairDis)
+			nw=nw+len(pairDis)
+			#iterate the clusters again for between-cluster distance
+			for j in range(numCluster):
+				if j>i:
+					indices2=[t for t, x in enumerate(self.classLabel) if x == j]
+					clusterMember2=self.dataMatrix[indices2,:]
+					betweenDis=distance.cdist(clusterMember,clusterMember2)
+					#add to sb
+					sb=sb+sum(list(itertools.chain(*betweenDis)))
+		#compute nb
+		nb=nt-nw
+		#compute fitness
+		self.validation = ((sw/nw-sb/nb)*math.sqrt(nw*nb))/nt
+		return self.validation
+
+	def Ratkowsky_Lance(self):
+		"""
+		The Ratkowsky-Lance index, a measure of compactness
+		"""
+		self.description = "The Ratkowsky-Lance index, a measure of compactness"
+		list_divide=[]
+		attributes=len(self.dataMatrix[0])
+		numCluster=max(self.classLabel)+1
+		#iterate through the attributes
+		for i in range(attributes):
+			bgssj=0
+			tssj=0
+			columnVec=self.dataMatrix[:,i]
+			columnCenter=np.mean(columnVec)
+			#compute bgssj
+			for j in range(numCluster):
+				indices=[t for t, x in enumerate(self.classLabel) if x == j]
+				columnCluster=self.dataMatrix[indices,:]
+				centerCluster=np.mean(columnCluster)
+				bgssj=bgssj+len(indices)*math.pow(centerCluster-columnCenter,2)
+			#iterate through the  members of the column
+			for member in columnVec:
+				tssj=tssj+math.pow(member-columnCenter,2)
+			list_divide.append(bgssj/tssj)
+		r=sum(list_divide)/attributes
+		#compute the  fitness
+		self.validation = math.sqrt(r/numCluster)
+		return self.validation
