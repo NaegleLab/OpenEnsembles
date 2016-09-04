@@ -403,3 +403,30 @@ class validation:
 		#compute the  fitness
 		self.validation = math.sqrt(r/numCluster)
 		return self.validation
+
+	def Ray_Turi(self):
+		"""
+		The Ray-Turi index, a measure of compactness
+		"""
+		self.description = "The Ray-Turi index, a measure of compactness"
+		wgss=0
+		list_centers=[]
+		numCluster=max(self.classLabel)+1
+		numObj=len(self.classLabel)
+		for i in range(numCluster):
+			wgssk=0
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			list_centers.append(clusterCenter)
+			#iterate through the  cluster members
+			for member in clusterMember:
+				wgssk=wgssk+math.pow(distance.euclidean(member, clusterCenter),2)
+			#add to wgsss
+			wgss=wgss+wgssk
+		#compute the min center dis
+		minDis=math.pow(min(distance.pdist(list_centers)),2)
+		#compute the fitness
+		self.validation = wgss/(numObj*minDis)
+		return self.validation
