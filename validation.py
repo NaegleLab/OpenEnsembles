@@ -430,3 +430,32 @@ class validation:
 		#compute the fitness
 		self.validation = wgss/(numObj*minDis)
 		return self.validation
+
+	def Scott_Symons(self):
+		"""
+		The Scott-Symons index, a measure of connectedness
+		"""
+		self.description = "The Scott-Symons index, a measure of connectedness"
+		fitness=0
+		#compute the attributes number and cluster number
+		attributes=len(self.dataMatrix[0])
+		numCluster=max(self.classLabel)+1
+		#compute cluster scatter matrix
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			nk=len(indices)
+			clusterMember=self.dataMatrix[indices,:]
+			xCluster=clusterMember
+			#iterate through attributes
+			for j in range(attributes):
+				columnVec=clusterMember[:,j]
+				columnCenter=np.mean(columnVec)
+				#compute xk
+				xCluster[:,j]=columnVec-columnCenter
+			#compute wgk
+			wgk=np.dot(np.transpose(xCluster),xCluster)
+			if np.linalg.det(wgk/nk) != 0:
+				fitness=fitness+nk*math.log(np.linalg.det(wgk/nk))
+		#return fitness
+		self.validation = fitness
+		return self.validation
