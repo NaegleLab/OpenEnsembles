@@ -301,6 +301,7 @@ class graph_closure:
 		    l = list(z.pop())
 		    self.labels[l] = int(clusterNum)
 		    clusterNum+=1
+		self.labels = self.labels.astype(int)
 
 		return self.labels
 
