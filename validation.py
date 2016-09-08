@@ -456,6 +456,152 @@ class validation:
 			wgk=np.dot(np.transpose(xCluster),xCluster)
 			if np.linalg.det(wgk/nk) != 0:
 				fitness=fitness+nk*math.log(np.linalg.det(wgk/nk))
+			else:
+				warnings.warn('Cannot calculate Scott_Symons, due to an undefined value', UserWarning)
 		#return fitness
 		self.validation = fitness
+		return self.validation
+
+	def tau_index(self):
+		"""
+		The Tau index, a measure of compactness
+		"""
+		self.description = "The Tau index, a measure of compactness"
+		#compute nb,nw,nt
+		nw=0
+		numObj=len(self.classLabel)
+		numCluster=max(self.classLabel)+1
+		nt=numObj*(numObj-1)/2
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			nk=len(indices)
+			nw=nw+nk*(nk-1)/2
+		nb=nt-nw
+		#compute s+ and s-
+		splus=0
+		sminus=0
+		pairDis=distance.pdist(self.dataMatrix)
+		numPair=nt
+		temp=np.zeros((len(self.classLabel),2))
+		temp[:,0]=self.classLabel
+		vecB=distance.pdist(temp)
+		#iterate through all the pairwise comparisons
+		for i in range(int(numPair-1)):
+			for j in range(i+1,int(numPair)):
+				if vecB[i]>0 and vecB[j]==0:
+					#heter points smaller than homo points
+					if pairDis[i]<pairDis[j]:
+						splus=splus+1
+					#heter points larger than homo points
+					if pairDis[i]>vecB[j]:
+						sminus=sminus+1
+				if vecB[i]==0 and vecB[j]>0:
+					#heter points smaller than homo points
+					if pairDis[j]<pairDis[i]:
+						splus=splus+1
+					#heter points larger than homo points
+					if pairDis[j]>vecB[i]:
+						sminus=sminus+1
+		#compute the fitness
+		self.validation = (splus-sminus)/math.sqrt(nb*nw*nt*(nt-1)/2)
+		return self.validation
+
+	def trace_w(self):
+		"""
+		The Trace_W index, a measure of connectedness
+		"""
+		self.description = "The Trace_W index, a measure of connectedness"
+		wgss=0
+		numCluster=max(self.classLabel)+1
+		for i in range(numCluster):
+			wgssk=0
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			#iterate through the  cluster members
+			for member in clusterMember:
+				wgssk=wgssk+math.pow(distance.euclidean(member, clusterCenter),2)
+			#add to wgsss
+			wgss=wgss+wgssk
+		#return the fitness
+		self.validation = wgss
+		return self.validation
+
+	def trace_wib(self):
+		"""
+		The Trace_WiB index, a measure of connectedness
+		"""
+		self.description = "The Trace_WiB index, a measure of connectedness"
+		numCluster=max(self.classLabel)+1
+		attributes=len(self.dataMatrix[0])
+		b=np.zeros((numCluster,attributes))
+		wg=np.zeros((attributes,attributes))
+		#compute the data center
+		dataCenter=np.mean(self.dataMatrix,0)
+		#iterate all the clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			xCluster=clusterMember
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			b[i,:]=clusterCenter-dataCenter
+			#compute wgk and wg
+			for j in range(attributes):
+				columnVec=clusterMember[:,j]
+				columnCenter=np.mean(columnVec)
+				#compute xk
+				xCluster[:,j]=columnVec-columnCenter
+			#compute wgk
+			wg=wg+np.dot(np.transpose(xCluster),xCluster)
+		#compute bg
+		bg=np.dot(np.transpose(b),b)
+		#compute fitness
+		try:
+			self.validation = np.trace(np.dot(np.linalg.inv(wg),bg))
+		except np.linalg.linalg.LinAlgError:
+			# Numpy will thrown an exception on singular matricies
+			# If this happens, warn the user and return 0
+			warnings.warn('Cannot calculate trace_wib, due to an undefined value', UserWarning)
+			self.validation = 0
+		return self.validation
+
+	def Wemmert_Gancarski(self):
+		"""
+		The Wemmert-Gancarski index, the quotients of distances between the points and the barycenters of all clusters, a measure of compactness
+		"""
+		self.description = "The Wemmert-Gancarski index, a measure of compactness"
+		sum=0
+		list_centers=[]
+		attributes=len(self.dataMatrix[0])
+		numObj=len(self.classLabel)
+		numCluster=max(self.classLabel)+1
+		#compute all the centers
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			list_centers.append(np.mean(clusterMember,0))
+		#iterate the clusters again for Rm
+		for i in range(numCluster):
+			sumRm=0
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the currrent center
+			clusterCenter=np.mean(clusterMember,0)
+			tempList=list_centers
+			tempList = tempList[:i] + tempList[i+1 :]
+			#iterate through the member and compute rm
+			for member in clusterMember:
+				#make it a 2d array
+				memberArray=np.zeros((1,attributes))
+				memberArray[0,:]=member
+				#compute the pair wise distance
+				list_dis=distance.cdist(memberArray,tempList)
+				sumRm=sumRm+(distance.euclidean(member, clusterCenter))/min(min(list_dis))
+			#compute the sum
+			sum=sum+max([0,len(indices)-sumRm])
+		#compute the fitness
+		self.validation = sum/numObj
 		return self.validation
