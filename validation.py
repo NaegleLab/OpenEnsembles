@@ -605,3 +605,26 @@ class validation:
 		#compute the fitness
 		self.validation = sum/numObj
 		return self.validation
+
+	def root_mean_square(self):
+		"""
+		The Root-Mean-Square Standard Deviation (RMSSTD), the root mean square
+		standard deviation of all variables within each cluster. A measure of
+		connectedness.
+		"""
+		self.description = "The Root-Mean-Square Standard Deviation (RMSSTD), a measure of connectedness"
+		numCluster=max(self.classLabel)+1
+		attributes=len(self.dataMatrix[0])
+		denominator=attributes*(len(self.dataMatrix)-numCluster)
+		normSum=0
+		#iterate through all the clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			#compute the square error for every member in the cluster
+			for member in clusterMember:
+				normSum=normSum+distance.euclidean(member, clusterCenter)
+		self.validation = math.sqrt(normSum/denominator)
+		return self.validation
