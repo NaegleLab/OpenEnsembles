@@ -29,7 +29,7 @@ class validation:
 		methods.remove('validation_metrics_available')
 		methodDict = {}
 		for method in methods:
-			if not re.match('__', method):
+			if not re.match('__', method) and not re.match('_validation__', method):
 				methodDict[method] = ''
 		return methodDict
 
