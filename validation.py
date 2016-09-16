@@ -628,3 +628,223 @@ class validation:
 				normSum=normSum+distance.euclidean(member, clusterCenter)
 		self.validation = math.sqrt(normSum/denominator)
 		return self.validation
+
+
+	def r_squared(self):
+		"""
+		R-squared, a statistical measure of how close the data is to a fitted regression line.
+		A measure of compactness.
+		"""
+		self.description = "R-squared, a measure of compactness"
+		#compute the center of the dataset
+		dataCenter=np.mean(self.dataMatrix,0)
+		numCluster=max(self.classLabel)+1
+		normClusterSum=0
+		normDatasetSum=0
+		#iterate through all the clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			#compute the norm for every member in the cluster with cluster center and dataset center
+			for member in clusterMember:
+				normClusterSum=normClusterSum+distance.euclidean(member, clusterCenter)
+				normDatasetSum=normDatasetSum+distance.euclidean(member, dataCenter)
+		#compute the fitness
+		self.validation = (normDatasetSum-normClusterSum)/normDatasetSum
+		return self.validation
+
+	def modified_hubert_t(self):
+		"""
+		The Modified Hubert T Statistic, a measure of compactness.
+		"""
+		self.description = "The Modified Hubert T Statistic, a measure of compactness"
+		sumDiff=0
+		#compute the centers of all the clusters
+		list_center=[]
+		numCluster=max(self.classLabel)+1
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			list_center.append(np.mean(clusterMember,0))
+		size=len(self.classLabel)
+		#iterate through each of the two pairs exhaustively
+		for i in range(size-1):
+			for j in range(i+1,size):
+				#get the cluster labels of the two objects
+				label1=self.classLabel[i]
+				label2=self.classLabel[j]
+				#compute the distance of the two objects
+				pairDistance=distance.euclidean(self.dataMatrix[i], self.dataMatrix[j])
+				#compute the distance of the cluster center of the two objects
+				centerDistance=distance.euclidean(list_center[label1], list_center[label2])
+				#add the product to the sum
+				sumDiff=sumDiff+pairDistance*centerDistance
+		#compute the fitness
+		self.validation = 2*sumDiff/(size*(size-1))
+		return self.validation
+
+	def i_index(self):
+		"""
+		The I index, a measure of compactness.
+		"""
+		self.description = "The I Index, a measure of compactness."
+		normClusterSum=0
+		normDatasetSum=0
+		list_centers=[]
+		#compute the number of clusters and attribute
+		attributes=len(self.dataMatrix[0])
+		numCluster=max(self.classLabel)+1
+		#compute the center of the dataset
+		dataCenter=np.mean(self.dataMatrix,0)
+		#iterate through all the clusters
+		for i in range(numCluster):
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the center of the cluster
+			clusterCenter=np.mean(clusterMember,0)
+			list_centers.append(clusterCenter)
+			#compute the norm for every member in the cluster with cluster center and dataset center
+			for member in clusterMember:
+				normClusterSum=normClusterSum+distance.euclidean(member, clusterCenter)
+				normDatasetSum=normDatasetSum+distance.euclidean(member, dataCenter)
+		#compute the max distance between cluster centers
+		maxCenterDis=max(distance.pdist(list_centers))
+		#compute the fitness
+		self.validation = math.pow(((normDatasetSum*maxCenterDis)/(normClusterSum*numCluster)),attributes)
+		return self.validation
+
+	## Davies-Bouldin Index DB
+	def Davies_Bouldin(self):
+		"""
+		The Davies-Bouldin index, the average of all cluster similarities.
+		"""
+		self.description = "The Davies-Bouldin index, the average of all cluster similarities"
+		numCluster=max(self.classLabel)+1
+		list_max=[]
+		#iterate through the clusters
+		for i in range(numCluster):
+			list_tempMax=[]
+			#get all members from cluster i
+			indices1=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember1=self.dataMatrix[indices1,:]
+			#compute the cluster center
+			clusterCenter1=np.mean(clusterMember1,0)
+			#compute the cluster norm sum
+			sumNorm1=0
+			for member in clusterMember1:
+				sumNorm1=sumNorm1+distance.euclidean(member,clusterCenter1)
+			for j in range(numCluster):
+				if j!=i:
+					#get all members from cluster j
+					indices2=[t for t, x in enumerate(self.classLabel) if x == j]
+					clusterMember2=self.dataMatrix[indices2,:]
+					#compute the cluster center
+					clusterCenter2=np.mean(clusterMember2,0)
+					#compute the cluster norm sum
+					sumNorm2=0
+					for member in clusterMember2:
+						sumNorm2=sumNorm2+distance.euclidean(member,clusterCenter2)
+					tempDis=(sumNorm1/len(indices1)+sumNorm2/len(indices2))/distance.euclidean(clusterCenter1,clusterCenter2)
+					list_tempMax.append(tempDis)
+			list_max.append(max(list_tempMax))
+		#compute the fitness
+		self.validation = sum(list_max)/numCluster
+		return self.validation
+
+	def Xie_Beni(self):
+		"""
+		The Xie-Beni index, a measure of compactness.
+		"""
+		self.description = "The Xie-Beni index, a measure of compactness"
+		numCluster=max(self.classLabel)+1
+		numObject=len(self.classLabel)
+		sumNorm=0
+		list_centers=[]
+		for i in range(numCluster):
+			#get all members from cluster i
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the cluster center
+			clusterCenter=np.mean(clusterMember,0)
+			list_centers.append(clusterCenter)
+			#interate through each member of the cluster
+			for member in clusterMember:
+				sumNorm=sumNorm+math.pow(distance.euclidean(member,clusterCenter),2)
+		minDis=min(distance.pdist(list_centers))
+		#compute the fitness
+		self.validation = sumNorm/(numObject*pow(minDis,2))
+		return self.validation
+
+	## density function for SDBW
+	@staticmethod
+	def __density(a,b,stdev):
+		dis=distance.euclidean(a,b)
+		if dis>stdev:
+			return 0
+		else:
+			return 1
+
+	## S_Dbw validity index SDBW
+	def s_dbw(self):
+		"""
+		The S_Dbw index, a measure of compactness.
+		"""
+		self.description = "The S_Dbw index, a measure of compactness"
+		sumDens=0
+		sumNormCluster=0
+		sumScat=0
+		list_centers=[]
+		numCluster=max(self.classLabel)+1
+		#compute the norm of sigma(dataset)
+		normSigDataset=np.linalg.norm(np.var(self.dataMatrix,0))
+		#iterate through all the clusters of self.classLabel
+		for i in range(numCluster):
+			#get all members from cluster i
+			indices=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember=self.dataMatrix[indices,:]
+			#compute the cluster center
+			clusterCenter=np.mean(clusterMember,0)
+			list_centers.append(clusterCenter)
+			normSigCluster=np.linalg.norm(np.var(clusterMember,0))
+			sumScat=sumScat+normSigCluster/normSigDataset
+			sumNormCluster=sumNormCluster+normSigCluster
+		#compute stdev
+		stdev=math.sqrt(sumNormCluster)/numCluster
+		#iterate again for density_bw
+		for i in range(numCluster):
+			sumDensity1=0
+			sumTemp=0
+			#get all members from cluster i
+			indices1=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember1=self.dataMatrix[indices1,:]
+			#compute sum of f(x,ci)
+			for member in clusterMember1:
+				sumDensity1=sumDensity1+validation.__density(member,list_centers[i],stdev)
+			for j in range(numCluster):
+				if j!=i:
+					sumDensity2=0
+					sumDensityCombine=0
+					#get all members from cluster j
+					indices2=[t for t, x in enumerate(self.classLabel) if x == j]
+					clusterMember2=self.dataMatrix[indices2,:]
+					#compute sum of f(x,cj)
+					for member in clusterMember2:
+						sumDensity2=sumDensity2+validation.__density(member,list_centers[j],stdev)
+					#compute the middle point of the two cluster centers
+					midPoint=[]
+					for k in range(len(list_centers[0])):
+						midPoint.append((list_centers[i][k]+list_centers[j][k])/2)
+					#compute sum of f(x,uij)
+					combined=clusterMember1+clusterMember2
+					for member in combined:
+						sumDensityCombine=sumDensityCombine+validation.__density(member,midPoint,stdev)
+					sumTemp=sumTemp+sumDensityCombine/max([sumDensity1,sumDensity2])
+			sumDens=sumDens+sumTemp
+		#compute scat and dens_bw
+		scat=sumScat/numCluster
+		dens_bw=sumDens/(numCluster*(numCluster-1))
+		#compute the fitness
+		self.validation = scat+dens_bw
+		return self.validation
