@@ -848,3 +848,37 @@ class validation:
 		#compute the fitness
 		self.validation = scat+dens_bw
 		return self.validation
+
+	def Dunns_index(self):
+		"""
+		Dunn's index, a measure of cluster compactness
+		"""
+		self.description = "Dunn's Index, a measure of compactness"
+		list_diam=[]
+		list_minDis=[]
+		numCluster=max(self.classLabel)+1
+		#iterate through the clusters
+		for i in range(numCluster-1):
+			#get all members from cluster i
+			indices1=[t for t, x in enumerate(self.classLabel) if x == i]
+			clusterMember1=self.dataMatrix[indices1,:]
+			#compute the diameter of the cluster
+			list_diam.append(max(distance.pdist(clusterMember1)))
+			for j in range(i+1,numCluster):
+				#get all members from cluster j
+				indices2=[t for t, x in enumerate(self.classLabel) if x == j]
+				clusterMember2=self.dataMatrix[indices2,:]
+				#compute the diameter of the cluster
+				diameter = distance.pdist(clusterMember2)
+				# If it is zero, the value is undefined
+				if len(diameter) == 0:
+					warnings.warn('Cannot calculate Dunns_index, due to an undefined value', UserWarning)
+					self.validation = 0
+					return self.validation
+				list_diam.append(max(diameter))
+				#get the pairwise distance and find the minimum
+				pairDis=distance.cdist(clusterMember1,clusterMember2)
+				minDis=min(list(itertools.chain(*pairDis)))
+				list_minDis.append(minDis)
+		#compute the fitness
+		return min(list_minDis)/max(list_diam)
