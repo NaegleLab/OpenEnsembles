@@ -51,6 +51,7 @@ class data:
                 class_labels: this is a vector that assigns points to classes, and will be used to color the plots differently
                 fig_num: a different figure number, default ==1
                 title 
+
         """
         m = self.D[source_name].shape[0] 
         n = self.D[source_name].shape[1]
@@ -64,25 +65,20 @@ class data:
             class_labels = kwargs['class_labels']
 
         clusters = np.unique(class_labels)
-        #Scatter plot if dimensionality is less than 3 dimensions
-        if n <= 3:
-            fig = plt.figure(fig_num, figsize=(6, 6))
-            if n==3:
-                #ax = fig.add_subplot(111, projection='3d')
-                ax = fig.gca(projection='3d')
-            else:
-                #ax = fig.add_subplot(111)
-                #ax = fig.add_axes(rect= [0,0,0.95,1])
-                ax = fig.add_subplot(111)
 
-            #plt.clf() # clear the current figure
-            #fig.add_axes(rect= [0,0,0.95,1])
+        color=iter(cm.rainbow(np.linspace(0,1,len(clusters))))
+        
+        fig = plt.figure(fig_num, figsize=(6, 6))
+        plt.hold(True)
 
-            #plt.cla() # clear the current axis
+        #SETUP axes, as either 2D or 3D
+        if n==3:
+            ax = fig.gca(projection='3d')
+        else:
+            ax = fig.add_subplot(111)
+        ax.hold(True)
 
-            plt.hold(True)
-            ax.hold(True)
-            color=iter(cm.rainbow(np.linspace(0,1,len(clusters))))
+        if n <= 3: #scatter plots for less than 4-dimensions
             for clusterNum in clusters:
                 indexes = np.where(class_labels==clusterNum)
                 if n==2:
@@ -95,13 +91,21 @@ class data:
             plt.ylabel(self.x[source_name][1])
             if n==3:
                 ax.set_zlabel(self.x[source_name][2])
-            plt.title(title)
-            plt.show()
-            return fig
 
         else:
+            plt.hold(True)
+            ax.hold(True)
+            for clusterNum in clusters:
+                indexes = np.where(class_labels==clusterNum)
+                plt.plot(self.D[source_name][indexes].transpose(), c=next(color))
 
-            pass
+
+        plt.title(title)
+        plt.show()
+        return fig
+
+
+
 
 
     def transform(self, source_name, txfm_fcn, txfm_name, **kwargs):
