@@ -63,8 +63,18 @@ class data:
             class_labels = np.ones(n)
         else:
             class_labels = kwargs['class_labels']
+        if 'clusters_to_plot' not in kwargs:
+            clusters = np.unique(class_labels)
+        else:
+            #check, this argument should be a list with a direct set match
+            clustersPossible = np.unique(class_labels)
+            clusters = kwargs['clusters_to_plot']
+            if not set(clusters) < set(clustersPossible):
+                raise ValueError("ERROR: the clusters to plot are not a direct match to possible clusters in plot_data")
 
-        clusters = np.unique(class_labels)
+
+
+        #clusters = np.unique(class_labels)
 
         color=iter(cm.rainbow(np.linspace(0,1,len(clusters))))
         
