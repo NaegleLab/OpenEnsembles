@@ -92,22 +92,39 @@ class coMat:
 
      
     def plot(self, **kwargs):#dist_thresh=self.avg_dist):
+        """
+        Plot the co_occurrence matrix, using dist_threshold to color the dendrogram. 
+        Uses average linkage to sort the dendrogram. Can plot using this threshold and cut using .cut()
+        By Default labels=True, set to false to suppress labels in graph
+        Example:
+        cOcc.plot(dist_thresh=0.5)
+        """
         if "distance_threshold" in kwargs:
             dist_thresh = kwargs['distance_threshold']
         else:
             dist_thresh = self.avg_dist
+        if "labels" in kwargs:
+            add_labels = kwargs['labels']
+        else:
+            add_labels = True
+        if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
+            label_vec = kwargs['label_vec']
+        else:
+            label_vec = self.cObj.dataObj.df.index.values.tolist() #using parent just to get column names
 
         fig = pylab.figure(figsize=(10,10))
         panel3 = fig.add_axes([0,0,1,1])
         panel3.axis('off')
-        ax1 = add_subplot_axes(panel3,[0.0,0.3,0.10,.6])
+
+        # Add dendrogram 
+        ax1 = add_subplot_axes(panel3,[0.0,0.3,0.11,.6])
         lnk1 = self.link(linkage='average')
-        Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh)
+
+        Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh, labels=label_vec)
         idx_pp = Z_pp['leaves']
-        ax1 = add_subplot_axes(panel3,[0.0,0.3,0.10,.6])
-        ax1.set_yticks([])
+        #ax1.set_yticks([])
         fig.gca().invert_yaxis() # must couple with matshow origin='upper',
-        #ax1.set_xticks([])
+        ax1.set_xticks([])
         for side in ['top','right','bottom','left']:
             ax1.spines[side].set_visible(False)
 
@@ -117,12 +134,15 @@ class coMat:
         hm = hm.ix[idx_pp,idx_pp]
         im = axmatrix.matshow(hm, aspect='auto', origin='upper', cmap='afmhot')
         axmatrix.axis('off')
+
+
+
          # Plot colorbar indicating scale
         axcolor = add_subplot_axes(panel3,[0.28,0.2,0.7,.02]) # [xmin, ymin, dx, and dy]
         h=pylab.colorbar(im, cax=axcolor,orientation='horizontal')
         h.ax.tick_params(labelsize=10)
-        h.set_ticks([0,.25,.50,.75,1])
-        h.set_ticklabels(['0%','25%','50%','75%','100%'])
+        h.set_ticks([0.0,.25,.50,.75,1])
+        #h.set_ticklabels(['0%','25%','50%','75%','100%'])
 
         plt.show()
 
