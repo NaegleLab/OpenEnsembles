@@ -96,6 +96,8 @@ class coMat:
         Plot the co_occurrence matrix, using dist_threshold to color the dendrogram. 
         Uses average linkage to sort the dendrogram. Can plot using this threshold and cut using .cut()
         By Default labels=True, set to false to suppress labels in graph
+        By default label_vec equal to the index list of the dataObj dataframe. Otherwise, you can pass in an alternate naming scheme, 
+        vector length should be the same as 
         Example:
         cOcc.plot(dist_thresh=0.5)
         """
@@ -109,20 +111,28 @@ class coMat:
             add_labels = True
         if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
             label_vec = kwargs['label_vec']
+            if len(label_vec) != len(self.co_matrix):
+                raise ValueError("ERROR: the length of label vector does not equal the number of objects in the co_occurrence matrix")
         else:
             label_vec = self.cObj.dataObj.df.index.values.tolist() #using parent just to get column names
+            
 
         fig = pylab.figure(figsize=(10,10))
         panel3 = fig.add_axes([0,0,1,1])
         panel3.axis('off')
 
         # Add dendrogram 
-        ax1 = add_subplot_axes(panel3,[0.0,0.3,0.11,.6])
+        
         lnk1 = self.link(linkage='average')
-
-        Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh, labels=label_vec)
+        if add_labels:
+            ax1 = add_subplot_axes(panel3,[0.0,0.3,0.11,.6])
+            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh, labels=label_vec)
+        else:
+            ax1 = add_subplot_axes(panel3,[0.16,0.3,0.11,.6])
+            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh)
+            ax1.set_yticks([])
         idx_pp = Z_pp['leaves']
-        #ax1.set_yticks([])
+        #
         fig.gca().invert_yaxis() # must couple with matshow origin='upper',
         ax1.set_xticks([])
         for side in ['top','right','bottom','left']:
