@@ -39,10 +39,29 @@ class TestFunctions(unittest.TestCase):
     def test_transform_error_noTxfm(self):
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'zscoreGobblyGook', 'zscore'))
 
+    def test_internal_normalization(self):
+        self.assertRaises(ValueError, lambda: self.data.transform('parent', 'internal_normalization', 'internal_normalization'))
+        self.assertRaises(ValueError, lambda: self.data.transform('parent', 'internal_normalization', 'internal_normalization', x_val=40))
+        self.assertRaises(ValueError, lambda: self.data.transform('parent', 'internal_normalization', 'internal_normalization', col_index=5))
+        
+        self.data.transform('parent', 'internal_normalization', 'internal_norm_to_5min', col_index=1)
+        self.assertEqual(2, len(self.data.D))
+
+        self.data.transform('parent', 'internal_normalization', 'internal_norm_to_5min', x_val=5)
+        self.assertEqual(3, len(self.data.D))
+
+
+
+
     def test_all_transform(self):
         #check to see that a new entry in D, x and params are added for every
-        #transform available
+        #transform available that has a default behavior
         TXFM_FCN_DICT = self.data.transforms_available()
+        special_transforms = ['internal_normalization']
+        for txfm in special_transforms:
+            if txfm in TXFM_FCN_DICT:
+                del TXFM_FCN_DICT[txfm]
+        #take internal_normalization out 
         len_expected = 2
         for transform in TXFM_FCN_DICT:
             self.data.transform('parent', transform, transform)

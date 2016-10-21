@@ -109,6 +109,39 @@ class transforms:
             
         return pca
 
+    def internal_normalization(self):
+        """
+        This normalizes all data (in rows) to one point in that row, based on either
+        col_index or value in the x vector (x_val)
+        Example:
+        Normalize data to 5minutes internal_normalization(x_val=5)
+        """
+        if 'col_index' in self.args:
+            index = self.args['col_index']
+            if index >= len(self.x):
+                raise ValueError('internal_normalization requires an index value within the length of the x vector')
+            x_val = self.x[index]
+
+        elif 'x_val' in self.args:
+            #find col_name
+            x_val = self.args['x_val']
+            indexes = np.flatnonzero(np.asarray(self.x) == x_val)
+            if not indexes:
+                raise ValueError('internal_normalization requires an x_val in the x vector, %s was not found'%(x_val))
+            elif len(indexes) > 1:
+                raise ValueError('internal_normalization requires an x_val in the x vector that appears one time, %s was found %d tiems'%(x_val, len(indexes)))
+            else:
+                index = indexes[0]
+        else:
+            raise ValueError('internal_normalization requires a valid normalizing column according to a specific value in x (x_val) or index (col_index) ')
+
+        self.var_params['x_val'] = x_val
+        self.var_params['index'] = index
+        self.x_out = self.x
+        vec = self.data[:,index]
+        self.data_out = self.data/vec[:,None]
+
+
 
 
         
