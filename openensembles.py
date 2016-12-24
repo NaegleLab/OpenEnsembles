@@ -60,7 +60,7 @@ class data:
         else:
             title = ''
         if 'class_labels' not in kwargs:
-            class_labels = np.ones(n)
+            class_labels = np.ones(m)
         else:
             class_labels = kwargs['class_labels']
         if 'clusters_to_plot' not in kwargs:
@@ -107,7 +107,7 @@ class data:
             ax.hold(True)
             for clusterNum in clusters:
                 indexes = np.where(class_labels==clusterNum)
-                plt.plot(self.D[source_name][indexes].transpose(), c=next(color))
+                plt.plot(self.x[source_name], self.D[source_name][indexes].transpose(), c=next(color))
 
 
         plt.title(title)

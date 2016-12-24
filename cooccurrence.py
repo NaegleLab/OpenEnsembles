@@ -155,6 +155,7 @@ class coMat:
         #h.set_ticklabels(['0%','25%','50%','75%','100%'])
 
         plt.show()
+        return fig
 
 
 
