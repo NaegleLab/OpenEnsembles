@@ -160,9 +160,10 @@ class clustering_algorithms:
         params['min_samples']=5
         params['metric']='euclidean'
         params['algorithm']='auto'
-        params['leaf_size']=30, 
+        params['leaf_size']=30
         params['p']=None, 
         params['random_state']=None
+
 
         params = returnParams(self.var_params, params)
         #overlap = set(params.keys()) & set(self.var_params.keys())
