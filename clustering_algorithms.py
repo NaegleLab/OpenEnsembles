@@ -177,6 +177,25 @@ class clustering_algorithms:
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
 
+    def AffinityPropagation(self):
+        """
+        sklearn.cluster.AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False)
+        """
+        params = {}
+        params['damping'] = 0.5
+        params['max_iter'] = 200
+        params['convergence_iter'] = 15
+        params['copy'] = True
+        params['preference'] = None
+        params['affinity'] = 'euclidean'
+        params['verbose'] = False
+        params = returnParams(self.var_params, params)
+        solution = skc.AffinityPropagation(damping=params['damping'], max_iter=params['max_iter'], convergence_iter=params['convergence_iter'], 
+            copy=params['copy'], preference=params['preference'], affinity=params['affinity'], verbose=params['verbose'])
+        solution.fit(self.data)
+        self.out = solution.labels_
+        self.var_params = params #update dictionary of parameters to match that used.
+
 def returnParams(paramsSent, paramsExpected):
     """
     A utility for variable parameter setting in clustering algorithms
