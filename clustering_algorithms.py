@@ -68,7 +68,7 @@ class clustering_algorithms:
         params['copy_x'] = True
         params['n_jobs'] = 1
         #for anything in self.var_params that may replace defaults, update the param list
-        params = returnParams(self.var_params, params)
+        params = returnParams(self.var_params, params, 'kmeans')
         solution=skc.KMeans(n_clusters=self.K, init=params['init'], 
             n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'],
             precompute_distances=params['precompute_distances'], verbose=params['verbose'],
@@ -110,7 +110,7 @@ class clustering_algorithms:
         params['kernel_params']=None
 
         #for anything in self.var_params that may replace defaults, update the param list
-        params = returnParams(self.var_params, params)
+        params = returnParams(self.var_params, params, 'spectral')
  
         solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
                         eigen_solver=params['eigen_solver'], random_state=params['random_state'], n_init=params['n_init'],
@@ -126,6 +126,7 @@ class clustering_algorithms:
         This calls:
         sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', connectivity=None, 
         n_components=None, compute_full_tree='auto', linkage='ward', pooling_func=<function mean>)
+                DEFAULTS:
                 params['affinity'] = 'euclidean'
                 params['connectivity']= None
                 params['n_components'] = None
@@ -134,7 +135,8 @@ class clustering_algorithms:
                 params['pooling_func'] = np.mean
         """
         params = {}
-        params['affinity'] = 'euclidean'
+        params['distance'] = 'euclidean'
+        params['affinity'] = params['distance']
         #params['memory'] = 'Memory(cachedir=None)'
         params['connectivity']= None
         params['n_components'] = None
@@ -142,7 +144,9 @@ class clustering_algorithms:
         params['linkage'] = 'ward'
         params['pooling_func'] = np.mean
 
-        params = returnParams(self.var_params, params)
+        params = returnParams(self.var_params, params, 'agglomerative')
+        # reset the distance parameter for 
+        params['affinity'] = params['distance'] #if self.var_params had a distance, have to reset here.
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
             connectivity=params['connectivity'], n_components= params['n_components'],
             compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
@@ -153,22 +157,29 @@ class clustering_algorithms:
     def DBSCAN(self):
         """
         sklearn.cluster.DBSCAN(eps=0.5, min_samples=5, metric='euclidean', algorithm='auto', leaf_size=30, p=None, random_state=None)
+            DEFAULTS:
+                params['eps']=0.5
+                params['min_samples']=5
+                params['metric']='euclidean'
+                params['algorithm']='auto'
+                params['leaf_size']=30
+                params['p']=None, 
+                params['random_state']=None
 
         """
         params = {}
+        params['distance'] = 'euclidean'
         params['eps']=0.5
         params['min_samples']=5
-        params['metric']='euclidean'
+        params['metric']=params['distance']
         params['algorithm']='auto'
         params['leaf_size']=30
         params['p']=None, 
         params['random_state']=None
 
 
-        params = returnParams(self.var_params, params)
-        #overlap = set(params.keys()) & set(self.var_params.keys())
-        #for key in overlap:
-        #    params[key] = self.var_params[key]
+        params = returnParams(self.var_params, params, 'DBSCAN')
+        params['metric']=params['distance'] #if self.var_params had a distance, have to reset here.
 
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
@@ -182,21 +193,24 @@ class clustering_algorithms:
         sklearn.cluster.AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False)
         """
         params = {}
+        params['distance'] = 'euclidean'
+        params['affinity'] = params['distance']
         params['damping'] = 0.5
         params['max_iter'] = 200
         params['convergence_iter'] = 15
         params['copy'] = True
         params['preference'] = None
-        params['affinity'] = 'euclidean'
+
         params['verbose'] = False
-        params = returnParams(self.var_params, params)
+        params = returnParams(self.var_params, params, 'AffinityPropagation')
+        params['affinity'] = params['distance'] #if self.var_params had a distance, have to reset here.
         solution = skc.AffinityPropagation(damping=params['damping'], max_iter=params['max_iter'], convergence_iter=params['convergence_iter'], 
             copy=params['copy'], preference=params['preference'], affinity=params['affinity'], verbose=params['verbose'])
         solution.fit(self.data)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
 
-def returnParams(paramsSent, paramsExpected):
+def returnParams(paramsSent, paramsExpected, algorithm):
     """
     A utility for variable parameter setting in clustering algorithms
     Takes two dictionaries of parameter key, value pairs and replaces that in paramsExpected 
@@ -206,12 +220,17 @@ def returnParams(paramsSent, paramsExpected):
     params = paramsExpected
     paramsToCheck = paramsSent
     for key in overlap:
-        params[key] = paramsSent[key]
+        params[key] = paramsSent[key] #if it was sent, overwrite default.
         del paramsToCheck[key]
 
-    #warn if there are keys in paramsToCheck (means they were sent, but not expected)
+    #warn if there are keys in paramsToCheck (means they were sent, but not expected) (covers distance metric as well)
     for key in paramsToCheck:
-        warnings.warn("Parameter %s was not expected and will be ignored"%(key), UserWarning)
+        warnings.warn("Parameter %s was not expected in algorithm %s and will be ignored"%(key, algorithm), UserWarning)
+
+    # Warn if the paramsSent contain a distance, but paramsExpected does not
+    #if 'distance' in paramsSent:
+    #    if 'distance' not in paramsExpected:
+    #        warnings.warn("Algorithm does not take a distance metric and distance metric %s will be ignored"%(paramsSent['distance']), UserWarning)
 
     return params
 

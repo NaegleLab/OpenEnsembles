@@ -60,7 +60,7 @@ class data:
         else:
             title = ''
         if 'class_labels' not in kwargs:
-            class_labels = np.ones(m)
+            class_labels = np.array()#np.ones(m)
         else:
             class_labels = kwargs['class_labels']
         if 'clusters_to_plot' not in kwargs:
