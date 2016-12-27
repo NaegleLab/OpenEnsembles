@@ -198,7 +198,7 @@ class cluster:
         ALG_FCN_DICT = algorithms.clustering_algorithms_available()
         return ALG_FCN_DICT
 
-    def cluster(self, source_name, algorithm, output_name, K=2, Require_Unique=0, **kwargs):
+    def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=0, **kwargs):
 
         """
         This runs clustering algorithms on the data matrix defined by
@@ -249,8 +249,9 @@ class cluster:
 
         # CHECK that K is as requested 
         uniqueClusters = np.unique(c.out)
-        if len(uniqueClusters) != K:
-            warnings.warn("Number of unique clusters %d returned does not match number requested %d for solution: %s"%(len(uniqueClusters), K, output_name), UserWarning)
+        if K: #check if K was overwritten
+            if len(uniqueClusters) != K:
+                warnings.warn("Number of unique clusters %d returned does not match number requested %d for solution: %s"%(len(uniqueClusters), K, output_name), UserWarning)
 
 
         self.labels[output_name] = c.out

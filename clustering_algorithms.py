@@ -27,7 +27,7 @@ class clustering_algorithms:
         self.out = []
         self.var_params = kwargs
         self.K = K
-        #args should have K, even if a default value
+        #args should have K, even if a default value (should it? not all algorithms need this, use default)
         #if 'K' not in self.args:
         #    raise ValueError('clustering_algorithms should have an instantiated K as part of kwargs key, pair')
 
