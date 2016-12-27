@@ -6,6 +6,7 @@ This file contains calls to clustering algorithms
 import numpy as np 
 import pandas as pd 
 import sklearn.cluster as skc
+import sklearn as sk
 import matplotlib.pyplot as plt
 from sklearn import datasets
 import scipy.cluster.hierarchy as sch
@@ -120,6 +121,7 @@ class clustering_algorithms:
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
 
+######### BELOW HERE ARE ALGORITHMS that handle DISTANCE METRICS
 
     def agglomerative(self):
         """
@@ -136,7 +138,7 @@ class clustering_algorithms:
         """
         params = {}
         params['distance'] = 'euclidean'
-        params['affinity'] = params['distance']
+        params['affinity'] = 'precomputed'
         #params['memory'] = 'Memory(cachedir=None)'
         params['connectivity']= None
         params['n_components'] = None
@@ -145,14 +147,19 @@ class clustering_algorithms:
         params['pooling_func'] = np.mean
 
         params = returnParams(self.var_params, params, 'agglomerative')
-        # reset the distance parameter for 
-        params['affinity'] = params['distance'] #if self.var_params had a distance, have to reset here.
+        #params['distance'] says what to precompute on
+        d = returnDistanceMatrix(self.data, params['distance'])
+        params['affinity'] = 'precomputed'
+
+        if 'affinity' not in self.var_params: 
+            params['affinity']=params['distance'] #if self.var_params had a distance, have to reset here. (have to allow for the fact that someone could send it in as 'metric')
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
             connectivity=params['connectivity'], n_components= params['n_components'],
             compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
-        solution.fit(self.data)
+        solution.fit(d)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
+
 
     def DBSCAN(self):
         """
@@ -171,30 +178,39 @@ class clustering_algorithms:
         params['distance'] = 'euclidean'
         params['eps']=0.5
         params['min_samples']=5
-        params['metric']=params['distance']
+        params['metric']='precomputed'
         params['algorithm']='auto'
         params['leaf_size']=30
         params['p']=None, 
         params['random_state']=None
 
-
         params = returnParams(self.var_params, params, 'DBSCAN')
-        params['metric']=params['distance'] #if self.var_params had a distance, have to reset here.
 
+        #params['distance'] says what to precompute on
+        d = returnDistanceMatrix(self.data, params['distance'])
+        params['affinity'] = 'precomputed'
+        
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
             p=params['p'], random_state=params['random_state']) 
-        solution.fit(self.data)
+        solution.fit(d)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
 
     def AffinityPropagation(self):
         """
         sklearn.cluster.AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False)
+        DEFAULTS:
+            params['affinity'] = 'euclidean'
+            params['damping'] = 0.5
+            params['max_iter'] = 200
+            params['convergence_iter'] = 15
+            params['copy'] = True
+            params['preference'] = None
         """
         params = {}
         params['distance'] = 'euclidean'
-        params['affinity'] = params['distance']
+        params['affinity'] = 'precomputed'
         params['damping'] = 0.5
         params['max_iter'] = 200
         params['convergence_iter'] = 15
@@ -203,10 +219,15 @@ class clustering_algorithms:
 
         params['verbose'] = False
         params = returnParams(self.var_params, params, 'AffinityPropagation')
-        params['affinity'] = params['distance'] #if self.var_params had a distance, have to reset here.
+
+        #params['distance'] says what to precompute on
+        params['affinity'] = 'precomputed'
+        d = returnDistanceMatrix(self.data, params['distance'])
+        
         solution = skc.AffinityPropagation(damping=params['damping'], max_iter=params['max_iter'], convergence_iter=params['convergence_iter'], 
             copy=params['copy'], preference=params['preference'], affinity=params['affinity'], verbose=params['verbose'])
-        solution.fit(self.data)
+        solution.fit(d) #operates on distance matrix
+
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
 
@@ -233,4 +254,17 @@ def returnParams(paramsSent, paramsExpected, algorithm):
     #        warnings.warn("Algorithm does not take a distance metric and distance metric %s will be ignored"%(paramsSent['distance']), UserWarning)
 
     return params
+
+def returnDistanceMatrix(data, distance):
+    """
+    A utility to calculate a distance matrix, according to type in <distance> on the data array. Returns the distance matrix.
+    Raises a ValueError if the distance metric is not available.
+    """
+    distDict = sk.metrics.pairwise.distance_metrics()
+    if distance not in distDict:
+        raise ValueError("ERROR: the distance you requested is not availalbe by that name %s. Please see sklearn.metrics.pairwise.distance_metrics()"%(distance))
+    
+    d = distDict[distance](data)
+
+    return d
 
