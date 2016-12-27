@@ -250,7 +250,7 @@ class cluster:
         # CHECK that K is as requested 
         uniqueClusters = np.unique(c.out)
         if len(uniqueClusters) != K:
-            warnings.warn('Number of unique clusters returned does not match number requested', UserWarning)
+            warnings.warn("Number of unique clusters %d returned does not match number requested %d for solution: %s"%(len(uniqueClusters), K, output_name), UserWarning)
 
 
         self.labels[output_name] = c.out

@@ -138,7 +138,7 @@ class clustering_algorithms:
         """
         params = {}
         params['distance'] = 'euclidean'
-        params['affinity'] = 'precomputed'
+        params['affinity'] = params['distance']
         #params['memory'] = 'Memory(cachedir=None)'
         params['connectivity']= None
         params['n_components'] = None
@@ -147,16 +147,12 @@ class clustering_algorithms:
         params['pooling_func'] = np.mean
 
         params = returnParams(self.var_params, params, 'agglomerative')
-        #params['distance'] says what to precompute on
-        d = returnDistanceMatrix(self.data, params['distance'])
-        params['affinity'] = 'precomputed'
+        params['affinity'] = params['distance']
 
-        if 'affinity' not in self.var_params: 
-            params['affinity']=params['distance'] #if self.var_params had a distance, have to reset here. (have to allow for the fact that someone could send it in as 'metric')
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
             connectivity=params['connectivity'], n_components= params['n_components'],
             compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
-        solution.fit(d)
+        solution.fit(self.data)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
 
