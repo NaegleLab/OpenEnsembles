@@ -248,6 +248,18 @@ class graph_closure:
 	"""
 	Returns a final solution of the ensemble based on treating the co-occurrence matrix as a weighted graph whose 
 	solution is found from identifying network components within the graph
+
+	Finds k-percolated cliques in G, e.g,
+    Unless the cliques argument evaluates to True, this algorithm
+    first enumerates all cliques in G. These are stored in memory,
+    which in large graphs can consume large amounts of memory.
+    Returns a generator object. To return a list of percolated k-cliques,
+    Notes
+    -----
+    Based on the method outlined in Palla et. al., Nature 435,
+    814-818 (2005)
+    Code for Percolation From ConradLee: https://gist.github.com/conradlee/1341985
+
 	"""
 	def __init__(self, co_occ_matrix, threshold, clique_size = 3):
 		self.co_matrix = co_occ_matrix
@@ -260,7 +272,10 @@ class graph_closure:
 
 	def finish(self):
 		""" Finishes the ensemble by taking a binary adjacency matrix, defined in initilization according to the threshold given
-		and percolates the cliques"""
+		and percolates the cliques
+
+
+		"""
 
 		# From ConradLee on GitHUB
 		def get_percolated_cliques(G, k):
