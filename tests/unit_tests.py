@@ -70,6 +70,19 @@ class TestFunctions(unittest.TestCase):
             self.assertEqual(len_expected, len(self.data.params))
             len_expected += 1
 
+    def test_all_algorithms(self):
+        """
+        Test all algorithms with default parameters
+        """
+        c = oe.cluster(self.data)
+        ALG_FCN_DICT = c.algorithms_available()
+        num = 0
+        for algorithm in ALG_FCN_DICT:
+            name = algorithm + 'parent'
+            c.cluster('parent', algorithm, name, K=2)
+            num += 1
+        self.assertEqual(num, len(c.labels))
+
     def test_clustering_setup(self):
         c = oe.cluster(self.data)
         self.assertEqual(1, len(c.dataObj.D))

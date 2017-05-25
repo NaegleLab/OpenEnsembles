@@ -141,7 +141,7 @@ class clustering_algorithms:
         params['affinity'] = params['distance']
         #params['memory'] = 'Memory(cachedir=None)'
         params['connectivity']= None
-        params['n_components'] = None
+        #params['n_components'] = None #gone in newest version
         params['compute_full_tree'] = 'auto'
         params['linkage'] = 'ward'
         params['pooling_func'] = np.mean
@@ -150,7 +150,7 @@ class clustering_algorithms:
         params['affinity'] = params['distance']
 
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
-            connectivity=params['connectivity'], n_components= params['n_components'],
+            connectivity=params['connectivity'],
             compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
         solution.fit(self.data)
         self.out = solution.labels_
@@ -178,7 +178,7 @@ class clustering_algorithms:
         params['algorithm']='auto'
         params['leaf_size']=30
         params['p']=None, 
-        params['random_state']=None
+        #params['random_state']=None
 
         params = returnParams(self.var_params, params, 'DBSCAN')
 
@@ -186,9 +186,12 @@ class clustering_algorithms:
         d = returnDistanceMatrix(self.data, params['distance'])
         params['affinity'] = 'precomputed'
         
+        #solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
+        #    algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
+        #    p=params['p'], random_state=params['random_state']) 
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
-            p=params['p'], random_state=params['random_state']) 
+            p=params['p']) 
         solution.fit(d)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
