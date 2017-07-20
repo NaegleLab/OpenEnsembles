@@ -244,6 +244,64 @@ class co_occurrence_linkage:
 		self.labels = labels
 		return self.labels
 
+class majority_vote:
+	"""
+	Based on Ana Fred's 2001 paper (Fred, Ana. “Finding Consistent Clusters in Data Partitions.” 
+	In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.)
+	This algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
+	greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
+	a majority of the time. Outliers will get their own cluster
+	"""
+	def __init__(self, co_occ_matrix):
+		self.co_matrix = co_occ_matrix
+		self.K= 0 #number of clusters made 
+		self.N = len(co_occ_matrix)
+		self.labels = np.empty(self.N)
+
+
+	def finish(self):
+		"""
+		Finish the ensemble by majority vote
+		"""
+		labels = np.zeros(self.N)
+		currCluster = int(1)
+		x = self.co_matrix.as_matrix()
+
+		for i in range(0, self.N):
+			for j in range(i+1, self.N):
+
+				if x[i,j] > 0.5:
+					# the clusters should be set to the same value and if both belong to an existing cluster, all 
+					# members of the clusters should be joined
+					if labels[i] and labels[j]:
+						cluster_num = min(labels[i] , labels[j])
+						cluster_toChange = max(labels[i] , labels[j])
+
+						indices = [k for k, x in enumerate(labels) if x == cluster_toChange]
+						labels[indices] = cluster_num
+					elif not labels[i] and not labels[j]: #a new cluster
+						labels[i] = currCluster
+						labels[j] = currCluster
+						currCluster += 1
+					else: #one of them is in a cluster and one is not, one will be assigned the same thing, but saves an if
+						cluster_num = max(labels[i] , labels[j])
+						labels[i] = cluster_num
+						labels[j] = cluster_num
+
+				else: #else don't join them and give them an assignment the first time they are traversed
+					if not labels[i]:
+						labels[i] = currCluster
+						currCluster += 1
+					if not labels[j]:
+						labels[j] = currCluster
+						currCluster += 1
+		self.labels = labels
+
+
+
+
+
+
 class graph_closure:
 	"""
 	Returns a final solution of the ensemble based on treating the co-occurrence matrix as a weighted graph whose 

@@ -343,6 +343,28 @@ class cluster:
         c.clusterNumbers[name] = np.unique(c.labels[name])
         return c
 
+    def finish_majority_vote(self):
+        """
+
+        Based on Ana Fred's 2001 paper: Fred, Ana. “Finding Consistent Clusters in Data Partitions.” 
+        In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.
+        This algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
+        greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
+        a majority of the time. Outliers will get their own cluster
+        """
+        params = {}
+        coMatObj = self.co_occurrence_matrix('parent')
+        c_MV = finish.majority_vote(coMatObj.co_matrix)
+        c_MV.finish()
+
+        c = oe.cluster(self.dataObj)
+        name = 'majority_vote'
+        c.labels[name] = c_MV.labels
+        c.params[name] = params
+        c.data_source[name] = 'parent'
+        c.clusterNumbers[name] = np.unique(c.labels[name])
+        return c
+
 
     def get_cluster_members(self, solution_name, clusterNum):
         """ Return the dataframe row indexes of a cluster number in solution named by solution_name """
