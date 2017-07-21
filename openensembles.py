@@ -343,7 +343,7 @@ class cluster:
         c.clusterNumbers[name] = np.unique(c.labels[name])
         return c
 
-    def finish_majority_vote(self):
+    def finish_majority_vote(self, threshold=0.5):
         """
 
         Based on Ana Fred's 2001 paper: Fred, Ana. “Finding Consistent Clusters in Data Partitions.” 
@@ -354,7 +354,7 @@ class cluster:
         """
         params = {}
         coMatObj = self.co_occurrence_matrix('parent')
-        c_MV = finish.majority_vote(coMatObj.co_matrix)
+        c_MV = finish.majority_vote(coMatObj.co_matrix, threshold)
         c_MV.finish()
 
         c = oe.cluster(self.dataObj)

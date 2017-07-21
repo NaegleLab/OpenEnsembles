@@ -250,27 +250,29 @@ class majority_vote:
 	In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.)
 	This algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
 	greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
-	a majority of the time. Outliers will get their own cluster
+	a majority of the time. Outliers will get their own cluster. The original algorithm chose 0.5 as the threshold for a
+	majority vote, but here you can override the default parameter.
 	"""
-	def __init__(self, co_occ_matrix):
+	def __init__(self, co_occ_matrix, threshold=0.5):
 		self.co_matrix = co_occ_matrix
 		self.K= 0 #number of clusters made 
 		self.N = len(co_occ_matrix)
 		self.labels = np.empty(self.N)
+		self.threshold=threshold
 
 
 	def finish(self):
 		"""
 		Finish the ensemble by majority vote
 		"""
-		labels = np.zeros(self.N)
-		currCluster = int(1)
+		labels = np.zeros(self.N).astype(int)
+		currCluster = 1
 		x = self.co_matrix.as_matrix()
 
 		for i in range(0, self.N):
 			for j in range(i+1, self.N):
 
-				if x[i,j] > 0.5:
+				if x[i,j] > self.threshold:
 					# the clusters should be set to the same value and if both belong to an existing cluster, all 
 					# members of the clusters should be joined
 					if labels[i] and labels[j]:
@@ -295,6 +297,22 @@ class majority_vote:
 					if not labels[j]:
 						labels[j] = currCluster
 						currCluster += 1
+
+		#Add a cleanup state, if there are any cluster numbers that jump, move them down
+		clusters = np.sort(np.unique(labels))
+		for ind in range(0,len(clusters)-1): #operating on ind+1
+			if clusters[ind+1] != clusters[ind]+1:
+
+				cluster_num = clusters[ind] + 1
+				#print("updating cluster num %d to %d")%(clusters[ind+1], cluster_num)
+				indices = [k for k, x in enumerate(labels) if x == clusters[ind+1]]
+				labels[indices] = cluster_num
+				clusters[ind+1] = cluster_num 
+
+
+
+
+
 		self.labels = labels
 
 
