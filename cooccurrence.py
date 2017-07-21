@@ -154,12 +154,12 @@ class coMat:
         h.set_ticks([0.0,.25,.50,.75,1])
         #h.set_ticklabels(['0%','25%','50%','75%','100%'])
 
-        plt.show()
+        #plt.show()
         return fig
 
 
 
-def add_subplot_axes(ax,rect,axisbg='w'):
+def add_subplot_axes(ax,rect,facecolor='w'):
     fig = plt.gcf()
     box = ax.get_position()
     width = box.width
@@ -171,6 +171,6 @@ def add_subplot_axes(ax,rect,axisbg='w'):
     y = infig_position[1]
     width *= rect[2]
     height *= rect[3]
-    subax = fig.add_axes([x,y,width,height],axisbg=axisbg)
+    subax = fig.add_axes([x,y,width,height],facecolor=facecolor)
 
     return subax

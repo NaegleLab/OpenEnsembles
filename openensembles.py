@@ -79,14 +79,14 @@ class data:
         color=iter(cm.rainbow(np.linspace(0,1,len(clusters))))
         
         fig = plt.figure(fig_num, figsize=(6, 6))
-        plt.hold(True)
+        #plt.hold(True)
 
         #SETUP axes, as either 2D or 3D
         if n==3:
             ax = fig.gca(projection='3d')
         else:
             ax = fig.add_subplot(111)
-        ax.hold(True)
+        #ax.hold(True)
 
         if n <= 3: #scatter plots for less than 4-dimensions
             for clusterNum in clusters:
@@ -111,7 +111,7 @@ class data:
 
 
         plt.title(title)
-        plt.show()
+        #plt.show()
         return fig
 
 
