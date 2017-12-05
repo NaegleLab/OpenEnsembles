@@ -346,7 +346,7 @@ class cluster:
     def finish_majority_vote(self, threshold=0.5):
         """
 
-        Based on Ana Fred's 2001 paper: Fred, Ana. “Finding Consistent Clusters in Data Partitions.” 
+        Based on Ana Fred's 2001 paper: Fred, Ana. Finding Consistent Clusters in Data Partitions.
         In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.
         This algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
         greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
