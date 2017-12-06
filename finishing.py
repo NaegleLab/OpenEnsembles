@@ -1,7 +1,7 @@
-############################################################################
-# OpenEnsemble Project													   #
-# Implementation of the article Mixture Models for Ensemble CLustering by Topchy  
-############################################################################
+"""
+	OpenEnsemble Project
+	Finishing techniques that operate on an ensemble of clustering solutions													   
+"""
 import numpy as np
 import pandas as pd
 import pprint as pp
@@ -17,6 +17,8 @@ class mixture_model:
 	"""
 	Implementation of the article Mixture Models for Ensemble CLustering
 	Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
+
+	Written by Pedro da Silva Tavares and adapted by Kristen M. Naegle
 	"""
 
 	def __init__(self, parg, N, nEnsCluster=2, iterations=10):

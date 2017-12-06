@@ -10,7 +10,7 @@ from sklearn import metrics
 
 class validation:
 	"""
-	validation is a class for calculating validation metrics on a data matrix, data, given the clustering labels in labels.
+	validation is a class for calculating validation metrics on a data matrix (data), given the clustering labels in labels.
 	Instantiation sets validation to NaN and a description to ''. Once a metric is performed, these are replaced (unless)
 	validation did not yield a valid mathematical number, which can happen in certain cases, such as when a cluster
 	consists of only one member. Such results will warn the user.
@@ -85,7 +85,7 @@ class validation:
 	def silhouette(self):
 		"""
 		Silhouette: Compactness and connectedness combination that measures a ratio of within cluster distances to closest neighbors
-		outside of cluster.
+		outside of cluster. This uses sklearn.metrics version of the Silhouette.
 		"""
 		self.description = 'Silhouette: A combination of connectedness and compactness that measures within versus to the nearest neighbor outside a cluster. A smaller value, the better the solution'
 

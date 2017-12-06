@@ -1,5 +1,7 @@
 """
 OpenEnsembles is a resource for performing and analyzing ensemble clustering
+
+
 """
 import numpy as np 
 import pandas as pd 
@@ -21,7 +23,12 @@ from matplotlib.pyplot import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 class data:
-    
+    """
+    The data class has an initialization (taking a dataframe df and x values)
+
+    :raises MyError: Error of the size of x and dimensionality of df do not match
+
+    """
     def __init__(self, df, x):
         """
         df is a dataframe and x is the x_axis values (or numbers indicating the
@@ -40,6 +47,9 @@ class data:
             raise ValueError("ERROR: Size of x-values (%d) does not match that of of the dataframe dimensions (%d), replacing with an vector of integers of correct size"%(len(x), self.D['parent'].shape[1]))
 
     def transforms_available(self):
+        """
+        Returns a list of all transformations available
+        """
         txfm = tx.transforms(self.x, self.D, {})
         TXFM_FCN_DICT = txfm.transforms_available()
         return TXFM_FCN_DICT
