@@ -119,7 +119,7 @@ class clustering_algorithms:
                         eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'])
         solution.fit(self.data)
         self.out = solution.labels_
-        self.var_params = params #update dictionary of parameters to match that used.
+        self.var_params = params #update dictionary of parameters to match that used.        
 
 ######### BELOW HERE ARE ALGORITHMS that handle DISTANCE METRICS
 
@@ -229,6 +229,35 @@ class clustering_algorithms:
 
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
+
+    def Birch(self):
+        """
+            sklearn.cluster.Birch(threshold=0.5, branching_factor=50, compute_labels=True, copy=True)
+            DEFAULTS:
+            params['threshold'] = 0.5
+            params['branching_factor'] = 50
+            params['n_clusters'] = self.K
+            params['compute_labels'] = True
+            params['copy'] = True
+        """
+        params = {}
+        params['distance'] = 'euclidean'
+        params['threshold'] = 0.5
+        params['branching_factor'] = 50
+        params['n_clusters'] = self.K
+        params['compute_labels'] = True
+        params['copy'] = True
+        
+        params = returnParams(self.var_params, params, 'Birch')
+        d = returnDistanceMatrix(self.data, params['distance'])
+
+        solution = skc.Birch(threshold=params['threshold'], branching_factor=params['branching_factor'], n_clusters=params['n_clusters'],
+            compute_labels=params['compute_labels'], copy=params['copy'])
+        solution.fit(d)
+
+        self.out = solution.labels_
+        self.var_params = params
+
 
 def returnParams(paramsSent, paramsExpected, algorithm):
     """
