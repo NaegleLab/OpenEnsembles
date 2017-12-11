@@ -23,6 +23,10 @@ class transforms:
         """
         transforms object intiatilizes the object with .x, .data, and .args. The object is modified after a transformation
         to report the .x_out, .data_out and .var_params
+
+        :param \**kwargs:
+            These are the kwargs that are special to each transformation type. See 
+
         """
         self.x = x
         self.data = data
@@ -42,8 +46,29 @@ class transforms:
 
 
     def zscore(self):
+        """
+        Uses stats.zscore to zscore along the axis given. By default, OpenEnsembles assumes that the
+        feature dimensions are on axis=0 (column entries)
+
+        :param self.args:
+            * *axis* (``int``) -- the axis to operate on, 0 for columns, 1 for rows, '' for all (default is axis=0)
+            
+               
+        """
+
+        if 'axis' in self.args:
+            axis = self.args['axis']
+        else: 
+            axis = 0
+
         self.x_out = self.x 
-        self.data_out = stats.zscore(self.data, 1)
+        
+        if axis=='both':
+            self.data_out = stats.zscore(self.data)
+        elif axis==0 or axis==1:
+            self.data_out = stats.zscore(self.data, axis)
+        else:
+            raise ValueError( "zscore must operate on columns (axis=0), rows (axis=1), or both (axis=''), you passed%s"%(axis))
         self.var_params = {}
 
 
@@ -70,6 +95,13 @@ class transforms:
         Log transformation will default to taking the log2 of all elements in the matrix. 
         Use base=2, base=10, base='e' or base='ln'
         It is a good idea to check for the presence of infinite values created
+        :param \**kwargs:
+            See below
+
+        :Keyword Arguments:
+            * *base* (``character``) -- base=2, base=10, base='e' or base='ln'
+               
+
         """
         if 'base' in self.args:
             base = self.args['base']
@@ -93,6 +125,13 @@ class transforms:
         Applies PCA to data matrix. If variable argument n_components is set, it will keep the first n_components of the 
         post-transformed data.
         set n_components to a number between 0 and 1 to reduce dimensionality based on %variance explained.
+        
+        :returns: pca - an array of scores
+        :param \**kwargs:
+            See below
+
+        :Keyword Arguments:
+            * *base* (`n_components`) -- number of principal components to keep, all features by default
         """
 
         if 'n_components' in self.args:
@@ -106,6 +145,8 @@ class transforms:
         self.x_out = []
         for i in range(0, self.data_out.shape[1]):
             self.x_out.append("PC%d"%(i+1))
+        #extra parameters
+        self.explained_variance = pca.explained_variance_
             
         return pca
 
@@ -114,7 +155,7 @@ class transforms:
         This normalizes all data (in rows) to one point in that row, based on either
         col_index or value in the x vector (x_val)
         Example:
-        Normalize data to 5minutes internal_normalization(x_val=5)
+            Normalize data to 5minutes internal_normalization(x_val=5)
         """
         if 'col_index' in self.args:
             index = self.args['col_index']

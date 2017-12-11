@@ -50,6 +50,17 @@ class TestFunctions(unittest.TestCase):
         self.data.transform('parent', 'internal_normalization', 'internal_norm_to_5min', x_val=5)
         self.assertEqual(3, len(self.data.D))
 
+    def test_zscore_axis(self):
+        self.data.transform('parent', 'zscore', 'zscore_axis0', axis=0)
+        self.assertEqual(2, len(self.data.D))
+
+        self.data.transform('parent', 'zscore', 'zscore_axis1', axis=1)
+        self.assertEqual(3, len(self.data.D))
+
+        self.data.transform('parent', 'zscore', 'zscore_axis_both', axis='both')
+        self.assertEqual(4, len(self.data.D))
+
+        self.assertRaises(ValueError, lambda: self.data.transform('parent', 'zscore', 'zscore', axis=3))
 
 
 

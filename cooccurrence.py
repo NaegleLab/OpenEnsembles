@@ -150,8 +150,8 @@ class coMat:
                 If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
             * *label_vec* (``list``) --
                 If you want to add labels, but not the same in co-occurrence matrix dataframe, then pass those here
-        :Raises
-            ValueError if label_vec in **kwargs is different size then number of objects
+        :raises:
+            ValueError: if label_vec in **kwargs is different size then number of objects
 
         todo:: Linkage should be manipulatable
         """
