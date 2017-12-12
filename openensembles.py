@@ -217,6 +217,16 @@ class data:
         ------
         ValueError
             if the transform function does not exist OR if the data source does not exist by source_name
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> import openensembles as oe
+        >>> df = pd.read_csv(file)
+        >>> d = oe.data(df, df.columns
+        >>> d.transform('parent', 'zscore', 'zscore')
+        >>> d.transform('zscore', 'PCA', 'pca', n_components=3)
+
         
         """
         #CHECK that the source exists
@@ -293,6 +303,20 @@ class cluster:
         A dictionary of all parameters passed during clustering
     clusterNumbers: dict of lists
         A listing of the unique set of cluster numbers produced in a clustering 
+
+    Examples
+    --------
+    Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4
+
+    >>> import pandas as pd
+    >>> import openensembles as oe
+    >>> df = pd.read_csv(file)
+    >>> d = oe.data(df, df.columns
+    >>> d.transform('parent', 'zscore', 'zscore')
+    >>> d.transform('zscore', 'PCA', 'pca', n_components=3)
+    >>> c = oe.cluster(d)
+    >>> c.cluster('pca', 'kmeans', 'kmeans_pca', 4)
+
     """
     def __init__(self, dataObj):
         self.dataObj = dataObj 
@@ -316,27 +340,44 @@ class cluster:
         This runs clustering algorithms on the data matrix defined by
         source_name with parameters that are variable for each algorithm. Note that K is 
         required for most algorithms and is given a default of K=2. 
-        :example: clusterObj.cluster('parent', 'kmeans','kmeans_parent', K=5) will run the
-        perform k-means clustering, with K=5, on the parent data matrix that belongs to the 
-        data object used to instantiate clusterObj = oe.cluster(dataObj) 
-
-        :param source_name: the source data matrix name to operate on in clusterclass dataObj
-        :type source_name: string
-        :param algorithm: name of the algorithm to use, see clustering.py or call oe.cluster.algorithms_available()
-        :param type: string
-        :param output_name: this is the label you will use to interact with the results of this clustering solution
-        :type output_name: string
-        :param K: number of clusters to create (ignored for algorithms that define K during clustering). Deafault is K=2
-        :type K: int
-        :param Require_Unique: If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
-        solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False
-        :type Require_Unique: bool
-
         
-        :warn: This will warn if the number of clusters is differen than what was requested
+        Parameters
+        ----------
+        source_name: string
+            the source data matrix name to operate on in clusterclass dataObj
+        algorithm: string
+            name of the algorithm to use, see clustering.py or call oe.cluster.algorithms_available()
+        output_name: string
+            this is the dict key for interacting with the results of this clustering solution in any of the cluster class dictionary attributes
+        K: int
+            number of clusters to create (ignored for algorithms that define K during clustering). Deafault is K=2
+        Require_Unique: bool
+            If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
+            solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False
 
-        :raises:
-            ValueError - if data source is not available by source_name, or Require_Unique=True and output_name already exists
+        Warnings
+        --------
+        This will warn if the number of clusters is differen than what was requested
+
+        Raises
+        ------
+            ValueError
+                if data source is not available by source_name 
+            ValueError
+                Require_Unique=True and output_name already exists
+
+        Examples
+        --------
+        Cluster using KMeans on parent data
+
+        >>> c = oe.cluster
+        >>> c.cluster('parent', 'kmeans','kmeans_parent', K=5) 
+
+        Form an iteration to build an ensemble using different values for K
+
+        >>> for k in range(2,12):
+        >>>     name='kmeans_'+k
+        >>>     c.cluster('parent', 'kmeans', name, k)
 
         
         """
@@ -385,12 +426,26 @@ class cluster:
         self.params[output_name] = c.var_params
         self.clusterNumbers[output_name] = uniqueClusters
 
-    def co_occurrence_matrix(self, data_source_name):
+    def co_occurrence_matrix(self, data_source_name='parent'):
         """
-        coMat = self.co_occurrence_matrix(data_source_name) creates a co_occurrence object that is linked to a particular source of data, such as 'parent'. 
-        coMat.co_matrix is an NxN matrix, whose entries indicate the number of times the pair of objects in positon (i,j) cluster across the ensemble
-        of clustering labels that exist in self.labels, where labels is a dictionary of solutions 
-        """
+        Calculate the co-occurrence of all pairs of objects across the ensemble 
+
+        Parameters:
+        data_source_name: string
+            Name of the data source to link to co-occurrence object. Default is 'parent'
+
+        Returns
+        -------
+        coMat class
+            coMat.co_matrix is the NxN matrix, whose entries indicate the number of times the pair of objects in positon (i,j) cluster across the ensemble
+            of clustering solutions available in clustering object. 
+
+        Examples
+        --------
+        >>> coMat = c.co_occurrence_matrix()
+        >>> coMat.plot()
+
+      """
         coMat = co.coMat(self, data_source_name)
         return coMat
 
@@ -401,17 +456,33 @@ class cluster:
         observed clustering solutions across the ensemble. This will operate on all clustering solutions contained in the container cluster class.
         Operates on entire ensemble of clustering solutions in self, to create a mixture model
         See finishing.mixture_model for more details. 
-        This implementation is based on Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
-        
-        :param K: number of clusters to create. Default K=2
-        :type K: int 
-        :param iterations: number of iterations of EM algorithm to perform. Default iterations=10
-        :type iterations: int
-        Returns:
+
+        Parameters
+        ----------
+        K: int
+            number of clusters to create. Default K=2
+        iterations: int
+            number of iterations of EM algorithm to perform. Default iterations=10
+       
+        Returns
+        -------
+        c: oe clustering object
             a new clustering object with c.labels['mixture_model'] set to the final solution. 
 
-        :raises: 
-            ValueError: If there are not at least two clustering solutions
+        Raises
+        ------
+            ValueError:
+                If there are not at least two clustering solutions
+
+        References
+        ----------
+        Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
+        
+        Examples
+        --------
+        >>> cMM = c.mixture_model(K=4, iterations=20)
+        >>> d.plot_data('parent', cluster_labels=cMM.labels['mixture_model'])
+
         """
         params = {}
         params['iterations'] = iterations
@@ -439,18 +510,34 @@ class cluster:
         """
         The finishing technique that calculates a co-occurrence matrix on all cluster solutions in the ensemble and 
         then hierarchically clusters the co-occurrence, treating it as a similarity matrix. The clusters are defined by 
-        the threshold of the distance used to cut. To determine this visually, do the following:
-            coMat = c.co_occurrence(linkage=<linkage>)
-            coMat.plot(threshold=<threshold>)
-        The resulting clusters from a cut made at <threshold> will be colored accordingly.
+        the threshold of the distance used to cut. 
 
-        :param threshold: Linkage distance to use as a cutoff to create partitions
-        :type threshold: float
-        :param linkage: Linkage type. See `scipy.cluster.hierarchy <https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage>`_
-        :type linkage: string
 
-        :returns:
-            New cluster object with final solution and name 'co_occ_linkage'
+
+        Parameters
+        ----------
+        threshold: float
+            Linkage distance to use as a cutoff to create partitions
+        linkage: string
+            Linkage type. See `scipy.cluster.hierarchy <https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage>`_
+
+        Returns
+        -------
+        c: oe clustering object
+            a new clustering object with c.labels['co_occ_linkage'] set to the final solution. 
+
+        Examples
+        --------
+        To determine where the cut is visually, at threshold=0.5:
+
+        >>>  coMat = c.co_occurrence(linkage='ward')
+        >>> coMat.plot(threshold=0.5)
+
+        To create the cut at threshold=0.5 
+
+        >>> cWard = c.co_occ_linkage(threshold=0.5, linkage='ward')
+        >>> d.plot_data('parent', cluster_labels=cWard.labels['co_occ_linkage'])
+
 
         """
         params={}
