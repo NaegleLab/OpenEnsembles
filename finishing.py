@@ -16,9 +16,39 @@ from collections import defaultdict
 class mixture_model:
 	"""
 	Implementation of the article Mixture Models for Ensemble CLustering
-	Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
+	Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)
 
 	Written by Pedro da Silva Tavares and adapted by Kristen M. Naegle
+
+	Parameters
+	----------
+	parg: list of lists 
+		Solutions of assignments of objects to clusters across an ensemble
+	N: int
+		Number of data points to cluster
+	nEnsCluster: int
+		Number of clusters to create in mixture model
+		Default is 2
+	iterations: 
+		Number of expectation maximization iterations
+		Default is 10
+
+
+	Attributes
+	----------
+	labels: list of ints
+		Final Mixture Model partitions of objects
+
+
+	See Also
+	--------
+	openensembles.cluster.mixture_model
+
+	References
+	----------
+
+
+
 	"""
 
 	def __init__(self, parg, N, nEnsCluster=2, iterations=10):
@@ -225,6 +255,26 @@ class co_occurrence_linkage:
 	Returns a final solution to the ensemble that is the agglomerative clustering of the co_occurrence matrix 
 	according to the linkage passed by linkage (default is Average). 
 
+	Parameters
+	----------
+	co_occ_object: openensembles.coMat object
+		The co-occurrence object to operate on
+
+	threshold: float
+		The threshold to cut the linkage at to create hard partitions
+
+	linkage: string
+		linkage type. See `scipy.cluster.hierarchy <https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage>`_
+
+	Returns
+	-------
+	labels: list of ints
+		The final solution
+
+	See Also
+	--------
+	openensembles.cluster.finish_co_occ_linkage()
+
 	"""
 	def __init__(self, co_occ_object, threshold, linkage='average'):
 		self.coMat = co_occ_object
@@ -248,12 +298,35 @@ class co_occurrence_linkage:
 
 class majority_vote:
 	"""
-	Based on Ana Fred's 2001 paper (Fred, Ana. “Finding Consistent Clusters in Data Partitions.” 
-	In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.)
-	This algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
+	Based on Ana Fred's 2001 paper, 
+	this algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
 	greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
 	a majority of the time. Outliers will get their own cluster. The original algorithm chose 0.5 as the threshold for a
 	majority vote, but here you can override the default parameter.
+
+	Parameters
+	----------
+	co_occ_object: openensembles.coMat object
+		The co-occurrence object to operate on
+
+	threshold: float
+		The threshold, fraction of times any pair of objects clusters together that is considred for majority.
+		For example threshold=0.5 means 50% of the time or more.
+
+	Attributes
+	----------
+	K: int
+		Number of clusters created
+	labels: list of ints
+		Solution of cluster assignments
+
+	References
+	----------
+	Fred, Ana. “Finding Consistent Clusters in Data Partitions.” In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.
+
+	See Also
+	--------
+	openensembles.cluster.finish_majority_vote()
 	"""
 	def __init__(self, co_occ_matrix, threshold=0.5):
 		self.co_matrix = co_occ_matrix
@@ -334,9 +407,15 @@ class graph_closure:
     Returns a generator object. To return a list of percolated k-cliques,
     Notes
     -----
-    Based on the method outlined in Palla et. al., Nature 435,
-    814-818 (2005)
-    Code for Percolation From ConradLee: https://gist.github.com/conradlee/1341985
+
+    References
+    ----------
+    * Based on the method outlined in Palla et. al., Nature 435, 814-818 (2005)
+    * Based on Code for `Percolation From ConradLee <https://gist.github.com/conradlee/1341985>`_
+
+    See Also
+	--------
+	openensembles.cluster.finish_graph_closure()
 
 	"""
 	def __init__(self, co_occ_matrix, threshold, clique_size = 3):

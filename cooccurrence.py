@@ -233,6 +233,7 @@ class coMat:
 def add_subplot_axes(ax,rect,facecolor='w'):
     """
     A non-class function to handle subaxes
+
     """
     fig = plt.gcf()
     box = ax.get_position()
