@@ -129,40 +129,57 @@ class coMat:
         return ind
 
      
-    def plot(self, **kwargs):#dist_thresh=self.avg_dist):
-        r"""
-        Plot the co_occurrence matrix. 
-        Uses average linkage to sort the dendrogram. 
+    def plot(self, threshold='avg', **kwargs):#dist_thresh=self.avg_dist):
+        """
+        Plot the co_occurrence matrix with a dendrogram and heatmap 
         By Default labels=True, set to false to suppress labels in graph
         By default label_vec equal to the index list of the dataObj dataframe. Otherwise, you can pass in an alternate naming scheme, 
         vector length should be the same as 
-        :Example:
-            cOcc.plot(distance_threshold=0.5)
 
-        :param \**kwargs:
-            See below
+        Parameters
+        ----------
+        threshold: float
+            Use threshold to color the dendrogram
+            This is useful for identifying visually how to call .cut()
+            Default is the average value in the co-occurrence matrix, which is updated to float when 'avg' is passed
 
-        :Keyword Arguments:
-            * *distance_threshold* (``float``) --
-                Use dist_threshold to color the dendrogram
-                This is useful for identifying visually how to call .cut()
-            * *labels* (``boolean``) --
-                If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
-            * *label_vec* (``list``) --
-                If you want to add labels, but not the same in co-occurrence matrix dataframe, then pass those here
-        :raises:
-            ValueError: if label_vec in **kwargs is different size then number of objects
+        Other Parameters
+        ----------------
+        labels: bool
+            If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
+        label_vec: list
+            If you want to add labels, but not the same in co-occurrence matrix dataframe, then pass those here
+        
+        Raises
+        ------
+            ValueError: 
+                if label_vec in **kwargs is different size then number of objects
 
-        todo:: Linkage should be manipulatable
+        Examples
+        --------
+        >>> coMat = c.co_occurrence_matrix()
+        >>> coMat.plot(threshold=1, linkage='average', labels=False)
+
+
         """
-        if "distance_threshold" in kwargs:
-            dist_thresh = kwargs['distance_threshold']
-        else:
-            dist_thresh = self.avg_dist
+        if isinstance(threshold, str):
+            threshold = self.avg_dist
+        
+        #if threshold < 0:
+        #    raise ValueError('Error: threshold cannot be less than 0')
+        #if threshold > 1:
+        #    raise ValueError('Error: threshold cannot be greater than 1')
+
         if "labels" in kwargs:
             add_labels = kwargs['labels']
         else:
             add_labels = True
+
+        if 'linkage' in kwargs:
+            linkage = kwargs['linkage']
+        else:
+            linkage = 'average'
+
         if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
             label_vec = kwargs['label_vec']
             if len(label_vec) != len(self.co_matrix):
@@ -177,13 +194,13 @@ class coMat:
 
         # Add dendrogram 
         
-        lnk1 = self.link(linkage='average')
+        lnk1 = self.link(linkage=linkage)
         if add_labels:
             ax1 = add_subplot_axes(panel3,[0.0,0.3,0.11,.6])
-            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh, labels=label_vec)
+            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=threshold, labels=label_vec)
         else:
             ax1 = add_subplot_axes(panel3,[0.16,0.3,0.11,.6])
-            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=dist_thresh)
+            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=threshold)
             ax1.set_yticks([])
         idx_pp = Z_pp['leaves']
         #

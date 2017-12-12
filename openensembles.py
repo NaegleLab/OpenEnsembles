@@ -466,7 +466,7 @@ class cluster:
        
         Returns
         -------
-        c: oe clustering object
+        c: openensembles clustering object
             a new clustering object with c.labels['mixture_model'] set to the final solution. 
 
         Raises
@@ -480,7 +480,7 @@ class cluster:
         
         Examples
         --------
-        >>> cMM = c.mixture_model(K=4, iterations=20)
+        >>> cMM = c.mixture_model(4, 10)
         >>> d.plot_data('parent', cluster_labels=cMM.labels['mixture_model'])
 
         """
@@ -523,19 +523,19 @@ class cluster:
 
         Returns
         -------
-        c: oe clustering object
+        c: openensembles clustering object
             a new clustering object with c.labels['co_occ_linkage'] set to the final solution. 
 
         Examples
         --------
         To determine where the cut is visually, at threshold=0.5:
 
-        >>>  coMat = c.co_occurrence(linkage='ward')
-        >>> coMat.plot(threshold=0.5)
+        >>> coMat = c.co_occurrence()
+        >>> coMat.plot(threshold=0.5, linkage='ward')
 
         To create the cut at threshold=0.5 
 
-        >>> cWard = c.co_occ_linkage(threshold=0.5, linkage='ward')
+        >>> cWard = c.co_occ_linkage(0.5, 'ward')
         >>> d.plot_data('parent', cluster_labels=cWard.labels['co_occ_linkage'])
 
 
@@ -561,10 +561,20 @@ class cluster:
         according to clique_size (such as triangles if clique_size=3). The cliques are then combined in the graph to create unique
         cluster formations. 
 
-        See finishing.py 
+        See also
+        --------
+        finishing.py 
 
-        :returns:
+        Returns
+        -------
+        c: openenembles clustering object
             New cluster object with final solution and name 'graph_closure'
+
+        Examples
+        --------
+        >>> cGraph = c.finish_graph_closure(0.5, 3)
+        >>> d.plot_data('parent', cluster_labels=cGraph.labels['graph_closure'])
+
         """
         params = {}
         params['threshold'] = threshold
