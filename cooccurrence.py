@@ -6,16 +6,37 @@ import scipy.cluster.hierarchy as sch
 from scipy.spatial import distance as ssd
 
 class coMat:
-    '''
-        A class that allows you to create and operate on a
-        co-occurrence matrix
-     '''
+    """
+    A class that allows you to create and operate on a co-occurrence matrix
+
+    Parameters
+    ----------
+    cObj: openensembles.cluster object
+        The clustering object and all contained solutions of interest
+    data_source_name: string
+        The name of the data source of interest 
+
+    Atrributes
+    ----------
+    parg: array of ints
+        An array reshaped from all contained clustering solutions
+    N: int
+        Number of objects
+    nEnsembles: int
+        Number of clustering solutions
+    co_matrix: pandas dataframe
+        The co-occurrence matrix (square). An entry indicates the fraction of times any pair of objects co-clusters across the ensemble
+    avg_dist: float
+        The mean of all co-occurrences (not including self distances)
+
+
+    See Also
+    --------
+    openensembles.cluster.co_occurrence_matrix()
+
+    """
 
     def __init__(self, cObj, data_source_name):
-        """
-        Initialize on a cluster object (cObj), where all clustering solutions will be aggregated
-        Know the data_source_name for linking the correct data matrix
-        """
         self.cObj = cObj
         self.data_source_name = data_source_name
         parg = []
@@ -34,7 +55,10 @@ class coMat:
         Gather partitions sums the number of times all pairs of objects fall within the same cluster
         across the ensemble.  
 
-        :returns: co_matrix_df - a dataframe of object names in column and header, wrapped around the co-occurrence matrix
+        Returns
+        -------
+        co_matrix_df: pandas dataframe
+            a dataframe of object names in column and header, wrapped around the co-occurrence matrix
 
         todo:: Check that the solution dimensionality and the data matrix dimensions are the same
 
@@ -54,9 +78,16 @@ class coMat:
         """
         For an individual solution (set of labels), create a binary cooccurrence matrix that has an entry of 1 if 
         both objects are in the same cluster and 0 if not. 
-        :param solution: A vector of solutions
-        :type solution: list of ints
-        :returns: co_matrix - a square matrix the size of the length of solution 
+
+        Parameters
+        ----------
+        Solution: list of ints
+            A single solution vector of clustering labels
+        
+        Returns
+        -------
+        co_matrix: matrix
+            a square matrix the size of the length of solution with boolean values (0,1)
 
 
         """
@@ -77,7 +108,10 @@ class coMat:
         """
         Reshapes the co-occurrence dataframe matrix into a list, so it can easily be ordered and explored
         
-        :returns: dataframe with a row entry index of object1_object2 and a co-occurrence column labled 'pairwise'
+        Returns
+        -------
+        df: pandas dataframe 
+            with a row entry index of object1_object2 and a co-occurrence column labled 'pairwise'
 
         """
         #return a new dataframe in list with index equal to the pairs being
@@ -102,9 +136,15 @@ class coMat:
         """
         Link a co-occurrence matrix. This is required so that co-occurrence is properly treated as a distance matrix
         during scipy.cluster.hierarchy.linkage
-        :param linkage: type of linkage to use, see scipy.cluster.hierarchy.linkage for options
-        :type linkage: string
-        :returns: scipy.cluster.hierarch.linkage object
+
+        Parameters
+        ----------
+        linkage: string
+            type of linkage to use, see scipy.cluster.hierarchy.linkage for options
+
+        Returns
+        -------
+        lnk: scipy.cluster.hierarch.linkage object
         """
         #arr = self.co_matrix
         #set diagonal to zero
