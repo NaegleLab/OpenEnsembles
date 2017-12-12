@@ -24,28 +24,58 @@ from mpl_toolkits.mplot3d import Axes3D
 
 class data:
     """
-    The data class has an initialization (taking a dataframe df and x values)
-
-    :raises MyError: Error of the size of x and dimensionality of df do not match
+    The data class haves an initialization (taking a dataframe df and x values)
 
     """
     def __init__(self, df, x):
         """
         df is a dataframe and x is the x_axis values (or numbers indicating the
         number entry)
+
+        :param df: dataframe object with rows being the entries of objects and columns representing the feature dimensions
+        :type df: pandas dataframe
+        :param x: the x-axis. If x is a list of strings, it will be converted here to a list of ints (range 0 to len(x))
+        :type x: list of ints or strings
+        
+        Class Features
+        ---------------
+        df: the original dataframe
+        D: dictionary of data matrices
+        x: an list of integer or float values
+        x_labels: a list of strings (if that was passed in) or the int and float. So that xticklabels could be updated or referenced
+
+        :raises: 
+            ValueError of the size of x and dimensionality of df do not match
         """
         self.df = df
         self.D = {}
         self.x = {}
         self.params = {}
-        self.D['parent'] = np.asarray(df)
-        self.x['parent'] = x
-        self.params['parent'] = []
 
-        #check that the number of x-values matches the array
+        self.D['parent'] = np.asarray(df)
+
+         #check that the number of x-values matches the array
         if(len(x) != self.D['parent'].shape[1]):
             raise ValueError("ERROR: Size of x-values (%d) does not match that of of the dataframe dimensions (%d), replacing with an vector of integers of correct size"%(len(x), self.D['parent'].shape[1]))
 
+        errors = False
+        for val in x:
+            if not isinstance(val, int) and not isinstance(val, float):
+                errors = True
+        if errors:
+            warnings.warn("Changing string list of x into an integer in the same order as string list, starting with 0")
+            xVals = list(range(0,len(x)))
+            self.x_labels = x
+
+        else: 
+            xVals = x
+            self.x_labels = x
+
+
+        self.x['parent'] = xVals
+        self.params['parent'] = []
+
+       
     def transforms_available(self):
         """
         Returns a list of all transformations available
@@ -132,15 +162,38 @@ class data:
         """
         This runs transform (txfm_fcn) on the data matrix defined by
         source_name with parameters that are variable for each transform. 
-        For example, oe.data.transform('parent', 'zscore','zscore_parent', []) will run the
-        zscore in a vector-wise manner across the matrix and the new data
+        For example, oe.data.transform('parent', 'zscore','zscore_parent', axis=0) will run the
+        zscore in a vector-wise manner across the matrix (column-wise) and the new data
         dictionary access to the transformed data is oe.data['zscore_parent']
-        Returns an ERROR -1 if not performed. Successful completion results in
+        Successful completion results in
         the addition of a new entry in the data dictionary with a key according
         to txfm_name.
+
+        :param source_name: the name of the source data, for example 'parent', or 'log2'
+        :type source_name: string
+        :param txfm_fcn: the name of the transform function. See transforms.py or run oe.data.transforms_available() for list
+        :type txfm_fcn: string
+        :param txfm_name: the name you want to use in the data object dictionary oe.data.D['name'] to access transformed data
+        :type txfm_name: string
+
+        :param \**kwargs:
+            See below for parent function and see transforms.py for specific special args for individual transformations
+
+        :Keyword Arguments:
+            * *Keep_NaN* (``bool``) --
+                Set to True in order to prevent transformations from being added that produce NaNs
+            * *Keep_Inf* (``bool``) --
+                Set to True in order to prevent transformations from being added that produce infinite values
+
         Default Behavior:
-                Keep_NaN = 1 (this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs. 
-                Keep_Inf = 1 (this will add transformed data even if infinite values are produced. Set to 0 to prevent addition of data transforms containing Inf. 
+                Keep_NaN = True (this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs. 
+                Keep_Inf = True (this will add transformed data even if infinite values are produced. Set to 0 to prevent addition of data transforms containing Inf.
+        :warnings:
+                NaNs or infinite values are produced
+                Infinite values are produced
+
+        :raises: 
+            ValueError: if the transform function does not exist OR if the data source does not exist by source_name
         
         """
         #CHECK that the source exists
@@ -176,7 +229,7 @@ class data:
         if numNaNs:
             warnings.warn("WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs), UserWarning) 
             if not Keep_NaN_txfm:
-                #print("Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs)) 
+                print("Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs)) 
                 return
         infCheck = np.isinf(txfm.data_out)
         numInf = sum(sum(infCheck))
@@ -191,10 +244,18 @@ class data:
         self.D[txfm_name] = txfm.data_out
 
 class cluster:
+    """
+    The cluster class contains the containers for clustering solutions and the operations that allow for the operation of clustering  
+    on oe.data objects. 
+    """
     def __init__(self, dataObj):
         """
-        dataObj is an openensembles.data class, which can consist of many data matrices, but at the 
-        very least, consists of 'parent'
+        Initialize a clustering object, which is instantiated with a data object class from OpenEnsembles
+        :param dataObj: the 
+        :param type: openensembles.data class -- consists at least of one data matrix called 'parent'
+
+        Returns:
+            cluster object with dictionary of labels, data_source, params, and clusterNumbers -- which is extended each time for a new solution
         """
         self.dataObj = dataObj 
         self.labels= {} #key here is the name like HC_parent for hierarchically clustered parent
@@ -204,24 +265,41 @@ class cluster:
 
 
     def algorithms_available(self):
+        """ 
+        Call this to list all algorithms currently available in algorithms.py
+        """
         algorithms = ca.clustering_algorithms(self.dataObj.D['parent'], {})
         ALG_FCN_DICT = algorithms.clustering_algorithms_available()
         return ALG_FCN_DICT
 
-    def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=0, **kwargs):
+    def cluster(self, source_name, algorithm, output_name, K=2, Require_Unique=False, **kwargs):
 
         """
         This runs clustering algorithms on the data matrix defined by
         source_name with parameters that are variable for each algorithm. Note that K is 
         required for most algorithms and is given a default of K=2. 
-        For example, clusterObj.cluster('parent', 'kmeans','kmeans_parent', K=5) will run the
+        :example: clusterObj.cluster('parent', 'kmeans','kmeans_parent', K=5) will run the
         perform k-means clustering, with K=5, on the parent data matrix that belongs to the 
         data object used to instantiate clusterObj = oe.cluster(dataObj) 
 
-        This will warn if the number of clusters is differen than what was requested
+        :param source_name: the source data matrix name to operate on in clusterclass dataObj
+        :type source_name: string
+        :param algorithm: name of the algorithm to use, see clustering.py or call oe.cluster.algorithms_available()
+        :param type: string
+        :param output_name: this is the label you will use to interact with the results of this clustering solution
+        :type output_name: string
+        :param K: number of clusters to create (ignored for algorithms that define K during clustering). Deafault is K=2
+        :type K: int
+        :param Require_Unique: If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
+        solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False
+        :type Require_Unique: bool
 
-        DEFAULT Behavior: 
-            This will add a number to a requested output_name, if that name exists already, unless Require_Unique=1
+        
+        :warn: This will warn if the number of clusters is differen than what was requested
+
+        :raises:
+            ValueError - if data source is not available by source_name, or Require_Unique=True and output_name already exists
+
         
         """
         #CHECK that the source exists
@@ -281,10 +359,21 @@ class cluster:
 
     def mixture_model(self, K=2, iterations=10):
         """
+        Finishing Technique to assemble a final, hard parition of the data according to maximizing the likelihood according to the
+        observed clustering solutions across the ensemble. This will operate on all clustering solutions contained in the container cluster class.
         Operates on entire ensemble of clustering solutions in self, to create a mixture model
-        See finishing.mixture_model for more details. This implementation is based on 
-        Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
-        Returns a new clustering object with c.labels['mixture_model'] set to the final solution. 
+        See finishing.mixture_model for more details. 
+        This implementation is based on Topchy, Jain, and Punch, "A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)"
+        
+        :param K: number of clusters to create. Default K=2
+        :type K: int 
+        :param iterations: number of iterations of EM algorithm to perform. Default iterations=10
+        :type iterations: int
+        Returns:
+            a new clustering object with c.labels['mixture_model'] set to the final solution. 
+
+        :raises: 
+            ValueError: If there are not at least two clustering solutions
         """
         params = {}
         params['iterations'] = iterations
@@ -316,6 +405,15 @@ class cluster:
             coMat = c.co_occurrence(linkage=<linkage>)
             coMat.plot(threshold=<threshold>)
         The resulting clusters from a cut made at <threshold> will be colored accordingly.
+
+        :param threshold: Linkage distance to use as a cutoff to create partitions
+        :type threshold: float
+        :param linkage: Linkage type. See `scipy.cluster.hierarchy <https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage>`_
+        :type linkage: string
+
+        :returns:
+            New cluster object with final solution and name 'co_occ_linkage'
+
         """
         params={}
         params['linkage'] = linkage
@@ -337,6 +435,11 @@ class cluster:
         becomes an unweighted, undirected edge in an adjacency matrix). This graph object is then subjected to clique formation
         according to clique_size (such as triangles if clique_size=3). The cliques are then combined in the graph to create unique
         cluster formations. 
+
+        See finishing.py 
+
+        :returns:
+            New cluster object with final solution and name 'graph_closure'
         """
         params = {}
         params['threshold'] = threshold
@@ -360,7 +463,13 @@ class cluster:
         In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.
         This algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
         greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
-        a majority of the time. Outliers will get their own cluster
+        a majority of the time. Outliers will get their own cluster. 
+
+        :param threshold: the threshold, or fraction of times objects co-cluster to consider a 'majority'. Default is 0.5 (50% of the time)
+        :type threshold: float
+
+        :returns:
+            New cluster object with final solution and name 'majority_vote'
         """
         params = {}
         coMatObj = self.co_occurrence_matrix('parent')
@@ -377,7 +486,16 @@ class cluster:
 
 
     def get_cluster_members(self, solution_name, clusterNum):
-        """ Return the dataframe row indexes of a cluster number in solution named by solution_name """
+        """ Return the dataframe row indexes of a cluster number in solution named by solution_name 
+
+        :param solution_name: the name of the clustering solution of interest
+        :type solution_name: string
+        :param clusterNum: The cluster number of interest
+        :type clusterNum: int
+
+        :returns:
+            indexes - a list of indexes of objects with clusterNum in solution_name
+        """
         indexes = np.where(self.labels[solution_name]==clusterNum)
         return indexes
 

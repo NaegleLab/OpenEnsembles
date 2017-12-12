@@ -24,16 +24,34 @@ class TestFunctions(unittest.TestCase):
         x = [0, 5, 10, 30]
         self.assertRaises(ValueError, lambda: oe.data(df,x)) 
 
+    def test_setup_stringX(self):
+        fileName = 'data_test.csv'
+        df = pd.DataFrame.from_csv(fileName)
+        x = ['something', 5, 30]
+        self.data = oe.data(df,x)
+        self.assertListEqual([0,1,2], self.data.x['parent'])
+
+    def test_setup_floats(self):
+        fileName = 'data_test.csv'
+        df = pd.DataFrame.from_csv(fileName)
+        x = [0.0, 5.0, 30.0]
+        self.data = oe.data(df,x)
+        self.assertListEqual(x, self.data.x['parent'])
+
     def test_transform_error_noSource(self):
         #self.assertEqual(-1, self.data.transform('parentZ', 'zscore', 'zscore_parentZ'))
         self.assertRaises(ValueError, lambda: self.data.transform('parentZ', 'zscore', 'zscore_parentZ'))
 
     def test_transform_NoNaNs(self):
-        self.data.transform('parent', 'zscore', 'zscore', Keep_NaN=0)
+        """
+        Behavior in oe.data.transform when Keep_NaN=0 is to prevent the addition of a transformation that produced 
+        NaNs. Keep_NaN default is True and must be set to prevent addition. NaNs produced will always produce a warning.
+        """
+        self.data.transform('parent', 'zscore', 'zscore', Keep_NaN=False)
         self.assertEqual(1, len(self.data.D))
 
     def test_transform_NoInf(self):
-        self.data.transform('parent', 'log', 'log10', base=10, Keep_Inf=0)
+        self.data.transform('parent', 'log', 'log10', base=10, Keep_Inf=False)
         self.assertEqual(1, len(self.data.D))
 
     def test_transform_error_noTxfm(self):
@@ -44,7 +62,7 @@ class TestFunctions(unittest.TestCase):
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'internal_normalization', 'internal_normalization', x_val=40))
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'internal_normalization', 'internal_normalization', col_index=5))
         
-        self.data.transform('parent', 'internal_normalization', 'internal_norm_to_5min', col_index=1)
+        self.data.transform('parent', 'internal_normalization', 'internal_norm_to_5min_byIndex', col_index=1)
         self.assertEqual(2, len(self.data.D))
 
         self.data.transform('parent', 'internal_normalization', 'internal_norm_to_5min', x_val=5)
