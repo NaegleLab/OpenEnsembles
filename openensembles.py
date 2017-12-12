@@ -24,29 +24,37 @@ from mpl_toolkits.mplot3d import Axes3D
 
 class data:
     """
-    The data class haves an initialization (taking a dataframe df and x values)
+    df is a dataframe and x is the x_axis values (or numbers indicating the
+    number entry)
 
+    Parameters
+    -----------
+    df : a pandas dataframe 
+        Dataframe with objects in rows and columns representing the feature dimensions
+
+    x : list
+        The x-axis elements. If x is a list of strings, it will be converted here to a list of ints (range 0 to len(x))
+    
+    Attributes
+    -----------
+    df : pandas dataframe 
+        the original dataframe
+
+    D : dictionary 
+        A dictionary of data matrices, callable by 'source_name'
+
+    x : list 
+        a list of integer or float values
+
+    x_labels : list
+        a list of strings (if that was passed in) or the int and float. So that xticklabels could be updated or referenced
+
+    Raises
+    --------
+    ValueError of the size of x and dimensionality of df do not match
     """
     def __init__(self, df, x):
-        """
-        df is a dataframe and x is the x_axis values (or numbers indicating the
-        number entry)
 
-        :param df: dataframe object with rows being the entries of objects and columns representing the feature dimensions
-        :type df: pandas dataframe
-        :param x: the x-axis. If x is a list of strings, it will be converted here to a list of ints (range 0 to len(x))
-        :type x: list of ints or strings
-        
-        Class Features
-        ---------------
-        df: the original dataframe
-        D: dictionary of data matrices
-        x: an list of integer or float values
-        x_labels: a list of strings (if that was passed in) or the int and float. So that xticklabels could be updated or referenced
-
-        :raises: 
-            ValueError of the size of x and dimensionality of df do not match
-        """
         self.df = df
         self.D = {}
         self.x = {}
@@ -63,7 +71,7 @@ class data:
             if not isinstance(val, int) and not isinstance(val, float):
                 errors = True
         if errors:
-            warnings.warn("Changing string list of x into an integer in the same order as string list, starting with 0")
+            #warnings.warn("Changing string list of x into an integer in the same order as string list, starting with 0")
             xVals = list(range(0,len(x)))
             self.x_labels = x
 
@@ -86,11 +94,25 @@ class data:
 
     def plot_data(self, source_name, fig_num=1, **kwargs):
         """ Plot the data matrix that belongs to source_name
-            fig_num can be set to a different figure number
-            Variable arguments:
-                class_labels: this is a vector that assigns points to classes, and will be used to color the plots differently
-                fig_num: a different figure number, default ==1
-                title 
+            
+            Parameters
+            -----------
+            
+            source_name : string
+                name of data source to plot, e.g. 'parent'
+            fig_num: int
+                Set to a different figure number to plot on existing figure. Default fig_num=1
+            **class_labels : list of ints
+                this is a vector that assigns points to classes, and will be used to color the points according to assigned class type
+            **clusters_to_plot: list of ints
+                If you wish to plot a subset of cluster types (classes), pass that as a list of ints
+            **title : string
+                Title for plot
+
+            Raises
+            ------
+            ValueError: 
+                If clusters_to_plot not a set in cluster labels
 
         """
         m = self.D[source_name].shape[0] 
@@ -169,31 +191,32 @@ class data:
         the addition of a new entry in the data dictionary with a key according
         to txfm_name.
 
-        :param source_name: the name of the source data, for example 'parent', or 'log2'
-        :type source_name: string
-        :param txfm_fcn: the name of the transform function. See transforms.py or run oe.data.transforms_available() for list
-        :type txfm_fcn: string
-        :param txfm_name: the name you want to use in the data object dictionary oe.data.D['name'] to access transformed data
-        :type txfm_name: string
+        Parameters
+        ----------
+        source_name: string
+            the name of the source data, for example 'parent', or 'log2'
+        txfm_fcn: string
+            the name of the transform function. See transforms.py or run oe.data.transforms_available() for list
+        txfm_name: string
+            the name you want to use in the data object dictionary oe.data.D['name'] to access transformed data
 
-        :param \**kwargs:
-            See below for parent function and see transforms.py for specific special args for individual transformations
+        Other Parameters
+        ----------------
+        **Keep_NaN: boolean
+            Set to True in order to prevent transformations from being added that produce NaNs. 
+            Default Keep_NaN=True this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs.
+        **Keep_Inf: boolean
+            Set to True in order to prevent transformations from being added that produce infinite values
+            Default: Keep_Inf = True (this will add transformed data even if infinite values are produced. Set to 0 to prevent addition of data transforms conta
 
-        :Keyword Arguments:
-            * *Keep_NaN* (``bool``) --
-                Set to True in order to prevent transformations from being added that produce NaNs
-            * *Keep_Inf* (``bool``) --
-                Set to True in order to prevent transformations from being added that produce infinite values
+        Warnings
+        --------
+        NaNs or infinite values are produced
 
-        Default Behavior:
-                Keep_NaN = True (this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs. 
-                Keep_Inf = True (this will add transformed data even if infinite values are produced. Set to 0 to prevent addition of data transforms containing Inf.
-        :warnings:
-                NaNs or infinite values are produced
-                Infinite values are produced
-
-        :raises: 
-            ValueError: if the transform function does not exist OR if the data source does not exist by source_name
+        Raises
+        ------
+        ValueError
+            if the transform function does not exist OR if the data source does not exist by source_name
         
         """
         #CHECK that the source exists
@@ -245,18 +268,33 @@ class data:
 
 class cluster:
     """
-    The cluster class contains the containers for clustering solutions and the operations that allow for the operation of clustering  
-    on oe.data objects. 
+    Initialize a clustering object, which is instantiated with a data object class from OpenEnsembles
+    When clustering is performed, the dictionaries of all attributes are extended using the key given as output_name
+    
+    Parameters
+    ----------
+    dataObj
+        openensembles.data class -- consists at least of one data matrix called 'parent'
+    
+    Returns
+    -------
+    clusterObject
+        empty openensembles.cluster object 
+
+    Attributes
+    ----------
+    dataObj: openensembles.data class
+        openensembles.data class that was used to instantiate cluster object
+    labels: dict of lists
+        A dictionary of lists of clustering solutions (ints). Referred to as output_name in .cluster method
+    data_source: dict of strings
+        Name of data source in dataObj
+    params: dict of dicts
+        A dictionary of all parameters passed during clustering
+    clusterNumbers: dict of lists
+        A listing of the unique set of cluster numbers produced in a clustering 
     """
     def __init__(self, dataObj):
-        """
-        Initialize a clustering object, which is instantiated with a data object class from OpenEnsembles
-        :param dataObj: the 
-        :param type: openensembles.data class -- consists at least of one data matrix called 'parent'
-
-        Returns:
-            cluster object with dictionary of labels, data_source, params, and clusterNumbers -- which is extended each time for a new solution
-        """
         self.dataObj = dataObj 
         self.labels= {} #key here is the name like HC_parent for hierarchically clustered parent
         self.data_source = {} # keep track of the key to the data source in object used

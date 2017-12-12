@@ -45,17 +45,23 @@ class clustering_algorithms:
 
     def kmeans(self):
         """
+        kmeans clustering see `skc.KMeans <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html>`_
+        :Returns:
+            solution=skc.KMeans(n_clusters=self.K, init=params['init'], 
+            n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'],
+            precompute_distances=params['precompute_distances'], verbose=params['verbose'],
+            random_state=params['random_state'], copy_x=params['copy_x'], n_jobs=params['n_jobs'])
             skc.KMeans(n_clusters=8, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1)
-            Default Parameters:
-                params['init'] = 'k-means++'
-                params['n_init'] = 10
-                params['max_iter'] = 300
-                params['tol'] = 0.0001
-                params['precompute_distances'] = 'auto'
-                params['verbose'] = 0
-                params['random_state'] = None
-                params['copy_x'] = True
-                params['n_jobs'] = 1
+        Default Parameters:
+            params['init'] = 'k-means++'
+            params['n_init'] = 10
+            params['max_iter'] = 300
+            params['tol'] = 0.0001
+            params['precompute_distances'] = 'auto'
+            params['verbose'] = 0
+            params['random_state'] = None
+            params['copy_x'] = True
+            params['n_jobs'] = 1
 
         """
         params={}
