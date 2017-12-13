@@ -662,6 +662,11 @@ class validation:
         """
         Calls the function titled by validation_name on the data matrix set by source_name (default 'parent') and clustering solution by cluster_name
         Appends to validation with key value equal to the validation_name+source_name+cluster_name
+
+        Returns
+        -------
+        output_name: str
+            The handle name for accessing validation results
         """
 
         output_name = "%s_%s_%s"%(validation_name, source_name, cluster_name)
@@ -691,6 +696,8 @@ class validation:
         self.description[output_name] = v.description
         self.source_name[output_name] = source_name
         self.cluster_name[output_name] = cluster_name
+
+        return output_name
 
 
 
