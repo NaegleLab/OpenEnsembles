@@ -1,8 +1,10 @@
 """
 OpenEnsembles is a resource for performing and analyzing ensemble clustering
 This file contains all transform functions. Each transform takes a data matrix
-an x-vector and variable arguments. It must return a data matrix, an x-vector
-and a dictionary of parameters used (name, value)
+an x-vector and variable arguments. It also returns a data matrix, an x-vector
+and a dictionary of parameters used (name, value). 
+
+Refer to this documentation for 
 """
 
 import numpy as np 
@@ -19,15 +21,36 @@ import re
 from sklearn.decomposition import PCA
 
 class transforms:
+    """
+    Transform the data matrix according to the transformation procedure used and the optional arguments passed
+
+    Parameters
+    ----------
+    x: list
+        The x-vector
+    data: matrix
+        The data matrix
+
+    Attributes
+    ----------
+    x_out: list
+        The output x-vector, same as input x, unless transformation alters meaning of independent variables (such as PCA)
+    data_out: matrix
+        The transformed data matrix
+    var_params: dict
+        Listing of parameter used to create the transformation
+
+    Other Parameters
+    ----------------
+    These **kwargs depend on the specific transformation used. 
+
+    See Also
+    --------
+    openensembles.data.transform()
+
+    """
     def __init__(self, x, data, kwargs):
-        """
-        transforms object intiatilizes the object with .x, .data, and .args. The object is modified after a transformation
-        to report the .x_out, .data_out and .var_params
 
-        :param \**kwargs:
-            These are the kwargs that are special to each transformation type. See 
-
-        """
         self.x = x
         self.data = data
         self.args = kwargs
@@ -36,6 +59,14 @@ class transforms:
         self.var_params = {}
 
     def transforms_available(self):
+        """ 
+        Get available transformations 
+
+        Returns
+        -------
+        methods: dict
+            Available methods returned as keys in dict
+        """
         methods =  [method for method in dir(self) if isinstance(getattr(self, method), collections.Callable)]
         methods.remove('transforms_available')
         methodDict = {}
@@ -48,11 +79,17 @@ class transforms:
     def zscore(self):
         """
         Uses stats.zscore to zscore along the axis given. By default, OpenEnsembles assumes that the
-        feature dimensions are on axis=0 (column entries)
+        feature dimensions are on axis=0 (column entries). Updates x_out accordingly
 
-        :param self.args:
-            * *axis* (``int``) -- the axis to operate on, 0 for columns, 1 for rows, '' for all (default is axis=0)
-            
+        Other Parameters
+        ----------------
+        axis: {'both', 0, 1} (default=0)
+            axis to operate on (default operates along column entries)
+        
+        Raises
+        ------
+        ValueError:
+            axis is not of type allowed
                
         """
 
@@ -73,6 +110,23 @@ class transforms:
 
 
     def minmax(self):
+        """
+        Uses MinMaxScaler from `sklearn.preprocessing <http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html>`_ to scale data between a minimum value and 
+        a maximum value. Defaults range from 0 to 1. Updates data_out accordingly.
+
+        Other Parameters
+        ----------------
+        minValue: float (default=0)
+        maxValue: float (default=1)
+
+        Raises
+        ------
+        ValueError:
+            If minValue > maxValue
+
+
+
+        """
         if 'minValue' in self.args:
             minValue = self.args['minValue']
         else:
@@ -93,14 +147,19 @@ class transforms:
     def log(self):
         """
         Log transformation will default to taking the log2 of all elements in the matrix. 
-        Use base=2, base=10, base='e' or base='ln'
-        It is a good idea to check for the presence of infinite values created
-        :param \**kwargs:
-            See below
 
-        :Keyword Arguments:
-            * *base* (``character``) -- base=2, base=10, base='e' or base='ln'
-               
+        Warnings
+        --------
+        Check for the creation of infinite values
+
+        Parameters
+        ----------
+        base: {2, 10, 'e', 'ln'} (default=2)
+
+        Raises
+        ------
+        ValueError: 
+            if base type is not recognized
 
         """
         if 'base' in self.args:
@@ -122,16 +181,27 @@ class transforms:
 
     def PCA(self):
         """
+        Applies `sklearn's decomposition by principal components (PCA) 
+        <http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html>`_
+        
         Applies PCA to data matrix. If variable argument n_components is set, it will keep the first n_components of the 
         post-transformed data.
         set n_components to a number between 0 and 1 to reduce dimensionality based on %variance explained.
+        Updates data_out accordingly as the scores (or transformation of data objects into PCA space). 
+        This also appends explained_variance to an attribute of class
         
-        :returns: pca - an array of scores
-        :param \**kwargs:
-            See below
 
-        :Keyword Arguments:
-            * *base* (`n_components`) -- number of principal components to keep, all features by default
+        Other Parameters
+        ----------------
+        n_components: int
+            Number of components to keep, defaults to length of original feature vector
+
+        Returns
+        -------
+        pca: PCA data object
+            The intact pca object, such that one could retreive other parts of this
+
+        
         """
 
         if 'n_components' in self.args:
@@ -153,7 +223,17 @@ class transforms:
     def internal_normalization(self):
         """
         This normalizes all data (in rows) to one point in that row, based on either
-        col_index or value in the x vector (x_val)
+        col_index or value in the x vector (x_val) (if both are passed, uses col_index)
+
+        Other Parameters
+        ----------------
+        col_index: int
+            index in feature vector to use for normalization 
+        x_val: float
+            find and use the index of name x_val in the x vector. Recall that x was converted to ints if original features were string labels.
+
+
+
         Example:
             Normalize data to 5minutes internal_normalization(x_val=5)
         """
