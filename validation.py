@@ -14,6 +14,26 @@ class validation:
 	Instantiation sets validation to NaN and a description to ''. Once a metric is performed, these are replaced (unless)
 	validation did not yield a valid mathematical number, which can happen in certain cases, such as when a cluster
 	consists of only one member. Such results will warn the user.
+
+	Parameters
+	----------
+	data: matrix of floats
+		data matrix
+	labels: list of ints
+		The solution labels
+
+	Attributes
+	----------
+	validation: float
+		Validation metric. NaN if error 
+	description: string
+		A description of the validation metric
+
+	See Also
+	--------
+	openensembles.validation()
+
+
 	"""
 	def __init__(self, data, labels):
 		self.dataMatrix = data
