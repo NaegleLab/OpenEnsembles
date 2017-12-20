@@ -7,10 +7,8 @@ import numpy as np
 import pandas as pd 
 import sklearn.cluster as skc
 import matplotlib.pyplot as plt
-from sklearn import datasets
 import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
-import scipy.stats as stats
 import transforms as tx
 import clustering_algorithms as ca 
 import finishing as finish
@@ -19,7 +17,6 @@ import validation as val
 import warnings
 from random import randint
 import openensembles as oe
-from matplotlib.pyplot import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 class data:
@@ -138,7 +135,7 @@ class data:
 
         #clusters = np.unique(class_labels)
 
-        color=iter(cm.rainbow(np.linspace(0,1,len(clusters))))
+        color=iter(plt.rainbow(np.linspace(0,1,len(clusters))))
         
         fig = plt.figure(fig_num, figsize=(6, 6))
         #plt.hold(True)
@@ -334,7 +331,7 @@ class cluster:
         ALG_FCN_DICT = algorithms.clustering_algorithms_available()
         return ALG_FCN_DICT
 
-    def cluster(self, source_name, algorithm, output_name, K=2, Require_Unique=False, **kwargs):
+    def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, **kwargs):
 
         """
         This runs clustering algorithms on the data matrix defined by
@@ -357,14 +354,12 @@ class cluster:
 
         Warnings
         --------
-        This will warn if the number of clusters is differen than what was requested
+        This will warn if the number of clusters is differen than what was requested, typically when an algorithm does not accept K as an argument.
 
         Raises
         ------
             ValueError
                 if data source is not available by source_name 
-            ValueError
-                Require_Unique=True and output_name already exists
 
         Examples
         --------
@@ -395,7 +390,8 @@ class cluster:
         ##### Check to see if the same name exists for clustering solution name and decide what to do according to Require_Unique
         if output_name in list(self.labels.keys()):
             if Require_Unique:
-                raise ValueError('The name of the clustering solution is redundant and you required unique')
+                warnings.warn('The name of the clustering solution is redundant and you required unique, solution will not be added')
+                return
             else:
                 test_name = "%s_%d"%(output_name, randint(0,10000))
                 while test_name in self.labels:
@@ -594,9 +590,9 @@ class cluster:
     def finish_majority_vote(self, threshold=0.5):
         """
 
-        Based on Ana Fred's 2001 paper: Fred, Ana. Finding Consistent Clusters in Data Partitions.
-        In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.
-        This algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
+        Based on Ana Fred's 2001 paper: Fred, Ana. Finding Consistent Clusters in Data Partitions. In Multiple Classifier Systems, 
+        edited by Josef Kittler and Fabio Roli, LNCS 2096, 309-18. Springer, 2001. 
+        This algorithm assingns clusters to the same class if they co-cluster at least 50 of the time. It 
         greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
         a majority of the time. Outliers will get their own cluster. 
 
@@ -698,7 +694,6 @@ class validation:
         self.cluster_name[output_name] = cluster_name
 
         return output_name
-
 
 
 

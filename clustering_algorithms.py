@@ -99,6 +99,8 @@ class clustering_algorithms:
         params['random_state'] = None
         params['copy_x'] = True
         params['n_jobs'] = 1
+        if not self.K:
+            raise ValueError('kmeans clustering requires an argument K=<intiger value>')
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'kmeans')
         solution=skc.KMeans(n_clusters=self.K, init=params['init'], 
@@ -115,7 +117,6 @@ class clustering_algorithms:
         Spectral clustering, see `skc.SpectralClustering <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html>`_
 
         **Defaults and var_params:** skc.SpectralClustering(n_clusters=8, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)
-
         Other Parameters
         ----------------
         var_params: dict
@@ -141,6 +142,9 @@ class clustering_algorithms:
         params['coef0'] = 1
         params['kernel_params']=None
         params['n_jobs']=1
+
+        if not self.K:
+            raise ValueError('kmeans clustering requires an argument K=<intiger value>')
 
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'spectral')
@@ -184,6 +188,9 @@ class clustering_algorithms:
 
         params = returnParams(self.var_params, params, 'agglomerative')
         params['affinity'] = params['distance']
+
+        if not self.K:
+            raise ValueError('kmeans clustering requires an argument K=<intiger value>')
 
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
             connectivity=params['connectivity'],
@@ -233,7 +240,7 @@ class clustering_algorithms:
         #    p=params['p'], random_state=params['random_state']) 
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
-            p=params['p'], n_jobs=params['n_jobs'], random_state=params['random_state']) 
+            p=params['p'], n_jobs=params['n_jobs']) #random_state=params['random_state']) 
         solution.fit(d)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.

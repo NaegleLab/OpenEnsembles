@@ -127,7 +127,11 @@ class TestFunctions(unittest.TestCase):
     def test_clustering_namingTestRequireUnique(self):
         c = oe.cluster(self.data)
         c.cluster('parent', 'kmeans', 'kmeans', K=2)
-        self.assertRaises(ValueError, lambda: c.cluster('parent', 'kmeans', 'kmeans', Require_Unique=1, K=2))
+        self.assertEqual(1, len(c.labels))
+
+        c.cluster('parent', 'kmeans', 'kmeans', Require_Unique=1, K=2)
+        self.assertEqual(1, len(c.labels))
+
 
     def test_clustering_namingTestRequireNotUnique(self):
         c = oe.cluster(self.data)
