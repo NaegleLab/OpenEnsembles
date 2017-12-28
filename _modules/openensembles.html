@@ -79,7 +79,7 @@
 <span class="kn">import</span> <span class="nn">openensembles</span> <span class="k">as</span> <span class="nn">oe</span>
 <span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
 
-<div class="viewcode-block" id="data"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.data">[docs]</a><span class="k">class</span> <span class="nc">data</span><span class="p">:</span>
+<div class="viewcode-block" id="data"><a class="viewcode-back" href="../openensembles.html#openensembles.data">[docs]</a><span class="k">class</span> <span class="nc">data</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    df is a dataframe and x is the x_axis values (or numbers indicating the</span>
 <span class="sd">    number entry)</span>
@@ -141,7 +141,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
        
-<div class="viewcode-block" id="data.transforms_available"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.data.transforms_available">[docs]</a>    <span class="k">def</span> <span class="nf">transforms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="data.transforms_available"><a class="viewcode-back" href="../openensembles.html#openensembles.data.transforms_available">[docs]</a>    <span class="k">def</span> <span class="nf">transforms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a list of all transformations available</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -149,7 +149,7 @@
         <span class="n">TXFM_FCN_DICT</span> <span class="o">=</span> <span class="n">txfm</span><span class="o">.</span><span class="n">transforms_available</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">TXFM_FCN_DICT</span></div>
 
-<div class="viewcode-block" id="data.plot_data"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.data.plot_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">fig_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="data.plot_data"><a class="viewcode-back" href="../openensembles.html#openensembles.data.plot_data">[docs]</a>    <span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">fig_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Plot the data matrix that belongs to source_name</span>
 <span class="sd">            </span>
 <span class="sd">            Parameters</span>
@@ -237,7 +237,7 @@
 
 
 
-<div class="viewcode-block" id="data.transform"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.data.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">txfm_fcn</span><span class="p">,</span> <span class="n">txfm_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="data.transform"><a class="viewcode-back" href="../openensembles.html#openensembles.data.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">txfm_fcn</span><span class="p">,</span> <span class="n">txfm_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This runs transform (txfm_fcn) on the data matrix defined by</span>
 <span class="sd">        source_name with parameters that are variable for each transform. </span>
@@ -333,7 +333,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">txfm_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">txfm</span><span class="o">.</span><span class="n">var_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">txfm_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">txfm</span><span class="o">.</span><span class="n">data_out</span></div></div>
 
-<div class="viewcode-block" id="cluster"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster">[docs]</a><span class="k">class</span> <span class="nc">cluster</span><span class="p">:</span>
+<div class="viewcode-block" id="cluster"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster">[docs]</a><span class="k">class</span> <span class="nc">cluster</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize a clustering object, which is instantiated with a data object class from OpenEnsembles</span>
 <span class="sd">    When clustering is performed, the dictionaries of all attributes are extended using the key given as output_name</span>
@@ -383,7 +383,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-<div class="viewcode-block" id="cluster.algorithms_available"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.algorithms_available">[docs]</a>    <span class="k">def</span> <span class="nf">algorithms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.algorithms_available"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.algorithms_available">[docs]</a>    <span class="k">def</span> <span class="nf">algorithms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Call this to list all algorithms currently available in algorithms.py</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -391,7 +391,7 @@
         <span class="n">ALG_FCN_DICT</span> <span class="o">=</span> <span class="n">algorithms</span><span class="o">.</span><span class="n">clustering_algorithms_available</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ALG_FCN_DICT</span></div>
 
-<div class="viewcode-block" id="cluster.cluster"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.cluster"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This runs clustering algorithms on the data matrix defined by</span>
@@ -482,7 +482,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">var_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">uniqueClusters</span></div>
 
-<div class="viewcode-block" id="cluster.co_occurrence_matrix"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.co_occurrence_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">co_occurrence_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source_name</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.co_occurrence_matrix"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.co_occurrence_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">co_occurrence_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source_name</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the co-occurrence of all pairs of objects across the ensemble </span>
 
@@ -506,7 +506,7 @@
         <span class="k">return</span> <span class="n">coMat</span></div>
 
 
-<div class="viewcode-block" id="cluster.mixture_model"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.mixture_model">[docs]</a>    <span class="k">def</span> <span class="nf">mixture_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.mixture_model"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.mixture_model">[docs]</a>    <span class="k">def</span> <span class="nf">mixture_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Finishing Technique to assemble a final, hard parition of the data according to maximizing the likelihood according to the</span>
 <span class="sd">        observed clustering solutions across the ensemble. This will operate on all clustering solutions contained in the container cluster class.</span>
@@ -562,7 +562,7 @@
         <span class="n">c</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
         <span class="k">return</span> <span class="n">c</span></div>
 
-<div class="viewcode-block" id="cluster.finish_co_occ_linkage"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.finish_co_occ_linkage">[docs]</a>    <span class="k">def</span> <span class="nf">finish_co_occ_linkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.finish_co_occ_linkage"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.finish_co_occ_linkage">[docs]</a>    <span class="k">def</span> <span class="nf">finish_co_occ_linkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The finishing technique that calculates a co-occurrence matrix on all cluster solutions in the ensemble and </span>
 <span class="sd">        then hierarchically clusters the co-occurrence, treating it as a similarity matrix. The clusters are defined by </span>
@@ -610,7 +610,7 @@
         <span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">c</span></div>
 
-<div class="viewcode-block" id="cluster.finish_graph_closure"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.finish_graph_closure">[docs]</a>    <span class="k">def</span> <span class="nf">finish_graph_closure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">clique_size</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.finish_graph_closure"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.finish_graph_closure">[docs]</a>    <span class="k">def</span> <span class="nf">finish_graph_closure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">clique_size</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        The finishing technique that treats the co-occurrence matrix as a graph, that is binarized by the threshold (&gt;=threshold </span>
 <span class="sd">        becomes an unweighted, undirected edge in an adjacency matrix). This graph object is then subjected to clique formation</span>
@@ -647,7 +647,7 @@
         <span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">c</span></div>
 
-<div class="viewcode-block" id="cluster.finish_majority_vote"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.finish_majority_vote">[docs]</a>    <span class="k">def</span> <span class="nf">finish_majority_vote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.finish_majority_vote"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.finish_majority_vote">[docs]</a>    <span class="k">def</span> <span class="nf">finish_majority_vote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Based on Ana Fred&#39;s 2001 paper: Fred, Ana. Finding Consistent Clusters in Data Partitions. In Multiple Classifier Systems, </span>
@@ -676,7 +676,7 @@
         <span class="k">return</span> <span class="n">c</span></div>
 
 
-<div class="viewcode-block" id="cluster.get_cluster_members"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.get_cluster_members">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span> <span class="n">clusterNum</span><span class="p">):</span>
+<div class="viewcode-block" id="cluster.get_cluster_members"><a class="viewcode-back" href="../openensembles.html#openensembles.cluster.get_cluster_members">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span> <span class="n">clusterNum</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Return the dataframe row indexes of a cluster number in solution named by solution_name </span>
 
 <span class="sd">        :param solution_name: the name of the clustering solution of interest</span>
@@ -692,7 +692,7 @@
 
 
 
-<div class="viewcode-block" id="validation"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.validation">[docs]</a><span class="k">class</span> <span class="nc">validation</span><span class="p">:</span>
+<div class="viewcode-block" id="validation"><a class="viewcode-back" href="../openensembles.html#openensembles.validation">[docs]</a><span class="k">class</span> <span class="nc">validation</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    validation is a class to calculate any number of validation metrics on clustering solutions in data. </span>
 <span class="sd">    An individual validation metric must be called on a particular instantiation of the data matrix (like &#39;parent&#39; or &#39;zscore&#39;)</span>
@@ -707,14 +707,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cluster_name</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#here is a quick description of the validation metric</span>
 
-<div class="viewcode-block" id="validation.validation_metrics_available"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.validation.validation_metrics_available">[docs]</a>    <span class="k">def</span> <span class="nf">validation_metrics_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="validation.validation_metrics_available"><a class="viewcode-back" href="../openensembles.html#openensembles.validation.validation_metrics_available">[docs]</a>    <span class="k">def</span> <span class="nf">validation_metrics_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Return all available validation metrics &quot;&quot;&quot;</span> 
         <span class="n">validation</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">validation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="p">[])</span>
         <span class="n">FCN_DICT</span> <span class="o">=</span> <span class="n">validation</span><span class="o">.</span><span class="n">validation_metrics_available</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">FCN_DICT</span></div>
 
 
-<div class="viewcode-block" id="validation.calculate"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.validation.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validation_name</span><span class="p">,</span> <span class="n">cluster_name</span><span class="p">,</span> <span class="n">source_name</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="validation.calculate"><a class="viewcode-back" href="../openensembles.html#openensembles.validation.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validation_name</span><span class="p">,</span> <span class="n">cluster_name</span><span class="p">,</span> <span class="n">source_name</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calls the function titled by validation_name on the data matrix set by source_name (default &#39;parent&#39;) and clustering solution by cluster_name</span>
 <span class="sd">        Appends to validation with key value equal to the validation_name+source_name+cluster_name</span>
@@ -767,7 +767,7 @@
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openensembles.html">openensembles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>

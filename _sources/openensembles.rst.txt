@@ -1,4 +1,4 @@
-OpenEnsembles
+openensembles
 =============================
 .. automodule:: openensembles 
 The "data" class

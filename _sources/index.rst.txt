@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-OpenEnsembles
+openensembles
 =========================================
 
 
@@ -11,7 +11,7 @@ OpenEnsembles
 	:maxdepth: 2
 	:caption: Contents:
 
-	OpenEnsembles
+	openensembles
 	Supporting
 	Examples/Examples
 	Dependencies
