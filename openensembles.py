@@ -148,7 +148,7 @@ class data:
 
         #clusters = np.unique(class_labels)
 
-        color=iter(plt.rainbow(np.linspace(0,1,len(clusters))))
+        color=iter(plt.cm.rainbow(np.linspace(0,1,len(clusters))))
         
         fig = plt.figure(fig_num, figsize=(6, 6))
         #plt.hold(True)
