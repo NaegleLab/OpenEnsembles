@@ -67,7 +67,7 @@ class TestFunctions(unittest.TestCase):
         Behavior in oe.data.transform when Keep_NaN=0 is to prevent the addition of a transformation that produced 
         NaNs. Keep_NaN default is True and must be set to prevent addition. NaNs produced will always produce a warning.
         """
-        self.data.transform('parent', 'zscore', 'zscore', Keep_NaN=False)
+        self.data.transform('parent', 'zscore', 'zscore', axis=1, Keep_NaN=False)
         self.assertEqual(1, len(self.data.D))
 
     def test_transform_NoInf(self):
