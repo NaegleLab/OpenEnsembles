@@ -2,5 +2,6 @@ Clustering Algorithms
 =======================================
 .. automodule:: clustering_algorithms 
 	:members: 
+	:undoc-members:
 
 

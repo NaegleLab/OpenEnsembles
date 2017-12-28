@@ -99,7 +99,7 @@ var_params contains all the final parameters used in the act of clustering</p>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.cluster" title="openensembles.cluster"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.cluster</span></code></a></p>
+<p class="last"><a class="reference internal" href="openensembles.html#openensembles.cluster" title="openensembles.cluster"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.cluster</span></code></a></p>
 </div>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
@@ -125,7 +125,33 @@ var_params contains all the final parameters used in the act of clustering</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
 <blockquote>
-<div><p>Solution of clustering labels for each object</p>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
+<blockquote class="last">
+<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_algorithms.clustering_algorithms.Birch">
+<code class="descname">Birch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_algorithms.html#clustering_algorithms.Birch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_algorithms.clustering_algorithms.Birch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html">sklearn’s Birch</a>
+<strong>Defaults and var_params:</strong> sklearn.cluster.Birch(threshold=0.5, branching_factor=50, compute_labels=True, copy=True)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
+<blockquote>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
 </div></blockquote>
 </td>
 </tr>
@@ -151,7 +177,7 @@ var_params contains all the final parameters used in the act of clustering</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
 <blockquote>
-<div><p>Solution of clustering labels for each object</p>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
 </div></blockquote>
 </td>
 </tr>
@@ -177,7 +203,7 @@ var_params contains all the final parameters used in the act of clustering</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
 <blockquote>
-<div><p>Solution of clustering labels for each object</p>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
 </div></blockquote>
 </td>
 </tr>
@@ -221,7 +247,7 @@ var_params contains all the final parameters used in the act of clustering</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
 <blockquote>
-<div><p>Solution of clustering labels for each object</p>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
 </div></blockquote>
 </td>
 </tr>
@@ -252,7 +278,7 @@ var_params: dict</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
 <blockquote class="last">
-<div><p>Solution of clustering labels for each object</p>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
 </div></blockquote>
 </td>
 </tr>
@@ -331,7 +357,7 @@ with anything in paramsSent.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openensembles.html">OpenEnsembles</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="Supporting.html">Supporting Code</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="finishing.html">Finishing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cooccurrence.html">Cooccurrence</a></li>

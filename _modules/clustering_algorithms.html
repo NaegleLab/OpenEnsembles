@@ -150,7 +150,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        labels: list of ints</span>
-<span class="sd">            Solution of clustering labels for each object</span>
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)</span>
 <span class="sd">            </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span><span class="o">=</span><span class="p">{}</span>
@@ -189,8 +189,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        labels: list of ints</span>
-<span class="sd">            Solution of clustering labels for each object</span>
-<span class="sd">       </span>
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)       </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -219,7 +218,7 @@
                         <span class="n">eigen_tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">],</span> <span class="n">assign_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
         <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.        </span></div>
 
 <span class="c1">######### BELOW HERE ARE ALGORITHMS that accept DISTANCE METRICS</span>
 
@@ -237,8 +236,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        labels: list of ints</span>
-<span class="sd">            Solution of clustering labels for each object</span>
-<span class="sd">  </span>
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)  </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
@@ -278,8 +276,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        labels: list of ints</span>
-<span class="sd">            Solution of clustering labels for each object</span>
-
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
@@ -323,7 +320,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        labels: list of ints</span>
-<span class="sd">            Solution of clustering labels for each object</span>
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
@@ -346,7 +343,41 @@
         <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1">#operates on distance matrix</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+
+<div class="viewcode-block" id="clustering_algorithms.Birch"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.Birch">[docs]</a>    <span class="k">def</span> <span class="nf">Birch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses `sklearn&#39;s Birch &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html&gt;`_</span>
+<span class="sd">        **Defaults and var_params:** sklearn.cluster.Birch(threshold=0.5, branching_factor=50, compute_labels=True, copy=True)</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span> <span class="c1">#not mutable</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;branching_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;compute_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;copy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;Birch&#39;</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">])</span>
+
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">Birch</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">],</span> <span class="n">branching_factor</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;branching_factor&#39;</span><span class="p">],</span> <span class="n">n_clusters</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_clusters&#39;</span><span class="p">],</span>
+            <span class="n">compute_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;compute_labels&#39;</span><span class="p">],</span> <span class="n">copy</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;copy&#39;</span><span class="p">])</span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div></div>
+
 
 <div class="viewcode-block" id="returnParams"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.returnParams">[docs]</a><span class="k">def</span> <span class="nf">returnParams</span><span class="p">(</span><span class="n">paramsSent</span><span class="p">,</span> <span class="n">paramsExpected</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -420,7 +451,7 @@
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openensembles.html">OpenEnsembles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>

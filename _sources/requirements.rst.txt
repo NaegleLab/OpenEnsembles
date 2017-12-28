@@ -1,9 +1,0 @@
-Dependencies
-=============================================
-python==3.6
-numpy==1.11.3
-networkx==1.11
-matplotlib==2.0.0
-pandas==0.19.2
-scipy==0.18.1
-scikit_learn==0.19.1
