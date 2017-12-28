@@ -103,7 +103,7 @@ class clustering_algorithms:
         Returns
         -------
         labels: list of ints
-            Solution of clustering labels for each object
+            Solution of clustering labels for each object (updated in object.out)
             
         """
         params={}
@@ -142,8 +142,7 @@ class clustering_algorithms:
         Returns
         -------
         labels: list of ints
-            Solution of clustering labels for each object
-       
+            Solution of clustering labels for each object (updated in object.out)       
         """
         params = {}
 
@@ -190,8 +189,7 @@ class clustering_algorithms:
         Returns
         -------
         labels: list of ints
-            Solution of clustering labels for each object
-  
+            Solution of clustering labels for each object (updated in object.out)  
         """
         params = {}
         params['distance'] = 'euclidean'
@@ -231,8 +229,7 @@ class clustering_algorithms:
         Returns
         -------
         labels: list of ints
-            Solution of clustering labels for each object
-
+            Solution of clustering labels for each object (updated in object.out)
         
         """
         params = {}
@@ -276,7 +273,7 @@ class clustering_algorithms:
         Returns
         -------
         labels: list of ints
-            Solution of clustering labels for each object
+            Solution of clustering labels for each object (updated in object.out)
         """
         params = {}
         params['distance'] = 'euclidean'
@@ -303,16 +300,21 @@ class clustering_algorithms:
 
     def Birch(self):
         """
-            sklearn.cluster.Birch(threshold=0.5, branching_factor=50, compute_labels=True, copy=True)
-            DEFAULTS:
-            params['threshold'] = 0.5
-            params['branching_factor'] = 50
-            params['n_clusters'] = self.K
-            params['compute_labels'] = True
-            params['copy'] = True
+        Uses `sklearn's Birch <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html>`_
+        **Defaults and var_params:** sklearn.cluster.Birch(threshold=0.5, branching_factor=50, compute_labels=True, copy=True)
+
+        Other Parameters
+        ----------------
+        var_params: dict
+            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above
+
+        Returns
+        -------
+        labels: list of ints
+            Solution of clustering labels for each object (updated in object.out)
         """
         params = {}
-        params['distance'] = 'euclidean'
+        params['distance'] = 'euclidean' #not mutable
         params['threshold'] = 0.5
         params['branching_factor'] = 50
         params['n_clusters'] = self.K
