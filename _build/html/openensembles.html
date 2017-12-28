@@ -1,0 +1,653 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>OpenEnsembles &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Supporting Code" href="Supporting.html" />
+    <link rel="prev" title="OpenEnsembles" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Supporting.html" title="Supporting Code"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="OpenEnsembles"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-openensembles">
+<span id="openensembles"></span><h1>OpenEnsembles<a class="headerlink" href="#module-openensembles" title="Permalink to this headline">¶</a></h1>
+<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering</p>
+<p>Copyright (C) 2017 Naegle Lab</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<div class="section" id="the-data-class">
+<h2>The “data” class<a class="headerlink" href="#the-data-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openensembles.data">
+<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">data</code><span class="sig-paren">(</span><em>df</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>df is a dataframe and x is the x_axis values (or numbers indicating the
+number entry)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : a pandas dataframe</p>
+<blockquote>
+<div><p>Dataframe with objects in rows and columns representing the feature dimensions</p>
+</div></blockquote>
+<p><strong>x</strong> : list</p>
+<blockquote>
+<div><p>The x-axis elements. If x is a list of strings, it will be converted here to a list of ints (range 0 to len(x))</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>ValueError of the size of x and dimensionality of df do not match</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="91%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>df</strong></td>
+<td>(pandas dataframe) the original dataframe</td>
+</tr>
+<tr class="row-even"><td><strong>D</strong></td>
+<td>(dictionary) A dictionary of data matrices, callable by ‘source_name’</td>
+</tr>
+<tr class="row-odd"><td><strong>x</strong></td>
+<td>(list) a list of integer or float values</td>
+</tr>
+<tr class="row-even"><td><strong>x_labels</strong></td>
+<td>(list) a list of strings (if that was passed in) or the int and float. So that xticklabels could be updated or referenced</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="openensembles.data.plot_data">
+<code class="descname">plot_data</code><span class="sig-paren">(</span><em>source_name</em>, <em>fig_num=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data.plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the data matrix that belongs to source_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>source_name</strong> : string</p>
+<blockquote>
+<div><p>name of data source to plot, e.g. ‘parent’</p>
+</div></blockquote>
+<p><strong>fig_num: int</strong></p>
+<blockquote>
+<div><p>Set to a different figure number to plot on existing figure. Default fig_num=1</p>
+</div></blockquote>
+<p><strong>**class_labels</strong> : list of ints</p>
+<blockquote>
+<div><p>this is a vector that assigns points to classes, and will be used to color the points according to assigned class type</p>
+</div></blockquote>
+<p><strong>**clusters_to_plot: list of ints</strong></p>
+<blockquote>
+<div><p>If you wish to plot a subset of cluster types (classes), pass that as a list of ints</p>
+</div></blockquote>
+<p><strong>**title</strong> : string</p>
+<blockquote>
+<div><p>Title for plot</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError:</strong></p>
+<blockquote class="last">
+<div><p>If clusters_to_plot not a set in cluster labels</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.data.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>source_name</em>, <em>txfm_fcn</em>, <em>txfm_name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>This runs transform (txfm_fcn) on the data matrix defined by
+source_name with parameters that are variable for each transform. 
+For example, oe.data.transform(‘parent’, ‘zscore’,’zscore_parent’, axis=0) will run the
+zscore in a vector-wise manner across the matrix (column-wise) and the new data
+dictionary access to the transformed data is oe.data[‘zscore_parent’]
+Successful completion results in
+the addition of a new entry in the data dictionary with a key according
+to txfm_name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>source_name: string</strong></p>
+<blockquote>
+<div><p>the name of the source data, for example ‘parent’, or ‘log2’</p>
+</div></blockquote>
+<p><strong>txfm_fcn: string</strong></p>
+<blockquote>
+<div><p>the name of the transform function. See transforms.py or run oe.data.transforms_available() for list</p>
+</div></blockquote>
+<p><strong>txfm_name: string</strong></p>
+<blockquote>
+<div><p>the name you want to use in the data object dictionary oe.data.D[‘name’] to access transformed data</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>**Keep_NaN: boolean</strong></p>
+<blockquote>
+<div><p>Set to True in order to prevent transformations from being added that produce NaNs. 
+Default Keep_NaN=True this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs.</p>
+</div></blockquote>
+<p><strong>**Keep_Inf: boolean</strong></p>
+<blockquote>
+<div><p>Set to True in order to prevent transformations from being added that produce infinite values
+Default: Keep_Inf = True (this will add transformed data even if infinite values are produced. Set to 0 to prevent addition of data transforms conta</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>if the transform function does not exist OR if the data source does not exist by source_name</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">NaNs or infinite values are produced</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">openensembles</span> <span class="k">as</span> <span class="nn">oe</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="s1">&#39;zscore&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="s1">&#39;PCA&#39;</span><span class="p">,</span> <span class="s1">&#39;pca&#39;</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.data.transforms_available">
+<code class="descname">transforms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data.transforms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.transforms_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all transformations available</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="the-cluster-class">
+<h2>The “cluster” class<a class="headerlink" href="#the-cluster-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openensembles.cluster">
+<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">cluster</code><span class="sig-paren">(</span><em>dataObj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a clustering object, which is instantiated with a data object class from OpenEnsembles
+When clustering is performed, the dictionaries of all attributes are extended using the key given as output_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataObj</strong></p>
+<blockquote>
+<div><p>openensembles.data class – consists at least of one data matrix called ‘parent’</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">clusterObject</p>
+<blockquote class="last">
+<div><p>empty openensembles.cluster object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">openensembles</span> <span class="k">as</span> <span class="nn">oe</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="s1">&#39;zscore&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="s1">&#39;PCA&#39;</span><span class="p">,</span> <span class="s1">&#39;pca&#39;</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;pca&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans_pca&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="27%" />
+<col width="73%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>dataObj: openensembles.data class</strong></td>
+<td>openensembles.data class that was used to instantiate cluster object</td>
+</tr>
+<tr class="row-even"><td><strong>labels: dict of lists</strong></td>
+<td>A dictionary of lists of clustering solutions (ints). Referred to as output_name in .cluster method</td>
+</tr>
+<tr class="row-odd"><td><strong>data_source: dict of strings</strong></td>
+<td>Name of data source in dataObj</td>
+</tr>
+<tr class="row-even"><td><strong>params: dict of dicts</strong></td>
+<td>A dictionary of all parameters passed during clustering</td>
+</tr>
+<tr class="row-odd"><td><strong>clusterNumbers: dict of lists</strong></td>
+<td>A listing of the unique set of cluster numbers produced in a clustering</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="openensembles.cluster.algorithms_available">
+<code class="descname">algorithms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.algorithms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.algorithms_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call this to list all algorithms currently available in algorithms.py</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.cluster">
+<code class="descname">cluster</code><span class="sig-paren">(</span><em>source_name</em>, <em>algorithm</em>, <em>output_name</em>, <em>K=None</em>, <em>Require_Unique=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>This runs clustering algorithms on the data matrix defined by
+source_name with parameters that are variable for each algorithm. Note that K is 
+required for most algorithms and is given a default of K=2.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>source_name: string</strong></p>
+<blockquote>
+<div><p>the source data matrix name to operate on in clusterclass dataObj</p>
+</div></blockquote>
+<p><strong>algorithm: string</strong></p>
+<blockquote>
+<div><p>name of the algorithm to use, see clustering.py or call oe.cluster.algorithms_available()</p>
+</div></blockquote>
+<p><strong>output_name: string</strong></p>
+<blockquote>
+<div><p>this is the dict key for interacting with the results of this clustering solution in any of the cluster class dictionary attributes</p>
+</div></blockquote>
+<p><strong>K: int</strong></p>
+<blockquote>
+<div><p>number of clusters to create (ignored for algorithms that define K during clustering). Deafault is K=2</p>
+</div></blockquote>
+<p><strong>Require_Unique: bool</strong></p>
+<blockquote>
+<div><p>If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
+solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>if data source is not available by source_name</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This will warn if the number of clusters is differen than what was requested, typically when an algorithm does not accept K as an argument.</p>
+</div>
+<p class="rubric">Examples</p>
+<p>Cluster using KMeans on parent data</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span><span class="s1">&#39;kmeans_parent&#39;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> 
+</pre></div>
+</div>
+<p>Form an iteration to build an ensemble using different values for K</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">12</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;kmeans_&#39;</span><span class="o">+</span><span class="n">k</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.co_occurrence_matrix">
+<code class="descname">co_occurrence_matrix</code><span class="sig-paren">(</span><em>data_source_name='parent'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.co_occurrence_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.co_occurrence_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the co-occurrence of all pairs of objects across the ensemble</p>
+<p>Parameters:
+data_source_name: string</p>
+<blockquote>
+<div>Name of the data source to link to co-occurrence object. Default is ‘parent’</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">coMat class</p>
+<blockquote class="last">
+<div><p>coMat.co_matrix is the NxN matrix, whose entries indicate the number of times the pair of objects in positon (i,j) cluster across the ensemble
+of clustering solutions available in clustering object.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coMat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.finish_co_occ_linkage">
+<code class="descname">finish_co_occ_linkage</code><span class="sig-paren">(</span><em>threshold</em>, <em>linkage='average'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.finish_co_occ_linkage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_co_occ_linkage" title="Permalink to this definition">¶</a></dt>
+<dd><p>The finishing technique that calculates a co-occurrence matrix on all cluster solutions in the ensemble and 
+then hierarchically clusters the co-occurrence, treating it as a similarity matrix. The clusters are defined by 
+the threshold of the distance used to cut.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>threshold: float</strong></p>
+<blockquote>
+<div><p>Linkage distance to use as a cutoff to create partitions</p>
+</div></blockquote>
+<p><strong>linkage: string</strong></p>
+<blockquote>
+<div><p>Linkage type. See <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage">scipy.cluster.hierarchy</a></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">c: openensembles clustering object</p>
+<blockquote class="last">
+<div><p>a new clustering object with c.labels[‘co_occ_linkage’] set to the final solution.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>To determine where the cut is visually, at threshold=0.5:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coMat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To create the cut at threshold=0.5</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cWard</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occ_linkage</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">cluster_labels</span><span class="o">=</span><span class="n">cWard</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;co_occ_linkage&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.finish_graph_closure">
+<code class="descname">finish_graph_closure</code><span class="sig-paren">(</span><em>threshold</em>, <em>clique_size=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.finish_graph_closure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_graph_closure" title="Permalink to this definition">¶</a></dt>
+<dd><p>The finishing technique that treats the co-occurrence matrix as a graph, that is binarized by the threshold (&gt;=threshold 
+becomes an unweighted, undirected edge in an adjacency matrix). This graph object is then subjected to clique formation
+according to clique_size (such as triangles if clique_size=3). The cliques are then combined in the graph to create unique
+cluster formations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">c: openenembles clustering object</p>
+<blockquote class="last">
+<div><p>New cluster object with final solution and name ‘graph_closure’</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">finishing.py</span></code></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cGraph</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">finish_graph_closure</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">cluster_labels</span><span class="o">=</span><span class="n">cGraph</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;graph_closure&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.finish_majority_vote">
+<code class="descname">finish_majority_vote</code><span class="sig-paren">(</span><em>threshold=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.finish_majority_vote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_majority_vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Based on Ana Fred’s 2001 paper: Fred, Ana. Finding Consistent Clusters in Data Partitions. In Multiple Classifier Systems, 
+edited by Josef Kittler and Fabio Roli, LNCS 2096, 309-18. Springer, 2001. 
+This algorithm assingns clusters to the same class if they co-cluster at least 50 of the time. It 
+greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
+a majority of the time. Outliers will get their own cluster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>threshold</strong> (<em>float</em>) – the threshold, or fraction of times objects co-cluster to consider a ‘majority’. Default is 0.5 (50% of the time)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New cluster object with final solution and name ‘majority_vote’</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.get_cluster_members">
+<code class="descname">get_cluster_members</code><span class="sig-paren">(</span><em>solution_name</em>, <em>clusterNum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.get_cluster_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.get_cluster_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dataframe row indexes of a cluster number in solution named by solution_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>solution_name</strong> (<em>string</em>) – the name of the clustering solution of interest</li>
+<li><strong>clusterNum</strong> (<em>int</em>) – The cluster number of interest</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">indexes - a list of indexes of objects with clusterNum in solution_name</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.mixture_model">
+<code class="descname">mixture_model</code><span class="sig-paren">(</span><em>K=2</em>, <em>iterations=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.mixture_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.mixture_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finishing Technique to assemble a final, hard parition of the data according to maximizing the likelihood according to the
+observed clustering solutions across the ensemble. This will operate on all clustering solutions contained in the container cluster class.
+Operates on entire ensemble of clustering solutions in self, to create a mixture model
+See finishing.mixture_model for more details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>K: int</strong></p>
+<blockquote>
+<div><p>number of clusters to create. Default K=2</p>
+</div></blockquote>
+<p><strong>iterations: int</strong></p>
+<blockquote>
+<div><p>number of iterations of EM algorithm to perform. Default iterations=10</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">c: openensembles clustering object</p>
+<blockquote>
+<div><p>a new clustering object with c.labels[‘mixture_model’] set to the final solution.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError:</strong></p>
+<blockquote class="last">
+<div><p>If there are not at least two clustering solutions</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>Topchy, Jain, and Punch, “A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)”</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cMM</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">mixture_model</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">cluster_labels</span><span class="o">=</span><span class="n">cMM</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;mixture_model&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="the-validation-class">
+<h2>The “validation” class<a class="headerlink" href="#the-validation-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="openensembles.validation">
+<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">validation</code><span class="sig-paren">(</span><em>dataObj</em>, <em>cObj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#validation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation" title="Permalink to this definition">¶</a></dt>
+<dd><p>validation is a class to calculate any number of validation metrics on clustering solutions in data. 
+An individual validation metric must be called on a particular instantiation of the data matrix (like ‘parent’ or ‘zscore’)
+and a specific solution in cObj.</p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="openensembles.validation.calculate">
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>validation_name</em>, <em>cluster_name</em>, <em>source_name='parent'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#validation.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls the function titled by validation_name on the data matrix set by source_name (default ‘parent’) and clustering solution by cluster_name
+Appends to validation with key value equal to the validation_name+source_name+cluster_name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">output_name: str</p>
+<blockquote class="last">
+<div><p>The handle name for accessing validation results</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.validation.validation_metrics_available">
+<code class="descname">validation_metrics_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#validation.validation_metrics_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation.validation_metrics_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all available validation metrics</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OpenEnsembles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-data-class">The “data” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-cluster-class">The “cluster” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-validation-class">The “validation” class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Supporting.html">Supporting Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">OpenEnsembles</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Supporting.html"
+                        title="next chapter">Supporting Code</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/OpenEnsembles.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Supporting.html" title="Supporting Code"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="OpenEnsembles"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

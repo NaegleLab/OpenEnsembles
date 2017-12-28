@@ -1,0 +1,11 @@
+   
+
+Examples
+=========================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   Example_Kmeans_MajorityVote.ipynb
+   Ensemble_Distances_Algorithms_No_Structure.ipynb

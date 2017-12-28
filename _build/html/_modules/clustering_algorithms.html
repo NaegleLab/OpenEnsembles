@@ -1,0 +1,461 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>clustering_algorithms &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for clustering_algorithms</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">OpenEnsembles is a resource for performing and analyzing ensemble clustering</span>
+<span class="sd">This file contains calls to clustering algorithms. Please refer to this </span>
+<span class="sd">documentation for specifics about the variable parameters and their defaults, but interact with clustering </span>
+<span class="sd">through the openensembles.clustering() class. </span>
+
+<span class="sd">OpenEnsembles is a resource for performing and analyzing ensemble clustering</span>
+
+<span class="sd">Copyright (C) 2017 Naegle Lab</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+<span class="kn">import</span> <span class="nn">sklearn.cluster</span> <span class="k">as</span> <span class="nn">skc</span>
+<span class="kn">import</span> <span class="nn">sklearn</span> <span class="k">as</span> <span class="nn">sk</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">datasets</span>
+<span class="kn">import</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">as</span> <span class="nn">sch</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">preprocessing</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="k">import</span> <span class="n">FunctionType</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<div class="viewcode-block" id="clustering_algorithms"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms">[docs]</a><span class="k">class</span> <span class="nc">clustering_algorithms</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The calls to all clustering algorithms reside here. Each call takes on the form of explicitly encoding the default </span>
+<span class="sd">    sklearn parameters, overwriting any passed in as kwargs.</span>
+
+<span class="sd">    The act of clustering creates a list of assignments of objects in data assigned to clustering classes</span>
+<span class="sd">    var_params contains all the final parameters used in the act of clustering</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: matrix</span>
+<span class="sd">        Data matrix, assumes feature dimensions are found column wise (objects in rows)</span>
+<span class="sd">    kwargs: dict</span>
+<span class="sd">        Variable parameters passed in as a dict. These are specific to each algorithm</span>
+<span class="sd">    K: int</span>
+<span class="sd">        Number of clusters to create, required for most, but not all algorithms. Default K=2</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    var_params: dict</span>
+<span class="sd">        The dict of all parameters, including defaults assumed and those overwritten by kwargs</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    openensembles.cluster()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">K</span>
+        <span class="c1">#args should have K, even if a default value (should it? not all algorithms need this, use default)</span>
+        <span class="c1">#if &#39;K&#39; not in self.args:</span>
+        <span class="c1">#    raise ValueError(&#39;clustering_algorithms should have an instantiated K as part of kwargs key, pair&#39;)</span>
+
+<div class="viewcode-block" id="clustering_algorithms.clustering_algorithms_available"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.clustering_algorithms_available">[docs]</a>    <span class="k">def</span> <span class="nf">clustering_algorithms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Report available algorithms</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        methods: dict</span>
+<span class="sd">            Dictionary with keys equal to available function calls</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">methods</span> <span class="o">=</span>  <span class="p">[</span><span class="n">method</span> <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">))]</span>
+        <span class="n">methods</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;clustering_algorithms_available&#39;</span><span class="p">)</span>
+        <span class="n">methodDict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+                <span class="n">methodDict</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">methodDict</span></div>
+
+<div class="viewcode-block" id="clustering_algorithms.kmeans"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        kmeans clustering see `skc.KMeans &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html&gt;`_</span>
+
+<span class="sd">        **Defaults and var_params:** skc.KMeans(init=&#39;k-means++&#39;, n_init=10, max_iter=300, tol=0.0001, precompute_distances=&#39;auto&#39;, verbose=0, random_state=None, copy_x=True, n_jobs=1)</span>
+
+<span class="sd">    </span>
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span><span class="o">=</span><span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;k-means++&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;tol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0001</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;precompute_distances&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;copy_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;kmeans clustering requires an argument K=&lt;intiger value&gt;&#39;</span><span class="p">)</span>
+        <span class="c1">#for anything in self.var_params that may replace defaults, update the param list</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">)</span>
+        <span class="n">solution</span><span class="o">=</span><span class="n">skc</span><span class="o">.</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;init&#39;</span><span class="p">],</span> 
+            <span class="n">n_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">],</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">],</span> <span class="n">tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;tol&#39;</span><span class="p">],</span>
+            <span class="n">precompute_distances</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;precompute_distances&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">],</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">],</span> <span class="n">copy_x</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;copy_x&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+
+
+<div class="viewcode-block" id="clustering_algorithms.spectral"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.spectral">[docs]</a>    <span class="k">def</span> <span class="nf">spectral</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Spectral clustering, see `skc.SpectralClustering &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html&gt;`_</span>
+
+<span class="sd">        **Defaults and var_params:** skc.SpectralClustering(n_clusters=8, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)</span>
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object</span>
+<span class="sd">       </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;rbf&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0.0&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;degree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;kmeans clustering requires an argument K=&lt;intiger value&gt;&#39;</span><span class="p">)</span>
+
+        <span class="c1">#for anything in self.var_params that may replace defaults, update the param list</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">)</span>
+ 
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">SpectralClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">],</span>
+                        <span class="n">eigen_solver</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">],</span> <span class="n">n_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">],</span>
+                        <span class="n">affinity</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">],</span> <span class="n">coef0</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">],</span> <span class="n">kernel_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">],</span>
+                        <span class="n">eigen_tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">],</span> <span class="n">assign_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+
+<span class="c1">######### BELOW HERE ARE ALGORITHMS that accept DISTANCE METRICS</span>
+
+<div class="viewcode-block" id="clustering_algorithms.agglomerative"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.agglomerative">[docs]</a>    <span class="k">def</span> <span class="nf">agglomerative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses sklearns `AgglomerativeClustering algorithm &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html&gt;`_ </span>
+
+<span class="sd">        **Defaults and var_params:** sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity=&#39;euclidean&#39;, connectivity=None, compute_full_tree=&#39;auto&#39;, linkage=&#39;ward&#39;, pooling_func=&lt;function mean&gt;)</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object</span>
+<span class="sd">  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span>
+        <span class="c1">#params[&#39;memory&#39;] = &#39;Memory(cachedir=None)&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;connectivity&#39;</span><span class="p">]</span><span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#params[&#39;n_components&#39;] = None #gone in newest version</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;compute_full_tree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ward&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;pooling_func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">)</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;kmeans clustering requires an argument K=&lt;intiger value&gt;&#39;</span><span class="p">)</span>
+
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">AgglomerativeClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">affinity</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">],</span>
+            <span class="n">connectivity</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;connectivity&#39;</span><span class="p">],</span>
+            <span class="n">compute_full_tree</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;compute_full_tree&#39;</span><span class="p">],</span> <span class="n">linkage</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span> <span class="p">,</span> <span class="n">pooling_func</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;pooling_func&#39;</span><span class="p">])</span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+
+
+<div class="viewcode-block" id="clustering_algorithms.DBSCAN"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.DBSCAN">[docs]</a>    <span class="k">def</span> <span class="nf">DBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses `sklearn&#39;s DBSCAN &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html&gt;`_</span>
+
+<span class="sd">        **Defaults and var_params:** sklearn.cluster.DBSCAN(eps=0.5, min_samples=5, metric=&#39;euclidean&#39;, algorithm=&#39;auto&#39;, leaf_size=30, p=None, random_state=None)</span>
+<span class="sd">        </span>
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object</span>
+
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;eps&#39;</span><span class="p">]</span><span class="o">=</span><span class="mf">0.5</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_samples&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">5</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;precomputed&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;leaf_size&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">30</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;DBSCAN&#39;</span><span class="p">)</span>
+
+        <span class="c1">#params[&#39;distance&#39;] says what to precompute on</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">])</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;precomputed&#39;</span>
+        
+        <span class="c1">#solution = skc.DBSCAN(eps=params[&#39;eps&#39;], min_samples=params[&#39;min_samples&#39;], metric=params[&#39;metric&#39;], </span>
+        <span class="c1">#    algorithm=params[&#39;algorithm&#39;], leaf_size=params[&#39;leaf_size&#39;], </span>
+        <span class="c1">#    p=params[&#39;p&#39;], random_state=params[&#39;random_state&#39;]) </span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">DBSCAN</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eps&#39;</span><span class="p">],</span> <span class="n">min_samples</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_samples&#39;</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span> 
+            <span class="n">algorithm</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">],</span> <span class="n">leaf_size</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;leaf_size&#39;</span><span class="p">],</span> 
+            <span class="n">p</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span> <span class="c1">#random_state=params[&#39;random_state&#39;]) </span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+
+<div class="viewcode-block" id="clustering_algorithms.AffinityPropagation"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.AffinityPropagation">[docs]</a>    <span class="k">def</span> <span class="nf">AffinityPropagation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses `sklearn&#39;s Affinity Propagation &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html&gt;`_</span>
+
+<span class="sd">        **Defaults and var_params:** sklearn.cluster.AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity=&#39;euclidean&#39;, verbose=False)</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;precomputed&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;damping&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;convergence_iter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;copy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;preference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;AffinityPropagation&#39;</span><span class="p">)</span>
+
+        <span class="c1">#params[&#39;distance&#39;] says what to precompute on</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;precomputed&#39;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">])</span>
+        
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">AffinityPropagation</span><span class="p">(</span><span class="n">damping</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;damping&#39;</span><span class="p">],</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">],</span> <span class="n">convergence_iter</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;convergence_iter&#39;</span><span class="p">],</span> 
+            <span class="n">copy</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;copy&#39;</span><span class="p">],</span> <span class="n">preference</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;preference&#39;</span><span class="p">],</span> <span class="n">affinity</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">])</span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1">#operates on distance matrix</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div></div>
+
+<div class="viewcode-block" id="returnParams"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.returnParams">[docs]</a><span class="k">def</span> <span class="nf">returnParams</span><span class="p">(</span><span class="n">paramsSent</span><span class="p">,</span> <span class="n">paramsExpected</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility for variable parameter setting in clustering algorithms</span>
+<span class="sd">    Takes two dictionaries of parameter key, value pairs and replaces that in paramsExpected </span>
+<span class="sd">    with anything in paramsSent. </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    params: dict</span>
+<span class="sd">        Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">        Will warn users if a key in sent does not appear in expected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">overlap</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">paramsSent</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">paramsExpected</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">paramsExpected</span>
+    <span class="n">paramsToCheck</span> <span class="o">=</span> <span class="n">paramsSent</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">overlap</span><span class="p">:</span>
+        <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">paramsSent</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="c1">#if it was sent, overwrite default.</span>
+        <span class="k">del</span> <span class="n">paramsToCheck</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="c1">#warn if there are keys in paramsToCheck (means they were sent, but not expected) (covers distance metric as well)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">paramsToCheck</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Parameter </span><span class="si">%s</span><span class="s2"> was not expected in algorithm </span><span class="si">%s</span><span class="s2"> and will be ignored&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span>
+
+    <span class="c1"># Warn if the paramsSent contain a distance, but paramsExpected does not</span>
+    <span class="c1">#if &#39;distance&#39; in paramsSent:</span>
+    <span class="c1">#    if &#39;distance&#39; not in paramsExpected:</span>
+    <span class="c1">#        warnings.warn(&quot;Algorithm does not take a distance metric and distance metric %s will be ignored&quot;%(paramsSent[&#39;distance&#39;]), UserWarning)</span>
+
+    <span class="k">return</span> <span class="n">params</span></div>
+
+<div class="viewcode-block" id="returnDistanceMatrix"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.returnDistanceMatrix">[docs]</a><span class="k">def</span> <span class="nf">returnDistanceMatrix</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility to calculate a distance matrix, according to type in &lt;distance&gt; on the data array. </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: matrix</span>
+<span class="sd">        Data matrix to calculate distances from</span>
+<span class="sd">    distance: string</span>
+<span class="sd">        Distance metric. See `sklearn&#39;s pairwise distances &lt;http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html&gt;`_</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    d: matrix </span>
+<span class="sd">        the distance matrix computed by distance</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError:</span>
+<span class="sd">        if the distance metric is not available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">distDict</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">pairwise</span><span class="o">.</span><span class="n">distance_metrics</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">distance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">distDict</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the distance you requested is not available by that name </span><span class="si">%s</span><span class="s2">. Please see sklearn.metrics.pairwise.distance_metrics()&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">distance</span><span class="p">))</span>
+    
+    <span class="n">d</span> <span class="o">=</span> <span class="n">distDict</span><span class="p">[</span><span class="n">distance</span><span class="p">](</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">d</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

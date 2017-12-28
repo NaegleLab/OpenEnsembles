@@ -1,0 +1,16 @@
+OpenEnsembles
+=============================
+.. automodule:: openensembles 
+The "data" class
+------------------
+.. autoclass:: openensembles.data
+	:members:
+The "cluster" class
+--------------------
+.. autoclass:: openensembles.cluster
+	:members:
+The "validation" class
+-----------------------
+.. autoclass:: openensembles.validation
+	:members:
+

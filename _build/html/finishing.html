@@ -1,0 +1,360 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Finishing &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cooccurrence" href="cooccurrence.html" />
+    <link rel="prev" title="Supporting Code" href="Supporting.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cooccurrence.html" title="Cooccurrence"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Supporting.html" title="Supporting Code"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-finishing">
+<span id="finishing"></span><h1>Finishing<a class="headerlink" href="#module-finishing" title="Permalink to this headline">¶</a></h1>
+<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering</p>
+<p>Copyright (C) 2017 Naegle Lab</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<dl class="class">
+<dt id="finishing.co_occurrence_linkage">
+<em class="property">class </em><code class="descclassname">finishing.</code><code class="descname">co_occurrence_linkage</code><span class="sig-paren">(</span><em>co_occ_object</em>, <em>threshold</em>, <em>linkage='average'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#co_occurrence_linkage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.co_occurrence_linkage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a final solution to the ensemble that is the agglomerative clustering of the co_occurrence matrix 
+according to the linkage passed by linkage (default is Average).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>co_occ_object: openensembles.coMat object</strong></p>
+<blockquote>
+<div><p>The co-occurrence object to operate on</p>
+</div></blockquote>
+<p><strong>threshold: float</strong></p>
+<blockquote>
+<div><p>The threshold to cut the linkage at to create hard partitions</p>
+</div></blockquote>
+<p><strong>linkage: string</strong></p>
+<blockquote>
+<div><p>linkage type. See <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage">scipy.cluster.hierarchy</a></p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
+<blockquote class="last">
+<div><p>The final solution</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.cluster.finish_co_occ_linkage" title="openensembles.cluster.finish_co_occ_linkage"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.cluster.finish_co_occ_linkage</span></code></a></p>
+</div>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="finishing.co_occurrence_linkage.finish">
+<code class="descname">finish</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#co_occurrence_linkage.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.co_occurrence_linkage.finish" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the function that is called ona  co_occurrence_linkage object that agglomeratively clusters the co_occurrence_matrix (self.coMat.co_matrix)
+According to self.linkage (linkage parameter set in initialization of object) with clusters equal to self.K (also set in intialization)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="finishing.graph_closure">
+<em class="property">class </em><code class="descclassname">finishing.</code><code class="descname">graph_closure</code><span class="sig-paren">(</span><em>co_occ_matrix</em>, <em>threshold</em>, <em>clique_size=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#graph_closure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.graph_closure" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Returns a final solution of the ensemble based on treating the co-occurrence matrix as a weighted graph whose 
+solution is found from identifying network components within the graph</p>
+<p>Finds k-percolated cliques in G, e.g,</p>
+</div></blockquote>
+<p>Unless the cliques argument evaluates to True, this algorithm
+first enumerates all cliques in G. These are stored in memory,
+which in large graphs can consume large amounts of memory.
+Returns a generator object. To return a list of percolated k-cliques,
+Notes
+—–</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>Based on the method outlined in Palla et. al., Nature 435, 814-818 (2005)</li>
+<li>Based on Code for <a class="reference external" href="https://gist.github.com/conradlee/1341985">Percolation From ConradLee</a></li>
+</ul>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="finishing.graph_closure.finish">
+<code class="descname">finish</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#graph_closure.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.graph_closure.finish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finishes the ensemble by taking a binary adjacency matrix, defined in initilization according to the threshold given
+and percolates the cliques</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="finishing.majority_vote">
+<em class="property">class </em><code class="descclassname">finishing.</code><code class="descname">majority_vote</code><span class="sig-paren">(</span><em>co_occ_matrix</em>, <em>threshold=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#majority_vote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.majority_vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Based on Ana Fred’s 2001 paper, 
+this algorithm assingns clusters to the same class if they co-cluster at least 50% of the time. It 
+greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
+a majority of the time. Outliers will get their own cluster. The original algorithm chose 0.5 as the threshold for a
+majority vote, but here you can override the default parameter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>co_occ_object: openensembles.coMat object</strong></p>
+<blockquote>
+<div><p>The co-occurrence object to operate on</p>
+</div></blockquote>
+<p><strong>threshold: float</strong></p>
+<blockquote class="last">
+<div><p>The threshold, fraction of times any pair of objects clusters together that is considred for majority.
+For example threshold=0.5 means 50% of the time or more.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.cluster.finish_majority_vote" title="openensembles.cluster.finish_majority_vote"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.cluster.finish_majority_vote</span></code></a></p>
+</div>
+<p class="rubric">References</p>
+<p>Fred, Ana. “Finding Consistent Clusters in Data Partitions.” In Multiple Classifier Systems, edited by Josef Kittler and Fabio Roli, LNCS 2096., 309–18. Springer, 2001.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>K: int</strong></td>
+<td>Number of clusters created</td>
+</tr>
+<tr class="row-even"><td><strong>labels: list of ints</strong></td>
+<td>Solution of cluster assignments</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="finishing.majority_vote.finish">
+<code class="descname">finish</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#majority_vote.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.majority_vote.finish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finish the ensemble by majority vote</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="finishing.mixture_model">
+<em class="property">class </em><code class="descclassname">finishing.</code><code class="descname">mixture_model</code><span class="sig-paren">(</span><em>parg</em>, <em>N</em>, <em>nEnsCluster=2</em>, <em>iterations=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#mixture_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.mixture_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the article Mixture Models for Ensemble CLustering
+Topchy, Jain, and Punch, “A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)</p>
+<p>Written by Pedro da Silva Tavares and adapted by Kristen M. Naegle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>parg: list of lists</strong></p>
+<blockquote>
+<div><p>Solutions of assignments of objects to clusters across an ensemble</p>
+</div></blockquote>
+<p><strong>N: int</strong></p>
+<blockquote>
+<div><p>Number of data points to cluster</p>
+</div></blockquote>
+<p><strong>nEnsCluster: int</strong></p>
+<blockquote>
+<div><p>Number of clusters to create in mixture model
+Default is 2</p>
+</div></blockquote>
+<p><strong>iterations:</strong></p>
+<blockquote class="last">
+<div><p>Number of expectation maximization iterations
+Default is 10</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.cluster.mixture_model" title="openensembles.cluster.mixture_model"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.cluster.mixture_model</span></code></a></p>
+</div>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="63%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>labels: list of ints</strong></td>
+<td>Final Mixture Model partitions of objects</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="finishing.mixture_model.expectation">
+<code class="descname">expectation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#mixture_model.expectation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.mixture_model.expectation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Expectation (ExpZ) according to parameters.
+Obs: y(N,H) Kj(H) alpha(M) v(H,M,K(j)) ExpZ(N,M)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="finishing.mixture_model.gatherPartitions">
+<code class="descname">gatherPartitions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#mixture_model.gatherPartitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.mixture_model.gatherPartitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the y vector.
+parg: list of H-labeling solutions
+nElem: number of features/objects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="finishing.mixture_model.genKj">
+<code class="descname">genKj</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#mixture_model.genKj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.mixture_model.genKj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the K(j) H-array that contains the tuples of unique 
+clusters of each j-th partition, eg: K = [(X,Y), (A,B)]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="finishing.mixture_model.initParameters">
+<code class="descname">initParameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#mixture_model.initParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.mixture_model.initParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function initializes the parameters of the mixture model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="finishing.mixture_model.maximization">
+<code class="descname">maximization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/finishing.html#mixture_model.maximization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#finishing.mixture_model.maximization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the parameters taking into account the ExpZ computed in the 
+Expectation (ExpZ) step.
+Obs: y(N,H) Kj(H) alpha(M) v(H,M,K(j)) ExpZ(N,M)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Supporting.html">Supporting Code</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Finishing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cooccurrence.html">Cooccurrence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clustering_algorithms.html">Clustering Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html">Transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Supporting.html"
+                        title="previous chapter">Supporting Code</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cooccurrence.html"
+                        title="next chapter">Cooccurrence</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/finishing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cooccurrence.html" title="Cooccurrence"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Supporting.html" title="Supporting Code"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

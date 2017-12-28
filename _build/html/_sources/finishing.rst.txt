@@ -1,0 +1,6 @@
+Finishing
+=======================================
+.. automodule:: finishing
+	:members: 
+
+

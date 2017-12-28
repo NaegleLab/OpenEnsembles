@@ -1,0 +1,347 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Transformations &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="Examples/Examples.html" />
+    <link rel="prev" title="Clustering Algorithms" href="clustering_algorithms.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Examples/Examples.html" title="Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="clustering_algorithms.html" title="Clustering Algorithms"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-transforms">
+<span id="transformations"></span><h1>Transformations<a class="headerlink" href="#module-transforms" title="Permalink to this headline">¶</a></h1>
+<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering
+This file contains all transform functions. Each transform takes a data matrix
+an x-vector and variable arguments. It also returns a data matrix, an x-vector
+and a dictionary of parameters used (name, value).</p>
+<p>Copyright (C) 2017 Naegle Lab</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<dl class="class">
+<dt id="transforms.transforms">
+<em class="property">class </em><code class="descclassname">transforms.</code><code class="descname">transforms</code><span class="sig-paren">(</span><em>x</em>, <em>data</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform the data matrix according to the transformation procedure used and the optional arguments passed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x: list</strong></p>
+<blockquote>
+<div><p>The x-vector</p>
+</div></blockquote>
+<p><strong>data: matrix</strong></p>
+<blockquote>
+<div><p>The data matrix</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first last"><strong>These **kwargs depend on the specific transformation used.</strong></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.data.transform" title="openensembles.data.transform"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.data.transform</span></code></a></p>
+</div>
+<p class="rubric">Attributes</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>x_out: list</strong></td>
+<td>The output x-vector, same as input x, unless transformation alters meaning of independent variables (such as PCA)</td>
+</tr>
+<tr class="row-even"><td><strong>data_out: matrix</strong></td>
+<td>The transformed data matrix</td>
+</tr>
+<tr class="row-odd"><td><strong>var_params: dict</strong></td>
+<td>Listing of parameter used to create the transformation</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="transforms.transforms.PCA">
+<code class="descname">PCA</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.PCA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.PCA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">sklearn’s decomposition by principal components (PCA)</a></p>
+<p>Applies PCA to data matrix. If variable argument n_components is set, it will keep the first n_components of the 
+post-transformed data.
+set n_components to a number between 0 and 1 to reduce dimensionality based on %variance explained.
+Updates data_out accordingly as the scores (or transformation of data objects into PCA space). 
+This also appends explained_variance to an attribute of class</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">pca: PCA data object</p>
+<blockquote>
+<div><p>The intact pca object, such that one could retreive other parts of this</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>n_components: int</strong></p>
+<blockquote class="last">
+<div><p>Number of components to keep, defaults to length of original feature vector</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="transforms.transforms.internal_normalization">
+<code class="descname">internal_normalization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.internal_normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.internal_normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>This normalizes all data (in rows) to one point in that row, based on either
+col_index or value in the x vector (x_val) (if both are passed, uses col_index)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><p class="first"><strong>col_index: int</strong></p>
+<blockquote>
+<div><p>index in feature vector to use for normalization</p>
+</div></blockquote>
+<p><strong>x_val: float</strong></p>
+<blockquote>
+<div><p>find and use the index of name x_val in the x vector. Recall that x was converted to ints if original features were string labels.</p>
+</div></blockquote>
+<p><strong>Example:</strong></p>
+<blockquote class="last">
+<div><p>Normalize data to 5minutes internal_normalization(x_val=5)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="transforms.transforms.log">
+<code class="descname">log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log transformation will default to taking the log2 of all elements in the matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>base: {2, 10, ‘e’, ‘ln’} (default=2)</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError:</strong></p>
+<blockquote class="last">
+<div><p>if base type is not recognized</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Check for the creation of infinite values</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="transforms.transforms.minmax">
+<code class="descname">minmax</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.minmax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.minmax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses MinMaxScaler from <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html">sklearn.preprocessing</a> to scale data between a minimum value and 
+a maximum value. Defaults range from 0 to 1. Updates data_out accordingly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><p class="first"><strong>minValue: float (default=0)</strong></p>
+<p><strong>maxValue: float (default=1)</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError:</strong></p>
+<blockquote class="last">
+<div><p>If minValue &gt; maxValue</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="transforms.transforms.transforms_available">
+<code class="descname">transforms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.transforms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.transforms_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get available transformations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">methods: dict</p>
+<blockquote class="last">
+<div><p>Available methods returned as keys in dict</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="transforms.transforms.zscore">
+<code class="descname">zscore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.zscore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.zscore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses stats.zscore to zscore along the axis given. By default, OpenEnsembles assumes that the
+feature dimensions are on axis=0 (column entries). Updates x_out accordingly</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><p class="first"><strong>axis: {‘both’, 0, 1} (default=0)</strong></p>
+<blockquote>
+<div><p>axis to operate on (default operates along column entries)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError:</strong></p>
+<blockquote class="last">
+<div><p>axis is not of type allowed</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Supporting.html">Supporting Code</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="finishing.html">Finishing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cooccurrence.html">Cooccurrence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="clustering_algorithms.html">Clustering Algorithms</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="clustering_algorithms.html"
+                        title="previous chapter">Clustering Algorithms</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Examples/Examples.html"
+                        title="next chapter">Examples</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/transforms.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Examples/Examples.html" title="Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="clustering_algorithms.html" title="Clustering Algorithms"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

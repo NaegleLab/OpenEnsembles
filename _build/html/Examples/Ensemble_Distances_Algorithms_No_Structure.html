@@ -1,0 +1,606 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Use Majority Vote to stabilize k-means clustering" href="Example_Kmeans_MajorityVote.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Example_Kmeans_MajorityVote.html" title="Use Majority Vote to stabilize k-means clustering"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #303F9F;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #D84315;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 7ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+</style>
+<div class="section" id="Build-an-ensemble-using-algorithms-and-distances,-finish-to-see-if-it-uncovers-the-lack-of-structure">
+<h1>Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure<a class="headerlink" href="#Build-an-ensemble-using-algorithms-and-distances,-finish-to-see-if-it-uncovers-the-lack-of-structure" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+
+<span class="n">n_samples</span> <span class="o">=</span> <span class="mi">800</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">no_structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="bp">None</span>
+<span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">no_structure</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+
+
+<span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_1_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_1_0.png" />
+</div>
+</div>
+<div class="section" id="Create-an-ensemble">
+<h2>Create an ensemble<a class="headerlink" href="#Create-an-ensemble" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">c</span>  <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1">#instantiate an object so we can get all available algorithms</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">algorithms_available</span><span class="p">()</span>
+<span class="c1">#Seteverything to false by default, then change just those that are true</span>
+<span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">a</span><span class="p">[</span><span class="n">alg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="c1"># remove DBSCAN -- this does very well on unstructured data, we want to ask if we can use poorly performing algorithms</span>
+<span class="c1"># to identify there isn&#39;t structure.</span>
+<span class="k">del</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;DBSCAN&#39;</span><span class="p">]</span>
+
+
+<span class="n">takesLinkages</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">takesDistances</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">takesK</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">takesLinkages</span><span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="n">takesDistances</span><span class="p">[</span><span class="s1">&#39;AffinityPropagation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">takesDistances</span><span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="n">takesK</span><span class="p">[</span><span class="s1">&#39;kmeans&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">takesK</span><span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">takesK</span><span class="p">[</span><span class="s1">&#39;spectral&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1">#setup the parameters of clustering here, algorithms are set by algorithms_available</span>
+<span class="n">K</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">linkages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="s1">&#39;ward&#39;</span><span class="p">]</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">]</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># Create an ensemble: sweep K, distance metrics</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#if there were transformations in d.D</span>
+    <span class="k">for</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">takesK</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#linkage is only for agglomerative, which also accepts K and distances, so handle that here</span>
+        <span class="k">if</span> <span class="n">takesK</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">takesDistances</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">takesLinkages</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
+                        <span class="k">for</span> <span class="n">linkage</span> <span class="ow">in</span> <span class="n">linkages</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">linkage</span> <span class="o">==</span> <span class="s1">&#39;ward&#39;</span><span class="p">:</span>
+                                <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+                                <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                                    <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+                                    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+
+
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                            <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+                            <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
+                    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># does not take K</span>
+            <span class="k">if</span> <span class="n">takesDistances</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
+                        <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">dist</span><span class="p">])</span>
+                        <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">])</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Plot-example-solutions-from-the-ensemble">
+<h2>Plot example solutions from the ensemble<a class="headerlink" href="#Plot-example-solutions-from-the-ensemble" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1">#plot some random number of solutions</span>
+<span class="n">names</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="n">figs</span> <span class="o">=</span><span class="p">[]</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">numSolutions</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="c1">#namesToSelect = random.sample(names, numSolutions)</span>
+<span class="n">namesToSelect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">numSolutions</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">namesToSelect</span><span class="p">:</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">fig_num</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">+=</span><span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_1.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_2.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_2.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_3.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_3.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_4.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_4.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_5.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_5.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Finish-the-ensemble-using-Majority-Vote-and-Graph-Closure">
+<h2>Finish the ensemble using Majority Vote and Graph Closure<a class="headerlink" href="#Finish-the-ensemble-using-Majority-Vote-and-Graph-Closure" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1">#View the ensembles</span>
+<span class="n">coMat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">()</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_9_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_9_0.png" />
+</div>
+</div>
+<div class="section" id="Graph-Closure-and-Majority-Vote-Finishing">
+<h3>Graph Closure and Majority Vote Finishing<a class="headerlink" href="#Graph-Closure-and-Majority-Vote-Finishing" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># Explore effects of threshold on graph closure</span>
+<span class="n">thresholds</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">c_graph_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">c_majority_vote_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">thresholds</span><span class="p">:</span>
+    <span class="n">c_graph</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">finish_graph_closure</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+    <span class="n">c_graph_dict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">threshold</span><span class="p">)]</span> <span class="o">=</span> <span class="n">c_graph</span>
+    <span class="n">c_majority_vote</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">finish_majority_vote</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+    <span class="n">c_majority_vote_dict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">threshold</span><span class="p">)]</span> <span class="o">=</span> <span class="n">c_majority_vote</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># Plot the solutions of Graph Closure</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">c_graph_dict</span><span class="p">:</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">c_graph_dict</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;graph_closure&#39;</span><span class="p">]</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">fig_num</span> <span class="o">=</span> <span class="n">fig</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Graph Closure threshold=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">+=</span><span class="mi">1</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_1.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_2.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_2.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># Plot the solutions of Majority Vote</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">figs</span> <span class="o">=</span><span class="p">[]</span>
+<span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">c_majority_vote_dict</span><span class="p">:</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">c_majority_vote_dict</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;majority_vote&#39;</span><span class="p">]</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">fig_num</span> <span class="o">=</span> <span class="n">fig</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Majority Vote threshold=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">+=</span><span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_1.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_2.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_2.png" />
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../finishing.html">Finishing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cooccurrence.html">Cooccurrence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../validation.html">Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clustering_algorithms.html">Clustering Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transforms.html">Transformations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_Kmeans_MajorityVote.html">Use Majority Vote to stabilize k-means clustering</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Create-an-ensemble">Create an ensemble</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Plot-example-solutions-from-the-ensemble">Plot example solutions from the ensemble</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Finish-the-ensemble-using-Majority-Vote-and-Graph-Closure">Finish the ensemble using Majority Vote and Graph Closure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Graph-Closure-and-Majority-Vote-Finishing">Graph Closure and Majority Vote Finishing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Example_Kmeans_MajorityVote.html"
+                        title="previous chapter">Use Majority Vote to stabilize k-means clustering</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Examples/Ensemble_Distances_Algorithms_No_Structure.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Example_Kmeans_MajorityVote.html" title="Use Majority Vote to stabilize k-means clustering"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1233 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>scipy.odr.odrpack &#8212; OpenEnsembles 0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../../../index.html">OpenEnsembles 0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for scipy.odr.odrpack</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python wrappers for Orthogonal Distance Regression (ODRPACK).</span>
+
+<span class="sd">Notes</span>
+<span class="sd">=====</span>
+
+<span class="sd">* Array formats -- FORTRAN stores its arrays in memory column first, i.e. an</span>
+<span class="sd">  array element A(i, j, k) will be next to A(i+1, j, k). In C and, consequently,</span>
+<span class="sd">  NumPy, arrays are stored row first: A[i, j, k] is next to A[i, j, k+1]. For</span>
+<span class="sd">  efficiency and convenience, the input and output arrays of the fitting</span>
+<span class="sd">  function (and its Jacobians) are passed to FORTRAN without transposition.</span>
+<span class="sd">  Therefore, where the ODRPACK documentation says that the X array is of shape</span>
+<span class="sd">  (N, M), it will be passed to the Python function as an array of shape (M, N).</span>
+<span class="sd">  If M==1, the one-dimensional case, then nothing matters; if M&gt;1, then your</span>
+<span class="sd">  Python functions will be dealing with arrays that are indexed in reverse of</span>
+<span class="sd">  the ODRPACK documentation. No real biggie, but watch out for your indexing of</span>
+<span class="sd">  the Jacobians: the i,j&#39;th elements (@f_i/@x_j) evaluated at the n&#39;th</span>
+<span class="sd">  observation will be returned as jacd[j, i, n]. Except for the Jacobians, it</span>
+<span class="sd">  really is easier to deal with x[0] and x[1] than x[:,0] and x[:,1]. Of course,</span>
+<span class="sd">  you can always use the transpose() function from scipy explicitly.</span>
+
+<span class="sd">* Examples -- See the accompanying file test/test.py for examples of how to set</span>
+<span class="sd">  up fits of your own. Some are taken from the User&#39;s Guide; some are from</span>
+<span class="sd">  other sources.</span>
+
+<span class="sd">* Models -- Some common models are instantiated in the accompanying module</span>
+<span class="sd">  models.py . Contributions are welcome.</span>
+
+<span class="sd">Credits</span>
+<span class="sd">=======</span>
+
+<span class="sd">* Thanks to Arnold Moene and Gerard Vermeulen for fixing some killer bugs.</span>
+
+<span class="sd">Robert Kern</span>
+<span class="sd">robert.kern@gmail.com</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">scipy.odr</span> <span class="k">import</span> <span class="n">__odrpack</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;odr&#39;</span><span class="p">,</span> <span class="s1">&#39;OdrWarning&#39;</span><span class="p">,</span> <span class="s1">&#39;OdrError&#39;</span><span class="p">,</span> <span class="s1">&#39;OdrStop&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="s1">&#39;RealData&#39;</span><span class="p">,</span> <span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="s1">&#39;Output&#39;</span><span class="p">,</span> <span class="s1">&#39;ODR&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;odr_error&#39;</span><span class="p">,</span> <span class="s1">&#39;odr_stop&#39;</span><span class="p">]</span>
+
+<span class="n">odr</span> <span class="o">=</span> <span class="n">__odrpack</span><span class="o">.</span><span class="n">odr</span>
+
+
+<span class="k">class</span> <span class="nc">OdrWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Warning indicating that the data passed into</span>
+<span class="sd">    ODR will cause problems when passed into &#39;odr&#39;</span>
+<span class="sd">    that the user should be aware of.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">OdrError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception indicating an error in fitting.</span>
+
+<span class="sd">    This is raised by `scipy.odr` if an error occurs during fitting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">OdrStop</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception stopping fitting.</span>
+
+<span class="sd">    You can raise this exception in your objective function to tell</span>
+<span class="sd">    `scipy.odr` to stop fitting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Backwards compatibility</span>
+<span class="n">odr_error</span> <span class="o">=</span> <span class="n">OdrError</span>
+<span class="n">odr_stop</span> <span class="o">=</span> <span class="n">OdrStop</span>
+
+<span class="n">__odrpack</span><span class="o">.</span><span class="n">_set_exceptions</span><span class="p">(</span><span class="n">OdrError</span><span class="p">,</span> <span class="n">OdrStop</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_conv</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Convert an object to the preferred form for input to the odr routine.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">():</span>
+            <span class="c1"># Scalar.</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span>
+
+
+<span class="k">def</span> <span class="nf">_report_error</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Interprets the return code of the odr routine.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    info : int</span>
+<span class="sd">        The return code of the odr routine.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    problems : list(str)</span>
+<span class="sd">        A list of messages about why the odr() routine stopped.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">stopreason</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Blank&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;Sum of squares convergence&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;Parameter convergence&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;Both sum of squares and parameter convergence&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;Iteration limit reached&#39;</span><span class="p">)[</span><span class="n">info</span> <span class="o">%</span> <span class="mi">5</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">info</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="c1"># questionable results or fatal error</span>
+
+        <span class="n">I</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="o">//</span><span class="mi">10000</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+             <span class="n">info</span><span class="o">//</span><span class="mi">1000</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+             <span class="n">info</span><span class="o">//</span><span class="mi">100</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+             <span class="n">info</span><span class="o">//</span><span class="mi">10</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+             <span class="n">info</span> <span class="o">%</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Derivatives possibly not correct&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Error occurred in callback&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Problem is not full rank at solution&#39;</span><span class="p">)</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stopreason</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;N &lt; 1&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;M &lt; 1&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;NP &lt; 1 or NP &gt; N&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;NQ &lt; 1&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;LDY and/or LDX incorrect&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;LDWE, LD2WE, LDWD, and/or LD2WD incorrect&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;LDIFX, LDSTPD, and/or LDSCLD incorrect&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;LWORK and/or LIWORK too small&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;STPB and/or STPD incorrect&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCLB and/or SCLD incorrect&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;WE incorrect&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">I</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;WD incorrect&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Error in derivatives&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Error occurred in callback&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">I</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Numerical error detected&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">problems</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">stopreason</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The data to fit.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like</span>
+<span class="sd">        Observed data for the independent variable of the regression</span>
+<span class="sd">    y : array_like, optional</span>
+<span class="sd">        If array-like, observed data for the dependent variable of the</span>
+<span class="sd">        regression. A scalar input implies that the model to be used on</span>
+<span class="sd">        the data is implicit.</span>
+<span class="sd">    we : array_like, optional</span>
+<span class="sd">        If `we` is a scalar, then that value is used for all data points (and</span>
+<span class="sd">        all dimensions of the response variable).</span>
+<span class="sd">        If `we` is a rank-1 array of length q (the dimensionality of the</span>
+<span class="sd">        response variable), then this vector is the diagonal of the covariant</span>
+<span class="sd">        weighting matrix for all data points.</span>
+<span class="sd">        If `we` is a rank-1 array of length n (the number of data points), then</span>
+<span class="sd">        the i&#39;th element is the weight for the i&#39;th response variable</span>
+<span class="sd">        observation (single-dimensional only).</span>
+<span class="sd">        If `we` is a rank-2 array of shape (q, q), then this is the full</span>
+<span class="sd">        covariant weighting matrix broadcast to each observation.</span>
+<span class="sd">        If `we` is a rank-2 array of shape (q, n), then `we[:,i]` is the</span>
+<span class="sd">        diagonal of the covariant weighting matrix for the i&#39;th observation.</span>
+<span class="sd">        If `we` is a rank-3 array of shape (q, q, n), then `we[:,:,i]` is the</span>
+<span class="sd">        full specification of the covariant weighting matrix for each</span>
+<span class="sd">        observation.</span>
+<span class="sd">        If the fit is implicit, then only a positive scalar value is used.</span>
+<span class="sd">    wd : array_like, optional</span>
+<span class="sd">        If `wd` is a scalar, then that value is used for all data points</span>
+<span class="sd">        (and all dimensions of the input variable). If `wd` = 0, then the</span>
+<span class="sd">        covariant weighting matrix for each observation is set to the identity</span>
+<span class="sd">        matrix (so each dimension of each observation has the same weight).</span>
+<span class="sd">        If `wd` is a rank-1 array of length m (the dimensionality of the input</span>
+<span class="sd">        variable), then this vector is the diagonal of the covariant weighting</span>
+<span class="sd">        matrix for all data points.</span>
+<span class="sd">        If `wd` is a rank-1 array of length n (the number of data points), then</span>
+<span class="sd">        the i&#39;th element is the weight for the i&#39;th input variable observation</span>
+<span class="sd">        (single-dimensional only).</span>
+<span class="sd">        If `wd` is a rank-2 array of shape (m, m), then this is the full</span>
+<span class="sd">        covariant weighting matrix broadcast to each observation.</span>
+<span class="sd">        If `wd` is a rank-2 array of shape (m, n), then `wd[:,i]` is the</span>
+<span class="sd">        diagonal of the covariant weighting matrix for the i&#39;th observation.</span>
+<span class="sd">        If `wd` is a rank-3 array of shape (m, m, n), then `wd[:,:,i]` is the</span>
+<span class="sd">        full specification of the covariant weighting matrix for each</span>
+<span class="sd">        observation.</span>
+<span class="sd">    fix : array_like of ints, optional</span>
+<span class="sd">        The `fix` argument is the same as ifixx in the class ODR. It is an</span>
+<span class="sd">        array of integers with the same shape as data.x that determines which</span>
+<span class="sd">        input observations are treated as fixed. One can use a sequence of</span>
+<span class="sd">        length m (the dimensionality of the input observations) to fix some</span>
+<span class="sd">        dimensions for all observations. A value of 0 fixes the observation,</span>
+<span class="sd">        a value &gt; 0 makes it free.</span>
+<span class="sd">    meta : dict, optional</span>
+<span class="sd">        Free-form dictionary for metadata.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Each argument is attached to the member of the instance of the same name.</span>
+<span class="sd">    The structures of `x` and `y` are described in the Model class docstring.</span>
+<span class="sd">    If `y` is an integer, then the Data instance can only be used to fit with</span>
+<span class="sd">    implicit models where the dimensionality of the response is equal to the</span>
+<span class="sd">    specified value of `y`.</span>
+
+<span class="sd">    The `we` argument weights the effect a deviation in the response variable</span>
+<span class="sd">    has on the fit.  The `wd` argument weights the effect a deviation in the</span>
+<span class="sd">    input variable has on the fit. To handle multidimensional inputs and</span>
+<span class="sd">    responses easily, the structure of these arguments has the n&#39;th</span>
+<span class="sd">    dimensional axis first. These arguments heavily use the structured</span>
+<span class="sd">    arguments feature of ODRPACK to conveniently and flexibly support all</span>
+<span class="sd">    options. See the ODRPACK User&#39;s Guide for a full explanation of how these</span>
+<span class="sd">    weights are used in the algorithm. Basically, a higher value of the weight</span>
+<span class="sd">    for a particular data point makes a deviation at that point more</span>
+<span class="sd">    detrimental to the fit.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">we</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s2">&quot;Expected an &#39;ndarray&#39; of data for &#39;x&#39;, &quot;</span>
+                              <span class="s2">&quot;but instead got data of type &#39;</span><span class="si">{name}</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">we</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">we</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">wd</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">fix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>
+
+    <span class="k">def</span> <span class="nf">set_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update the metadata dictionary with the keywords and data provided</span>
+<span class="sd">        by keywords.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            data.set_meta(lab=&quot;Ph 7; Lab 26&quot;, title=&quot;Ag110 + Ag108 Decay&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Dispatch attribute access to the metadata dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; not in metadata&quot;</span> <span class="o">%</span> <span class="n">attr</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">RealData</span><span class="p">(</span><span class="n">Data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The data, with weightings as actual standard deviations and/or</span>
+<span class="sd">    covariances.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like</span>
+<span class="sd">        Observed data for the independent variable of the regression</span>
+<span class="sd">    y : array_like, optional</span>
+<span class="sd">        If array-like, observed data for the dependent variable of the</span>
+<span class="sd">        regression. A scalar input implies that the model to be used on</span>
+<span class="sd">        the data is implicit.</span>
+<span class="sd">    sx, sy : array_like, optional</span>
+<span class="sd">        Standard deviations of `x`.</span>
+<span class="sd">        `sx` are standard deviations of `x` and are converted to weights by</span>
+<span class="sd">        dividing 1.0 by their squares.</span>
+<span class="sd">    sy : array_like, optional</span>
+<span class="sd">        Standard deviations of `y`.</span>
+<span class="sd">        `sy` are standard deviations of `y` and are converted to weights by</span>
+<span class="sd">        dividing 1.0 by their squares.</span>
+<span class="sd">    covx : array_like, optional</span>
+<span class="sd">        Covariance of `x`</span>
+<span class="sd">        `covx` is an array of covariance matrices of `x` and are converted to</span>
+<span class="sd">        weights by performing a matrix inversion on each observation&#39;s</span>
+<span class="sd">        covariance matrix.</span>
+<span class="sd">    covy : array_like, optional</span>
+<span class="sd">        Covariance of `y`</span>
+<span class="sd">        `covy` is an array of covariance matrices and are converted to</span>
+<span class="sd">        weights by performing a matrix inversion on each observation&#39;s</span>
+<span class="sd">        covariance matrix.</span>
+<span class="sd">    fix : array_like, optional</span>
+<span class="sd">        The argument and member fix is the same as Data.fix and ODR.ifixx:</span>
+<span class="sd">        It is an array of integers with the same shape as `x` that</span>
+<span class="sd">        determines which input observations are treated as fixed. One can</span>
+<span class="sd">        use a sequence of length m (the dimensionality of the input</span>
+<span class="sd">        observations) to fix some dimensions for all observations. A value</span>
+<span class="sd">        of 0 fixes the observation, a value &gt; 0 makes it free.</span>
+<span class="sd">    meta : dict, optional</span>
+<span class="sd">        Free-form dictionary for metadata.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The weights `wd` and `we` are computed from provided values as follows:</span>
+
+<span class="sd">    `sx` and `sy` are converted to weights by dividing 1.0 by their squares.</span>
+<span class="sd">    For example, ``wd = 1./numpy.power(`sx`, 2)``.</span>
+
+<span class="sd">    `covx` and `covy` are arrays of covariance matrices and are converted to</span>
+<span class="sd">    weights by performing a matrix inversion on each observation&#39;s covariance</span>
+<span class="sd">    matrix.  For example, ``we[i] = numpy.linalg.inv(covy[i])``.</span>
+
+<span class="sd">    These arguments follow the same structured argument conventions as wd and</span>
+<span class="sd">    we only restricted by their natures: `sx` and `sy` can&#39;t be rank-3, but</span>
+<span class="sd">    `covx` and `covy` can be.</span>
+
+<span class="sd">    Only set *either* `sx` or `covx` (not both). Setting both will raise an</span>
+<span class="sd">    exception.  Same with `sy` and `covy`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">covx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">covy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">fix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">covx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot set both sx and covx&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">sy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">covy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot set both sy and covy&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set flags for __getattr__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ga_flags</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">sx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ga_flags</span><span class="p">[</span><span class="s1">&#39;wd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sx&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ga_flags</span><span class="p">[</span><span class="s1">&#39;wd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;covx&#39;</span>
+        <span class="k">if</span> <span class="n">sy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ga_flags</span><span class="p">[</span><span class="s1">&#39;we&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sy&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ga_flags</span><span class="p">[</span><span class="s1">&#39;we&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;covy&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s2">&quot;Expected an &#39;ndarray&#39; of data for &#39;x&#39;, &quot;</span>
+                              <span class="s2">&quot;but instead got data of type &#39;</span><span class="si">{name}</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sx</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">sx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sy</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covx</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">covx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covy</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">covy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">fix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>
+
+    <span class="k">def</span> <span class="nf">_sd2wt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Convert standard deviation to weights.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="mf">1.</span><span class="o">/</span><span class="n">numpy</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cov2wt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Convert covariance matrix(-ices) to weights.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">numpy.dual</span> <span class="k">import</span> <span class="n">inv</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inv</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cov</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>  <span class="c1"># n</span>
+                <span class="n">weights</span><span class="p">[:,:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">inv</span><span class="p">(</span><span class="n">cov</span><span class="p">[:,:,</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">weights</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="n">lookup_tbl</span> <span class="o">=</span> <span class="p">{(</span><span class="s1">&#39;wd&#39;</span><span class="p">,</span> <span class="s1">&#39;sx&#39;</span><span class="p">):</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sd2wt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sx</span><span class="p">),</span>
+                      <span class="p">(</span><span class="s1">&#39;wd&#39;</span><span class="p">,</span> <span class="s1">&#39;covx&#39;</span><span class="p">):</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cov2wt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">covx</span><span class="p">),</span>
+                      <span class="p">(</span><span class="s1">&#39;we&#39;</span><span class="p">,</span> <span class="s1">&#39;sy&#39;</span><span class="p">):</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sd2wt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="p">),</span>
+                      <span class="p">(</span><span class="s1">&#39;we&#39;</span><span class="p">,</span> <span class="s1">&#39;covy&#39;</span><span class="p">):</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cov2wt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">covy</span><span class="p">)}</span>
+
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;wd&#39;</span><span class="p">,</span> <span class="s1">&#39;we&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; not in metadata&quot;</span> <span class="o">%</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">lookup_tbl</span><span class="p">[(</span><span class="n">attr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ga_flags</span><span class="p">[</span><span class="n">attr</span><span class="p">])]</span>
+
+            <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">arg</span><span class="p">,))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Model class stores information about the function you wish to fit.</span>
+
+<span class="sd">    It stores the function itself, at the least, and optionally stores</span>
+<span class="sd">    functions which compute the Jacobians used during fitting. Also, one</span>
+<span class="sd">    can provide a function that will provide reasonable starting values</span>
+<span class="sd">    for the fit parameters possibly given the set of data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fcn : function</span>
+<span class="sd">          fcn(beta, x) --&gt; y</span>
+<span class="sd">    fjacb : function</span>
+<span class="sd">          Jacobian of fcn wrt the fit parameters beta.</span>
+
+<span class="sd">          fjacb(beta, x) --&gt; @f_i(x,B)/@B_j</span>
+<span class="sd">    fjacd : function</span>
+<span class="sd">          Jacobian of fcn wrt the (possibly multidimensional) input</span>
+<span class="sd">          variable.</span>
+
+<span class="sd">          fjacd(beta, x) --&gt; @f_i(x,B)/@x_j</span>
+<span class="sd">    extra_args : tuple, optional</span>
+<span class="sd">          If specified, `extra_args` should be a tuple of extra</span>
+<span class="sd">          arguments to pass to `fcn`, `fjacb`, and `fjacd`. Each will be called</span>
+<span class="sd">          by `apply(fcn, (beta, x) + extra_args)`</span>
+<span class="sd">    estimate : array_like of rank-1</span>
+<span class="sd">          Provides estimates of the fit parameters from the data</span>
+
+<span class="sd">          estimate(data) --&gt; estbeta</span>
+<span class="sd">    implicit : boolean</span>
+<span class="sd">          If TRUE, specifies that the model</span>
+<span class="sd">          is implicit; i.e `fcn(beta, x)` ~= 0 and there is no y data to fit</span>
+<span class="sd">          against</span>
+<span class="sd">    meta : dict, optional</span>
+<span class="sd">          freeform dictionary of metadata for the model</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Note that the `fcn`, `fjacb`, and `fjacd` operate on NumPy arrays and</span>
+<span class="sd">    return a NumPy array. The `estimate` object takes an instance of the</span>
+<span class="sd">    Data class.</span>
+
+<span class="sd">    Here are the rules for the shapes of the argument and return</span>
+<span class="sd">    arrays of the callback functions:</span>
+
+<span class="sd">    `x`</span>
+<span class="sd">        if the input data is single-dimensional, then `x` is rank-1</span>
+<span class="sd">        array; i.e. ``x = array([1, 2, 3, ...]); x.shape = (n,)``</span>
+<span class="sd">        If the input data is multi-dimensional, then `x` is a rank-2 array;</span>
+<span class="sd">        i.e., ``x = array([[1, 2, ...], [2, 4, ...]]); x.shape = (m, n)``.</span>
+<span class="sd">        In all cases, it has the same shape as the input data array passed to</span>
+<span class="sd">        `odr`. `m` is the dimensionality of the input data, `n` is the number</span>
+<span class="sd">        of observations.</span>
+<span class="sd">    `y`</span>
+<span class="sd">        if the response variable is single-dimensional, then `y` is a</span>
+<span class="sd">        rank-1 array, i.e., ``y = array([2, 4, ...]); y.shape = (n,)``.</span>
+<span class="sd">        If the response variable is multi-dimensional, then `y` is a rank-2</span>
+<span class="sd">        array, i.e., ``y = array([[2, 4, ...], [3, 6, ...]]); y.shape =</span>
+<span class="sd">        (q, n)`` where `q` is the dimensionality of the response variable.</span>
+<span class="sd">    `beta`</span>
+<span class="sd">        rank-1 array of length `p` where `p` is the number of parameters;</span>
+<span class="sd">        i.e. ``beta = array([B_1, B_2, ..., B_p])``</span>
+<span class="sd">    `fjacb`</span>
+<span class="sd">        if the response variable is multi-dimensional, then the</span>
+<span class="sd">        return array&#39;s shape is `(q, p, n)` such that ``fjacb(x,beta)[l,k,i] =</span>
+<span class="sd">        d f_l(X,B)/d B_k`` evaluated at the i&#39;th data point.  If `q == 1`, then</span>
+<span class="sd">        the return array is only rank-2 and with shape `(p, n)`.</span>
+<span class="sd">    `fjacd`</span>
+<span class="sd">        as with fjacb, only the return array&#39;s shape is `(q, m, n)`</span>
+<span class="sd">        such that ``fjacd(x,beta)[l,j,i] = d f_l(X,B)/d X_j`` at the i&#39;th data</span>
+<span class="sd">        point.  If `q == 1`, then the return array&#39;s shape is `(m, n)`. If</span>
+<span class="sd">        `m == 1`, the shape is (q, n). If `m == q == 1`, the shape is `(n,)`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fcn</span><span class="p">,</span> <span class="n">fjacb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fjacd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extra_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">estimate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">implicit</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcn</span> <span class="o">=</span> <span class="n">fcn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fjacb</span> <span class="o">=</span> <span class="n">fjacb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fjacd</span> <span class="o">=</span> <span class="n">fjacd</span>
+
+        <span class="k">if</span> <span class="n">extra_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extra_args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extra_args</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span> <span class="o">=</span> <span class="n">extra_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimate</span> <span class="o">=</span> <span class="n">estimate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implicit</span> <span class="o">=</span> <span class="n">implicit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>
+
+    <span class="k">def</span> <span class="nf">set_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update the metadata dictionary with the keywords and data provided</span>
+<span class="sd">        here.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_meta(name=&quot;Exponential&quot;, equation=&quot;y = a exp(b x) + c&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Dispatch attribute access to the metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; not in metadata&quot;</span> <span class="o">%</span> <span class="n">attr</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Output</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The Output class stores the output of an ODR run.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    beta : ndarray</span>
+<span class="sd">        Estimated parameter values, of shape (q,).</span>
+<span class="sd">    sd_beta : ndarray</span>
+<span class="sd">        Standard errors of the estimated parameters, of shape (p,).</span>
+<span class="sd">    cov_beta : ndarray</span>
+<span class="sd">        Covariance matrix of the estimated parameters, of shape (p,p).</span>
+<span class="sd">    delta : ndarray, optional</span>
+<span class="sd">        Array of estimated errors in input variables, of same shape as `x`.</span>
+<span class="sd">    eps : ndarray, optional</span>
+<span class="sd">        Array of estimated errors in response variables, of same shape as `y`.</span>
+<span class="sd">    xplus : ndarray, optional</span>
+<span class="sd">        Array of ``x + delta``.</span>
+<span class="sd">    y : ndarray, optional</span>
+<span class="sd">        Array ``y = fcn(x + delta)``.</span>
+<span class="sd">    res_var : float, optional</span>
+<span class="sd">        Residual variance.</span>
+<span class="sd">    sum_sqare : float, optional</span>
+<span class="sd">        Sum of squares error.</span>
+<span class="sd">    sum_square_delta : float, optional</span>
+<span class="sd">        Sum of squares of delta error.</span>
+<span class="sd">    sum_square_eps : float, optional</span>
+<span class="sd">        Sum of squares of eps error.</span>
+<span class="sd">    inv_condnum : float, optional</span>
+<span class="sd">        Inverse condition number (cf. ODRPACK UG p. 77).</span>
+<span class="sd">    rel_error : float, optional</span>
+<span class="sd">        Relative error in function values computed within fcn.</span>
+<span class="sd">    work : ndarray, optional</span>
+<span class="sd">        Final work array.</span>
+<span class="sd">    work_ind : dict, optional</span>
+<span class="sd">        Indices into work for drawing out values (cf. ODRPACK UG p. 83).</span>
+<span class="sd">    info : int, optional</span>
+<span class="sd">        Reason for returning, as output by ODRPACK (cf. ODRPACK UG p. 38).</span>
+<span class="sd">    stopreason : list of str, optional</span>
+<span class="sd">        `info` interpreted into English.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Takes one argument for initialization, the return value from the</span>
+<span class="sd">    function `odr`. The attributes listed as &quot;optional&quot; above are only</span>
+<span class="sd">    present if `odr` was run with ``full_output=1``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sd_beta</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cov_beta</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="c1"># full output</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stopreason</span> <span class="o">=</span> <span class="n">_report_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Pretty-print important results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Beta:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Beta Std Error:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd_beta</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Beta Covariance:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cov_beta</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;info&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Residual Variance:&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">res_var</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Inverse Condition #:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv_condnum</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reason(s) for Halting:&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopreason</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">r</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ODR"><a class="viewcode-back" href="../../../scipy-sphinx-theme-master/test_autodoc.html#scipy.odr.ODR">[docs]</a><span class="k">class</span> <span class="nc">ODR</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The ODR class gathers all information and coordinates the running of the</span>
+<span class="sd">    main fitting routine.</span>
+
+<span class="sd">    Members of instances of the ODR class have the same names as the arguments</span>
+<span class="sd">    to the initialization routine.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : Data class instance</span>
+<span class="sd">        instance of the Data class</span>
+<span class="sd">    model : Model class instance</span>
+<span class="sd">        instance of the Model class</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    beta0 : array_like of rank-1</span>
+<span class="sd">        a rank-1 sequence of initial parameter values. Optional if</span>
+<span class="sd">        model provides an &quot;estimate&quot; function to estimate these values.</span>
+<span class="sd">    delta0 : array_like of floats of rank-1, optional</span>
+<span class="sd">        a (double-precision) float array to hold the initial values of</span>
+<span class="sd">        the errors in the input variables. Must be same shape as data.x</span>
+<span class="sd">    ifixb : array_like of ints of rank-1, optional</span>
+<span class="sd">        sequence of integers with the same length as beta0 that determines</span>
+<span class="sd">        which parameters are held fixed. A value of 0 fixes the parameter,</span>
+<span class="sd">        a value &gt; 0 makes the parameter free.</span>
+<span class="sd">    ifixx : array_like of ints with same shape as data.x, optional</span>
+<span class="sd">        an array of integers with the same shape as data.x that determines</span>
+<span class="sd">        which input observations are treated as fixed. One can use a sequence</span>
+<span class="sd">        of length m (the dimensionality of the input observations) to fix some</span>
+<span class="sd">        dimensions for all observations. A value of 0 fixes the observation,</span>
+<span class="sd">        a value &gt; 0 makes it free.</span>
+<span class="sd">    job : int, optional</span>
+<span class="sd">        an integer telling ODRPACK what tasks to perform. See p. 31 of the</span>
+<span class="sd">        ODRPACK User&#39;s Guide if you absolutely must set the value here. Use the</span>
+<span class="sd">        method set_job post-initialization for a more readable interface.</span>
+<span class="sd">    iprint : int, optional</span>
+<span class="sd">        an integer telling ODRPACK what to print. See pp. 33-34 of the</span>
+<span class="sd">        ODRPACK User&#39;s Guide if you absolutely must set the value here. Use the</span>
+<span class="sd">        method set_iprint post-initialization for a more readable interface.</span>
+<span class="sd">    errfile : str, optional</span>
+<span class="sd">        string with the filename to print ODRPACK errors to. *Do Not Open</span>
+<span class="sd">        This File Yourself!*</span>
+<span class="sd">    rptfile : str, optional</span>
+<span class="sd">        string with the filename to print ODRPACK summaries to. *Do Not</span>
+<span class="sd">        Open This File Yourself!*</span>
+<span class="sd">    ndigit : int, optional</span>
+<span class="sd">        integer specifying the number of reliable digits in the computation</span>
+<span class="sd">        of the function.</span>
+<span class="sd">    taufac : float, optional</span>
+<span class="sd">        float specifying the initial trust region. The default value is 1.</span>
+<span class="sd">        The initial trust region is equal to taufac times the length of the</span>
+<span class="sd">        first computed Gauss-Newton step. taufac must be less than 1.</span>
+<span class="sd">    sstol : float, optional</span>
+<span class="sd">        float specifying the tolerance for convergence based on the relative</span>
+<span class="sd">        change in the sum-of-squares. The default value is eps**(1/2) where eps</span>
+<span class="sd">        is the smallest value such that 1 + eps &gt; 1 for double precision</span>
+<span class="sd">        computation on the machine. sstol must be less than 1.</span>
+<span class="sd">    partol : float, optional</span>
+<span class="sd">        float specifying the tolerance for convergence based on the relative</span>
+<span class="sd">        change in the estimated parameters. The default value is eps**(2/3) for</span>
+<span class="sd">        explicit models and ``eps**(1/3)`` for implicit models. partol must be less</span>
+<span class="sd">        than 1.</span>
+<span class="sd">    maxit : int, optional</span>
+<span class="sd">        integer specifying the maximum number of iterations to perform. For</span>
+<span class="sd">        first runs, maxit is the total number of iterations performed and</span>
+<span class="sd">        defaults to 50.  For restarts, maxit is the number of additional</span>
+<span class="sd">        iterations to perform and defaults to 10.</span>
+<span class="sd">    stpb : array_like, optional</span>
+<span class="sd">        sequence (``len(stpb) == len(beta0)``) of relative step sizes to compute</span>
+<span class="sd">        finite difference derivatives wrt the parameters.</span>
+<span class="sd">    stpd : optional</span>
+<span class="sd">        array (``stpd.shape == data.x.shape`` or ``stpd.shape == (m,)``) of relative</span>
+<span class="sd">        step sizes to compute finite difference derivatives wrt the input</span>
+<span class="sd">        variable errors. If stpd is a rank-1 array with length m (the</span>
+<span class="sd">        dimensionality of the input variable), then the values are broadcast to</span>
+<span class="sd">        all observations.</span>
+<span class="sd">    sclb : array_like, optional</span>
+<span class="sd">        sequence (``len(stpb) == len(beta0)``) of scaling factors for the</span>
+<span class="sd">        parameters.  The purpose of these scaling factors are to scale all of</span>
+<span class="sd">        the parameters to around unity. Normally appropriate scaling factors</span>
+<span class="sd">        are computed if this argument is not specified. Specify them yourself</span>
+<span class="sd">        if the automatic procedure goes awry.</span>
+<span class="sd">    scld : array_like, optional</span>
+<span class="sd">        array (scld.shape == data.x.shape or scld.shape == (m,)) of scaling</span>
+<span class="sd">        factors for the *errors* in the input variables. Again, these factors</span>
+<span class="sd">        are automatically computed if you do not provide them. If scld.shape ==</span>
+<span class="sd">        (m,), then the scaling factors are broadcast to all observations.</span>
+<span class="sd">    work : ndarray, optional</span>
+<span class="sd">        array to hold the double-valued working data for ODRPACK. When</span>
+<span class="sd">        restarting, takes the value of self.output.work.</span>
+<span class="sd">    iwork : ndarray, optional</span>
+<span class="sd">        array to hold the integer-valued working data for ODRPACK. When</span>
+<span class="sd">        restarting, takes the value of self.output.iwork.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : Data</span>
+<span class="sd">        The data for this fit</span>
+<span class="sd">    model : Model</span>
+<span class="sd">        The model used in fit</span>
+<span class="sd">    output : Output</span>
+<span class="sd">        An instance if the Output class containing all of the returned</span>
+<span class="sd">        data from an invocation of ODR.run() or ODR.restart()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">beta0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delta0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ifixb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ifixx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">job</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rptfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ndigit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">taufac</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sstol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">partol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stpb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stpd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sclb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scld</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">work</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iwork</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+        <span class="k">if</span> <span class="n">beta0</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">estimate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">beta0</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                  <span class="s2">&quot;must specify beta0 or provide an estimater with the model&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta0</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">beta0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta0</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">delta0</span><span class="p">)</span>
+        <span class="c1"># These really are 32-bit integers in FORTRAN (gfortran), even on 64-bit</span>
+        <span class="c1"># platforms.</span>
+        <span class="c1"># XXX: some other FORTRAN compilers may not agree.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ifixx</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">ifixx</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ifixb</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">ifixb</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">=</span> <span class="n">job</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="o">=</span> <span class="n">iprint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errfile</span> <span class="o">=</span> <span class="n">errfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rptfile</span> <span class="o">=</span> <span class="n">rptfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ndigit</span> <span class="o">=</span> <span class="n">ndigit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">taufac</span> <span class="o">=</span> <span class="n">taufac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sstol</span> <span class="o">=</span> <span class="n">sstol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partol</span> <span class="o">=</span> <span class="n">partol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="n">maxit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stpb</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">stpb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stpd</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">stpd</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sclb</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">sclb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scld</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">scld</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iwork</span> <span class="o">=</span> <span class="n">_conv</span><span class="p">(</span><span class="n">iwork</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Check the inputs for consistency, but don&#39;t bother checking things</span>
+<span class="sd">        that the builtin function odr will check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x_s</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">y_s</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">implicit</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span><span class="s2">&quot;an implicit model cannot use response data&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># implicit model with q == self.data.y</span>
+            <span class="n">y_s</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">x_s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">implicit</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span><span class="s2">&quot;an explicit model needs response data&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_job</span><span class="p">(</span><span class="n">fit_type</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">x_s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y_s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span><span class="s2">&quot;number of observations do not match&quot;</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="n">x_s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">x_s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">y_s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beta0</span><span class="p">)</span>
+
+        <span class="c1"># permissible output array shapes</span>
+
+        <span class="n">fcn_perms</span> <span class="o">=</span> <span class="p">[(</span><span class="n">q</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+        <span class="n">fjacd_perms</span> <span class="o">=</span> <span class="p">[(</span><span class="n">q</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+        <span class="n">fjacb_perms</span> <span class="o">=</span> <span class="p">[(</span><span class="n">q</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fcn_perms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span>
+            <span class="n">fjacd_perms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+            <span class="n">fjacb_perms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fjacd_perms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">q</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fjacb_perms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">q</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fjacd_perms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="n">q</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fjacb_perms</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,))</span>
+
+        <span class="c1"># try evaluating the supplied functions to make sure they provide</span>
+        <span class="c1"># sensible outputs</span>
+
+        <span class="n">arglist</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beta0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">extra_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">arglist</span> <span class="o">=</span> <span class="n">arglist</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">extra_args</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fcn</span><span class="p">(</span><span class="o">*</span><span class="n">arglist</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fcn_perms</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fcn_perms</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span><span class="s2">&quot;fcn does not output </span><span class="si">%s</span><span class="s2">-shaped array&quot;</span> <span class="o">%</span> <span class="n">y_s</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacd</span><span class="p">(</span><span class="o">*</span><span class="n">arglist</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fjacd_perms</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span>
+                    <span class="s2">&quot;fjacd does not output </span><span class="si">%s</span><span class="s2">-shaped array&quot;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">((</span><span class="n">q</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacb</span><span class="p">(</span><span class="o">*</span><span class="n">arglist</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fjacb_perms</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span>
+                    <span class="s2">&quot;fjacb does not output </span><span class="si">%s</span><span class="s2">-shaped array&quot;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">((</span><span class="n">q</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
+
+        <span class="c1"># check shape of delta0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta0</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span>
+                <span class="s2">&quot;delta0 is not a </span><span class="si">%s</span><span class="s2">-shaped array&quot;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">((</span><span class="s2">&quot;Empty data detected for ODR instance. &quot;</span>
+                  <span class="s2">&quot;Do not expect any fitting to occur&quot;</span><span class="p">),</span>
+                 <span class="n">OdrWarning</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_gen_work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Generate a suitable work array if one does not already exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">implicit</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">we</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ldwe</span> <span class="o">=</span> <span class="n">ld2we</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">we</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">ld2we</span><span class="p">,</span> <span class="n">ldwe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">we</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Okay, this isn&#39;t precisely right, but for this calculation,</span>
+            <span class="c1"># it&#39;s fine</span>
+            <span class="n">ldwe</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">ld2we</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">we</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># ODR not OLS</span>
+            <span class="n">lwork</span> <span class="o">=</span> <span class="p">(</span><span class="mi">18</span> <span class="o">+</span> <span class="mi">11</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">p</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="n">m</span><span class="o">*</span><span class="n">m</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">q</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">m</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">q</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span>
+                     <span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">q</span><span class="o">*</span><span class="n">m</span> <span class="o">+</span> <span class="n">q</span><span class="o">*</span><span class="n">q</span> <span class="o">+</span> <span class="mi">5</span><span class="o">*</span><span class="n">q</span> <span class="o">+</span> <span class="n">q</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">ldwe</span><span class="o">*</span><span class="n">ld2we</span><span class="o">*</span><span class="n">q</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># OLS not ODR</span>
+            <span class="n">lwork</span> <span class="o">=</span> <span class="p">(</span><span class="mi">18</span> <span class="o">+</span> <span class="mi">11</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">p</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">m</span> <span class="o">+</span> <span class="n">m</span><span class="o">*</span><span class="n">m</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">q</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">m</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">q</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span>
+                     <span class="mi">5</span><span class="o">*</span><span class="n">q</span> <span class="o">+</span> <span class="n">q</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">m</span><span class="p">)</span> <span class="o">+</span> <span class="n">ldwe</span><span class="o">*</span><span class="n">ld2we</span><span class="o">*</span><span class="n">q</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">lwork</span><span class="p">,)</span>\
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;f8&#39;</span><span class="p">):</span>
+            <span class="c1"># the existing array is fine</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lwork</span><span class="p">,),</span> <span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">var_calc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">del_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">restart</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the &quot;job&quot; parameter is a hopefully comprehensible way.</span>
+
+<span class="sd">        If an argument is not specified, then the value is left as is. The</span>
+<span class="sd">        default value from class initialization is for all of these options set</span>
+<span class="sd">        to 0.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fit_type : {0, 1, 2} int</span>
+<span class="sd">            0 -&gt; explicit ODR</span>
+
+<span class="sd">            1 -&gt; implicit ODR</span>
+
+<span class="sd">            2 -&gt; ordinary least-squares</span>
+<span class="sd">        deriv : {0, 1, 2, 3} int</span>
+<span class="sd">            0 -&gt; forward finite differences</span>
+
+<span class="sd">            1 -&gt; central finite differences</span>
+
+<span class="sd">            2 -&gt; user-supplied derivatives (Jacobians) with results</span>
+<span class="sd">              checked by ODRPACK</span>
+
+<span class="sd">            3 -&gt; user-supplied derivatives, no checking</span>
+<span class="sd">        var_calc : {0, 1, 2} int</span>
+<span class="sd">            0 -&gt; calculate asymptotic covariance matrix and fit</span>
+<span class="sd">                 parameter uncertainties (V_B, s_B) using derivatives</span>
+<span class="sd">                 recomputed at the final solution</span>
+
+<span class="sd">            1 -&gt; calculate V_B and s_B using derivatives from last iteration</span>
+
+<span class="sd">            2 -&gt; do not calculate V_B and s_B</span>
+<span class="sd">        del_init : {0, 1} int</span>
+<span class="sd">            0 -&gt; initial input variable offsets set to 0</span>
+
+<span class="sd">            1 -&gt; initial offsets provided by user in variable &quot;work&quot;</span>
+<span class="sd">        restart : {0, 1} int</span>
+<span class="sd">            0 -&gt; fit is not a restart</span>
+
+<span class="sd">            1 -&gt; fit is a restart</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The permissible values are different from those given on pg. 31 of the</span>
+<span class="sd">        ODRPACK User&#39;s Guide only in that one cannot specify numbers greater than</span>
+<span class="sd">        the last value for each variable.</span>
+
+<span class="sd">        If one does not supply functions to compute the Jacobians, the fitting</span>
+<span class="sd">        procedure will change deriv to 0, finite differences, as a default. To</span>
+<span class="sd">        initialize the input variable offsets by yourself, set del_init to 1 and</span>
+<span class="sd">        put the offsets into the &quot;work&quot; variable correctly.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">job_l</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">job_l</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">//</span> <span class="mi">10000</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">//</span> <span class="mi">1000</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">//</span> <span class="mi">100</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">//</span> <span class="mi">10</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">%</span> <span class="mi">10</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">fit_type</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">job_l</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_type</span>
+        <span class="k">if</span> <span class="n">deriv</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="n">job_l</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">deriv</span>
+        <span class="k">if</span> <span class="n">var_calc</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">job_l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_calc</span>
+        <span class="k">if</span> <span class="n">del_init</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">job_l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">del_init</span>
+        <span class="k">if</span> <span class="n">restart</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">job_l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">restart</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">=</span> <span class="p">(</span><span class="n">job_l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">10000</span> <span class="o">+</span> <span class="n">job_l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span> <span class="o">+</span>
+                    <span class="n">job_l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span> <span class="o">+</span> <span class="n">job_l</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span> <span class="o">+</span> <span class="n">job_l</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">set_iprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">so_init</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">so_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iter_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">so_final</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set the iprint parameter for the printing of computation reports.</span>
+
+<span class="sd">        If any of the arguments are specified here, then they are set in the</span>
+<span class="sd">        iprint member. If iprint is not set manually or with this method, then</span>
+<span class="sd">        ODRPACK defaults to no printing. If no filename is specified with the</span>
+<span class="sd">        member rptfile, then ODRPACK prints to stdout. One can tell ODRPACK to</span>
+<span class="sd">        print to stdout in addition to the specified filename by setting the</span>
+<span class="sd">        so_* arguments to this function, but one cannot specify to print to</span>
+<span class="sd">        stdout but not a file since one can do that by not specifying a rptfile</span>
+<span class="sd">        filename.</span>
+
+<span class="sd">        There are three reports: initialization, iteration, and final reports.</span>
+<span class="sd">        They are represented by the arguments init, iter, and final</span>
+<span class="sd">        respectively.  The permissible values are 0, 1, and 2 representing &quot;no</span>
+<span class="sd">        report&quot;, &quot;short report&quot;, and &quot;long report&quot; respectively.</span>
+
+<span class="sd">        The argument iter_step (0 &lt;= iter_step &lt;= 9) specifies how often to make</span>
+<span class="sd">        the iteration report; the report will be made for every iter_step&#39;th</span>
+<span class="sd">        iteration starting with iteration one. If iter_step == 0, then no</span>
+<span class="sd">        iteration report is made, regardless of the other arguments.</span>
+
+<span class="sd">        If the rptfile is None, then any so_* arguments supplied will raise an</span>
+<span class="sd">        exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">ip</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="o">//</span> <span class="mi">1000</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="o">//</span> <span class="mi">100</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="o">//</span> <span class="mi">10</span> <span class="o">%</span> <span class="mi">10</span><span class="p">,</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="o">%</span> <span class="mi">10</span><span class="p">]</span>
+
+        <span class="c1"># make a list to convert iprint digits to/from argument inputs</span>
+        <span class="c1">#                   rptfile, stdout</span>
+        <span class="n">ip2arg</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># none,  none</span>
+                  <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># short, none</span>
+                  <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>  <span class="c1"># long,  none</span>
+                  <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># short, short</span>
+                  <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>  <span class="c1"># long,  short</span>
+                  <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>  <span class="c1"># short, long</span>
+                  <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span>  <span class="c1"># long,  long</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rptfile</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span>
+            <span class="p">(</span><span class="n">so_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span>
+             <span class="n">so_iter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span>
+             <span class="n">so_final</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span>
+                <span class="s2">&quot;no rptfile specified, cannot output to stdout twice&quot;</span><span class="p">)</span>
+
+        <span class="n">iprint_l</span> <span class="o">=</span> <span class="n">ip2arg</span><span class="p">[</span><span class="n">ip</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">ip2arg</span><span class="p">[</span><span class="n">ip</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">ip2arg</span><span class="p">[</span><span class="n">ip</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="n">init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iprint_l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">init</span>
+        <span class="k">if</span> <span class="n">so_init</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iprint_l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">so_init</span>
+        <span class="k">if</span> <span class="nb">iter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iprint_l</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">iter</span>
+        <span class="k">if</span> <span class="n">so_iter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iprint_l</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">so_iter</span>
+        <span class="k">if</span> <span class="n">final</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iprint_l</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">final</span>
+        <span class="k">if</span> <span class="n">so_final</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">iprint_l</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">so_final</span>
+
+        <span class="k">if</span> <span class="n">iter_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="c1"># 0..9</span>
+            <span class="n">ip</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">iter_step</span>
+
+        <span class="n">ip</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ip2arg</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">iprint_l</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">ip</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">ip2arg</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">iprint_l</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">ip</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">ip2arg</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">iprint_l</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">iprint</span> <span class="o">=</span> <span class="n">ip</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span> <span class="o">+</span> <span class="n">ip</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span> <span class="o">+</span> <span class="n">ip</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mi">10</span> <span class="o">+</span> <span class="n">ip</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ODR.run"><a class="viewcode-back" href="../../../scipy-sphinx-theme-master/test_autodoc_3.html#scipy.odr.ODR.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Run the fitting routine with all of the information given.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output : Output instance</span>
+<span class="sd">            This object is also assigned to the attribute .output .</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fcn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">kwds</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;full_output&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="n">kwd_l</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ifixx&#39;</span><span class="p">,</span> <span class="s1">&#39;ifixb&#39;</span><span class="p">,</span> <span class="s1">&#39;job&#39;</span><span class="p">,</span> <span class="s1">&#39;iprint&#39;</span><span class="p">,</span> <span class="s1">&#39;errfile&#39;</span><span class="p">,</span> <span class="s1">&#39;rptfile&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;ndigit&#39;</span><span class="p">,</span> <span class="s1">&#39;taufac&#39;</span><span class="p">,</span> <span class="s1">&#39;sstol&#39;</span><span class="p">,</span> <span class="s1">&#39;partol&#39;</span><span class="p">,</span> <span class="s1">&#39;maxit&#39;</span><span class="p">,</span> <span class="s1">&#39;stpb&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;stpd&#39;</span><span class="p">,</span> <span class="s1">&#39;sclb&#39;</span><span class="p">,</span> <span class="s1">&#39;scld&#39;</span><span class="p">,</span> <span class="s1">&#39;work&#39;</span><span class="p">,</span> <span class="s1">&#39;iwork&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">job</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">//</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># delta0 provided and fit is not a restart</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gen_work</span><span class="p">()</span>
+
+            <span class="n">d0</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">d0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">d0</span>
+
+        <span class="c1"># set the kwds from other objects explicitly</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="p">[</span><span class="s1">&#39;fjacb&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacb</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="p">[</span><span class="s1">&#39;fjacd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fjacd</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">we</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="p">[</span><span class="s1">&#39;we&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">we</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">wd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="p">[</span><span class="s1">&#39;wd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">wd</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">extra_args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwds</span><span class="p">[</span><span class="s1">&#39;extra_args&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">extra_args</span>
+
+        <span class="c1"># implicitly set kwds from self&#39;s members</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">kwd_l</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">kwds</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="n">odr</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span></div>
+
+    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Restarts the run with iter more iterations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        iter : int, optional</span>
+<span class="sd">            ODRPACK&#39;s default for the number of new iterations is 10.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output : Output instance</span>
+<span class="sd">            This object is also assigned to the attribute .output .</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">OdrError</span><span class="p">(</span><span class="s2">&quot;cannot restart: run() has not been called before&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_job</span><span class="p">(</span><span class="n">restart</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">work</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iwork</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">iwork</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">maxit</span> <span class="o">=</span> <span class="nb">iter</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../OpenEnsembles.html">The OpenEnsembles Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../finishing.html">Finishing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cooccurrence.html">Cooccurrence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../validation.html">Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../clustering_algorithms.html">Clustering Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transforms.html">Transformations</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../../../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../../../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../../../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

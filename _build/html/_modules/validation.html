@@ -1,0 +1,1020 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>validation &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for validation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">OpenEnsembles is a resource for performing and analyzing ensemble clustering</span>
+
+<span class="sd">Copyright (C) 2017 Naegle Lab</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">datasets</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">distance</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">metrics</span>
+
+<div class="viewcode-block" id="validation"><a class="viewcode-back" href="../validation.html#validation.validation">[docs]</a><span class="k">class</span> <span class="nc">validation</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	validation is a class for calculating validation metrics on a data matrix (data), given the clustering labels in labels.</span>
+<span class="sd">	Instantiation sets validation to NaN and a description to &#39;&#39;. Once a metric is performed, these are replaced (unless)</span>
+<span class="sd">	validation did not yield a valid mathematical number, which can happen in certain cases, such as when a cluster</span>
+<span class="sd">	consists of only one member. Such results will warn the user.</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	data: matrix of floats</span>
+<span class="sd">		data matrix</span>
+<span class="sd">	labels: list of ints</span>
+<span class="sd">		The solution labels</span>
+
+<span class="sd">	Attributes</span>
+<span class="sd">	----------</span>
+<span class="sd">	validation: float</span>
+<span class="sd">		Validation metric. NaN if error </span>
+<span class="sd">	description: string</span>
+<span class="sd">		A description of the validation metric</span>
+
+<span class="sd">	See Also</span>
+<span class="sd">	--------</span>
+<span class="sd">	openensembles.validation()</span>
+
+
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span> <span class="o">=</span> <span class="n">data</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span> <span class="o">=</span> <span class="n">labels</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="validation.validation_metrics_available"><a class="viewcode-back" href="../validation.html#validation.validation.validation_metrics_available">[docs]</a>	<span class="k">def</span> <span class="nf">validation_metrics_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    	self.validation_metrics_available() returns a dictionary, whose keys are the available validation metrics</span>
+<span class="sd">    	&quot;&quot;&quot;</span>
+		<span class="n">methods</span> <span class="o">=</span>  <span class="p">[</span><span class="n">method</span> <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">))]</span>
+		<span class="n">methods</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;validation_metrics_available&#39;</span><span class="p">)</span>
+		<span class="n">methodDict</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;_validation__&#39;</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+				<span class="n">methodDict</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">return</span> <span class="n">methodDict</span></div>
+
+<div class="viewcode-block" id="validation.Ball_Hall"><a class="viewcode-back" href="../validation.html#validation.validation.Ball_Hall">[docs]</a>	<span class="k">def</span> <span class="nf">Ball_Hall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Ball-Hall Index is the mean of the mean dispersion across all clusters</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Mean of the mean dispersions across all clusters&#39;</span>
+		<span class="n">sumTotal</span><span class="o">=</span><span class="mi">0</span>
+
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">))</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">sumDis</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#iterate through all the members</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">sumDis</span><span class="o">=</span><span class="n">sumDis</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+			<span class="n">sumTotal</span><span class="o">=</span><span class="n">sumTotal</span><span class="o">+</span><span class="n">sumDis</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+		<span class="c1">#compute the validation</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">sumTotal</span><span class="o">/</span><span class="n">numCluster</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+
+<div class="viewcode-block" id="validation.Banfeld_Raferty"><a class="viewcode-back" href="../validation.html#validation.validation.Banfeld_Raferty">[docs]</a>	<span class="k">def</span> <span class="nf">Banfeld_Raferty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Banfeld-Raferty index is the weighted sum of the logarithms of the traces of the variance-covariance matrix of each cluster&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Weighted sum of the logarithms of the traces of the variance-covariance matrix of each cluster&#39;</span>
+		<span class="n">sumTotal</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">sumDis</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#iterate through all the members</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">sumDis</span><span class="o">=</span><span class="n">sumDis</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">sumDis</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Cannot calculate Banfeld_Raferty, due to an undefined value&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">sumTotal</span><span class="o">=</span><span class="n">sumTotal</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sumDis</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
+		<span class="c1">#return the fitness</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">sumTotal</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+		<span class="c1">## The Baker-HUbert Gamma Index BHG</span>
+
+<div class="viewcode-block" id="validation.silhouette"><a class="viewcode-back" href="../validation.html#validation.validation.silhouette">[docs]</a>	<span class="k">def</span> <span class="nf">silhouette</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Silhouette: Compactness and connectedness combination that measures a ratio of within cluster distances to closest neighbors</span>
+<span class="sd">		outside of cluster. This uses sklearn.metrics version of the Silhouette.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Silhouette: A combination of connectedness and compactness that measures within versus to the nearest neighbor outside a cluster. A smaller value, the better the solution&#39;</span>
+
+		<span class="n">metric</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">silhouette_score</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">metric</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.Baker_Hubert_Gamma"><a class="viewcode-back" href="../validation.html#validation.validation.Baker_Hubert_Gamma">[docs]</a>	<span class="k">def</span> <span class="nf">Baker_Hubert_Gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Baker-Hubert Gamma Index: A measure of compactness, based on similarity between points in a cluster, compared to similarity</span>
+<span class="sd">		with points in other clusters</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Gamma Index: a measure of compactness&#39;</span>
+		<span class="n">splus</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">sminus</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">pairDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">)</span>
+		<span class="n">numPair</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">pairDis</span><span class="p">)</span>
+		<span class="n">temp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">),</span><span class="mi">2</span><span class="p">))</span>
+		<span class="n">temp</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span>
+		<span class="n">vecB</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+		<span class="c1">#iterate through all the pairwise comparisons</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numPair</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">numPair</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+					<span class="c1">#heter points smaller than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;</span><span class="n">pairDis</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+						<span class="n">splus</span><span class="o">=</span><span class="n">splus</span><span class="o">+</span><span class="mi">1</span>
+					<span class="c1">#heter points larger than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+						<span class="n">sminus</span><span class="o">=</span><span class="n">sminus</span><span class="o">+</span><span class="mi">1</span>
+				<span class="k">if</span> <span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+					<span class="c1">#heter points smaller than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&lt;</span><span class="n">pairDis</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+						<span class="n">splus</span><span class="o">=</span><span class="n">splus</span><span class="o">+</span><span class="mi">1</span>
+					<span class="c1">#heter points larger than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+						<span class="n">sminus</span><span class="o">=</span><span class="n">sminus</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="p">(</span><span class="n">splus</span><span class="o">-</span><span class="n">sminus</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">splus</span><span class="o">+</span><span class="n">sminus</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+
+	<span class="c1">## The Det_Ratio index DRI</span>
+<div class="viewcode-block" id="validation.det_ratio"><a class="viewcode-back" href="../validation.html#validation.validation.det_ratio">[docs]</a>	<span class="k">def</span> <span class="nf">det_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The determinant ratio index, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1">#compute the attributes number and cluster number</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;Determinant ratio, a measure of connectedness&#39;</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">xData</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span>
+		<span class="n">wg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">attributes</span><span class="p">,</span><span class="n">attributes</span><span class="p">))</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute cluster scatter matrix</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="n">xCluster</span><span class="o">=</span><span class="n">clusterMember</span>
+			<span class="c1">#iterate through attributes</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attributes</span><span class="p">):</span>
+				<span class="n">columnVec</span><span class="o">=</span><span class="n">clusterMember</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span>
+				<span class="n">columnCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">columnVec</span><span class="p">)</span>
+				<span class="c1">#compute xk</span>
+				<span class="n">xCluster</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="n">columnVec</span><span class="o">-</span><span class="n">columnCenter</span>
+			<span class="c1">#add to wg</span>
+			<span class="n">wg</span><span class="o">=</span><span class="n">wg</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xCluster</span><span class="p">),</span><span class="n">xCluster</span><span class="p">)</span>
+		<span class="c1">#compute data scatter matrix</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attributes</span><span class="p">):</span>
+			<span class="n">columnVec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
+			<span class="n">columnCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">columnVec</span><span class="p">)</span>
+			<span class="c1">#data scatter matrix</span>
+			<span class="n">xData</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">columnVec</span><span class="o">-</span><span class="n">columnCenter</span>
+
+		<span class="n">t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xData</span><span class="p">),</span><span class="n">xData</span><span class="p">)</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">wg</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.c_index"><a class="viewcode-back" href="../validation.html#validation.validation.c_index">[docs]</a>	<span class="k">def</span> <span class="nf">c_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The C-Index, a measure of compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s1">&#39;The C-Index, a measure of cluster compactness&#39;</span>
+		<span class="n">sw</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">nw</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute distance of every pair of points</span>
+			<span class="n">list_clusterDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">)</span>
+			<span class="n">sw</span><span class="o">=</span><span class="n">sw</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="n">list_clusterDis</span><span class="p">)</span>
+			<span class="n">nw</span><span class="o">=</span><span class="n">nw</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">list_clusterDis</span><span class="p">)</span>
+		<span class="c1">#compute the pairwise distance of the whole dataset</span>
+		<span class="n">list_dataDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">)</span>
+		<span class="c1">#compute smin</span>
+		<span class="n">sortedList</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">list_dataDis</span><span class="p">)</span>
+		<span class="n">smin</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">sortedList</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nw</span><span class="p">])</span>
+		<span class="c1">#compute smax</span>
+		<span class="n">sortedList</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">list_dataDis</span><span class="p">,</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+		<span class="n">smax</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">sortedList</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nw</span><span class="p">])</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="p">(</span><span class="n">sw</span><span class="o">-</span><span class="n">smin</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">smax</span><span class="o">-</span><span class="n">smin</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.g_plus_index"><a class="viewcode-back" href="../validation.html#validation.validation.g_plus_index">[docs]</a>	<span class="k">def</span> <span class="nf">g_plus_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The G_plus index, the proportion of discordant pairs among all the pairs of distinct point, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The G_plus index, a measure of connectedness&quot;</span>
+		<span class="n">sminus</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">pairDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">)</span>
+		<span class="n">numPair</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">pairDis</span><span class="p">)</span>
+		<span class="n">temp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">),</span><span class="mi">2</span><span class="p">))</span>
+		<span class="n">temp</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span>
+		<span class="n">vecB</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+		<span class="c1">#iterate through all the pairwise comparisons</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numPair</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">numPair</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+					<span class="c1">#heter points larger than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+						<span class="n">sminus</span><span class="o">=</span><span class="n">sminus</span><span class="o">+</span><span class="mi">1</span>
+				<span class="k">if</span> <span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+					<span class="c1">#heter points larger than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+						<span class="n">sminus</span><span class="o">=</span><span class="n">sminus</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#return fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span>  <span class="mi">2</span><span class="o">*</span><span class="n">sminus</span><span class="o">/</span><span class="p">(</span><span class="n">numPair</span><span class="o">*</span><span class="p">(</span><span class="n">numPair</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.ksq_detw_index"><a class="viewcode-back" href="../validation.html#validation.validation.ksq_detw_index">[docs]</a>	<span class="k">def</span> <span class="nf">ksq_detw_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Ksq_DetW Index, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Ksq_DetW index, a measure of connectedness&quot;</span>
+		<span class="c1">#compute the attributes number and cluster number</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">wg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">attributes</span><span class="p">,</span><span class="n">attributes</span><span class="p">))</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute cluster scatter matrix</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="n">xCluster</span><span class="o">=</span><span class="n">clusterMember</span>
+			<span class="c1">#iterate through attributes</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attributes</span><span class="p">):</span>
+				<span class="n">columnVec</span><span class="o">=</span><span class="n">clusterMember</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span>
+				<span class="n">columnCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">columnVec</span><span class="p">)</span>
+				<span class="c1">#compute xk</span>
+				<span class="n">xCluster</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="n">columnVec</span><span class="o">-</span><span class="n">columnCenter</span>
+			<span class="c1">#add to wg</span>
+			<span class="n">wg</span><span class="o">=</span><span class="n">wg</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xCluster</span><span class="p">),</span><span class="n">xCluster</span><span class="p">)</span>
+		<span class="c1">#compute fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">numCluster</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">wg</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.log_det_ratio"><a class="viewcode-back" href="../validation.html#validation.validation.log_det_ratio">[docs]</a>	<span class="k">def</span> <span class="nf">log_det_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The log determinant ratio index, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The log determinant ratio index, a measure of connectedness&quot;</span>
+		<span class="n">numObj</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">numObj</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">det_ratio</span><span class="p">())</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.log_ss_ratio"><a class="viewcode-back" href="../validation.html#validation.validation.log_ss_ratio">[docs]</a>	<span class="k">def</span> <span class="nf">log_ss_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The log ss ratio, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The log ss ratio, a measure of connectedness&quot;</span>
+		<span class="n">bgss</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">wgss</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute the dataset center</span>
+		<span class="n">dataCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+		<span class="c1">#iterate through the cluster</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">sumTemp</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#add to bgss</span>
+			<span class="n">bgss</span><span class="o">=</span><span class="n">bgss</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">clusterCenter</span><span class="p">,</span> <span class="n">dataCenter</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+			<span class="c1">#iterate through all the members of the cluster</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">sumTemp</span><span class="o">=</span><span class="n">sumTemp</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+			<span class="n">wgss</span><span class="o">=</span><span class="n">wgss</span><span class="o">+</span><span class="n">sumTemp</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">bgss</span><span class="o">/</span><span class="n">wgss</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.McClain_Rao"><a class="viewcode-back" href="../validation.html#validation.validation.McClain_Rao">[docs]</a>	<span class="k">def</span> <span class="nf">McClain_Rao</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The McClain-Rao Index, a measure of compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The McClain-Rao Index, a measure of compactness&quot;</span>
+		<span class="n">sw</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">sb</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">nw</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">numObj</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute pairwise distance</span>
+			<span class="n">pairDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">)</span>
+			<span class="c1">#add to sw and nw</span>
+			<span class="n">sw</span><span class="o">=</span><span class="n">sw</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="n">pairDis</span><span class="p">)</span>
+			<span class="n">nw</span><span class="o">=</span><span class="n">nw</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">pairDis</span><span class="p">)</span>
+			<span class="c1">#iterate the clusters again for between-cluster distance</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">j</span><span class="o">&gt;</span><span class="n">i</span><span class="p">:</span>
+					<span class="n">indices2</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">j</span><span class="p">]</span>
+					<span class="n">clusterMember2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices2</span><span class="p">,:]</span>
+					<span class="n">betweenDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="n">clusterMember2</span><span class="p">)</span>
+					<span class="c1">#add to sb</span>
+					<span class="n">sb</span><span class="o">=</span><span class="n">sb</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">betweenDis</span><span class="p">)))</span>
+		<span class="c1">#compute nb</span>
+		<span class="n">nb</span><span class="o">=</span><span class="n">numObj</span><span class="o">*</span><span class="p">(</span><span class="n">numObj</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">-</span><span class="n">nw</span>
+		<span class="c1">#compute fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">nb</span><span class="o">*</span><span class="n">sw</span><span class="o">/</span><span class="p">(</span><span class="n">nw</span><span class="o">*</span><span class="n">sb</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.PBM_index"><a class="viewcode-back" href="../validation.html#validation.validation.PBM_index">[docs]</a>	<span class="k">def</span> <span class="nf">PBM_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The PBM index, a measure of compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The PBM index, a measure of compactness&quot;</span>
+		<span class="n">ew</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">et</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">list_centerDis</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute the center of the dataset</span>
+		<span class="n">dataCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+		<span class="c1">#iterate through the  clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#compute the center distance</span>
+			<span class="n">list_centerDis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">dataCenter</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">))</span>
+			<span class="c1">#iterate through the member of the  cluster</span>
+			<span class="k">for</span>  <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">ew</span><span class="o">=</span><span class="n">ew</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">)</span>
+				<span class="n">et</span><span class="o">=</span><span class="n">et</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">dataCenter</span><span class="p">)</span>
+		<span class="n">db</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">list_centerDis</span><span class="p">)</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">et</span><span class="o">*</span><span class="n">db</span><span class="o">/</span><span class="p">(</span><span class="n">numCluster</span><span class="o">*</span><span class="n">ew</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.point_biserial"><a class="viewcode-back" href="../validation.html#validation.validation.point_biserial">[docs]</a>	<span class="k">def</span> <span class="nf">point_biserial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Point-Biserial index, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Point-Biserial index, a measure of connectedness&quot;</span>
+		<span class="n">sw</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">sb</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">nw</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">numObj</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">nt</span><span class="o">=</span><span class="n">numObj</span><span class="o">*</span><span class="p">(</span><span class="n">numObj</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute pairwise distance</span>
+			<span class="n">pairDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">)</span>
+			<span class="c1">#add to sw and nw</span>
+			<span class="n">sw</span><span class="o">=</span><span class="n">sw</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="n">pairDis</span><span class="p">)</span>
+			<span class="n">nw</span><span class="o">=</span><span class="n">nw</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">pairDis</span><span class="p">)</span>
+			<span class="c1">#iterate the clusters again for between-cluster distance</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">j</span><span class="o">&gt;</span><span class="n">i</span><span class="p">:</span>
+					<span class="n">indices2</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">j</span><span class="p">]</span>
+					<span class="n">clusterMember2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices2</span><span class="p">,:]</span>
+					<span class="n">betweenDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="n">clusterMember2</span><span class="p">)</span>
+					<span class="c1">#add to sb</span>
+					<span class="n">sb</span><span class="o">=</span><span class="n">sb</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">betweenDis</span><span class="p">)))</span>
+		<span class="c1">#compute nb</span>
+		<span class="n">nb</span><span class="o">=</span><span class="n">nt</span><span class="o">-</span><span class="n">nw</span>
+		<span class="c1">#compute fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="p">((</span><span class="n">sw</span><span class="o">/</span><span class="n">nw</span><span class="o">-</span><span class="n">sb</span><span class="o">/</span><span class="n">nb</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nw</span><span class="o">*</span><span class="n">nb</span><span class="p">))</span><span class="o">/</span><span class="n">nt</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.Ratkowsky_Lance"><a class="viewcode-back" href="../validation.html#validation.validation.Ratkowsky_Lance">[docs]</a>	<span class="k">def</span> <span class="nf">Ratkowsky_Lance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Ratkowsky-Lance index, a measure of compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Ratkowsky-Lance index, a measure of compactness&quot;</span>
+		<span class="n">list_divide</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#iterate through the attributes</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attributes</span><span class="p">):</span>
+			<span class="n">bgssj</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">tssj</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">columnVec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
+			<span class="n">columnCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">columnVec</span><span class="p">)</span>
+			<span class="c1">#compute bgssj</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+				<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">j</span><span class="p">]</span>
+				<span class="n">columnCluster</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+				<span class="n">centerCluster</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">columnCluster</span><span class="p">)</span>
+				<span class="n">bgssj</span><span class="o">=</span><span class="n">bgssj</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">centerCluster</span><span class="o">-</span><span class="n">columnCenter</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+			<span class="c1">#iterate through the  members of the column</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">columnVec</span><span class="p">:</span>
+				<span class="n">tssj</span><span class="o">=</span><span class="n">tssj</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">member</span><span class="o">-</span><span class="n">columnCenter</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+			<span class="n">list_divide</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bgssj</span><span class="o">/</span><span class="n">tssj</span><span class="p">)</span>
+		<span class="n">r</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">list_divide</span><span class="p">)</span><span class="o">/</span><span class="n">attributes</span>
+		<span class="c1">#compute the  fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r</span><span class="o">/</span><span class="n">numCluster</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.Ray_Turi"><a class="viewcode-back" href="../validation.html#validation.validation.Ray_Turi">[docs]</a>	<span class="k">def</span> <span class="nf">Ray_Turi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Ray-Turi index, a measure of compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Ray-Turi index, a measure of compactness&quot;</span>
+		<span class="n">wgss</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">list_centers</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">numObj</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">wgssk</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">list_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clusterCenter</span><span class="p">)</span>
+			<span class="c1">#iterate through the  cluster members</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">wgssk</span><span class="o">=</span><span class="n">wgssk</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+			<span class="c1">#add to wgsss</span>
+			<span class="n">wgss</span><span class="o">=</span><span class="n">wgss</span><span class="o">+</span><span class="n">wgssk</span>
+		<span class="c1">#compute the min center dis</span>
+		<span class="n">minDis</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">list_centers</span><span class="p">)),</span><span class="mi">2</span><span class="p">)</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">wgss</span><span class="o">/</span><span class="p">(</span><span class="n">numObj</span><span class="o">*</span><span class="n">minDis</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.Scott_Symons"><a class="viewcode-back" href="../validation.html#validation.validation.Scott_Symons">[docs]</a>	<span class="k">def</span> <span class="nf">Scott_Symons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Scott-Symons index, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Scott-Symons index, a measure of connectedness&quot;</span>
+		<span class="n">fitness</span><span class="o">=</span><span class="mi">0</span>
+		<span class="c1">#compute the attributes number and cluster number</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute cluster scatter matrix</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">nk</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="n">xCluster</span><span class="o">=</span><span class="n">clusterMember</span>
+			<span class="c1">#iterate through attributes</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attributes</span><span class="p">):</span>
+				<span class="n">columnVec</span><span class="o">=</span><span class="n">clusterMember</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span>
+				<span class="n">columnCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">columnVec</span><span class="p">)</span>
+				<span class="c1">#compute xk</span>
+				<span class="n">xCluster</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="n">columnVec</span><span class="o">-</span><span class="n">columnCenter</span>
+			<span class="c1">#compute wgk</span>
+			<span class="n">wgk</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xCluster</span><span class="p">),</span><span class="n">xCluster</span><span class="p">)</span>
+			<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">wgk</span><span class="o">/</span><span class="n">nk</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+				<span class="n">fitness</span><span class="o">=</span><span class="n">fitness</span><span class="o">+</span><span class="n">nk</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">wgk</span><span class="o">/</span><span class="n">nk</span><span class="p">))</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Cannot calculate Scott_Symons, due to an undefined value&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+		<span class="c1">#return fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">fitness</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.tau_index"><a class="viewcode-back" href="../validation.html#validation.validation.tau_index">[docs]</a>	<span class="k">def</span> <span class="nf">tau_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Tau index, a measure of compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Tau index, a measure of compactness&quot;</span>
+		<span class="c1">#compute nb,nw,nt</span>
+		<span class="n">nw</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">numObj</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">nt</span><span class="o">=</span><span class="n">numObj</span><span class="o">*</span><span class="p">(</span><span class="n">numObj</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">nk</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+			<span class="n">nw</span><span class="o">=</span><span class="n">nw</span><span class="o">+</span><span class="n">nk</span><span class="o">*</span><span class="p">(</span><span class="n">nk</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+		<span class="n">nb</span><span class="o">=</span><span class="n">nt</span><span class="o">-</span><span class="n">nw</span>
+		<span class="c1">#compute s+ and s-</span>
+		<span class="n">splus</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">sminus</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">pairDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">)</span>
+		<span class="n">numPair</span><span class="o">=</span><span class="n">nt</span>
+		<span class="n">temp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">),</span><span class="mi">2</span><span class="p">))</span>
+		<span class="n">temp</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span>
+		<span class="n">vecB</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+		<span class="c1">#iterate through all the pairwise comparisons</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">numPair</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">numPair</span><span class="p">)):</span>
+				<span class="k">if</span> <span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+					<span class="c1">#heter points smaller than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&lt;</span><span class="n">pairDis</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+						<span class="n">splus</span><span class="o">=</span><span class="n">splus</span><span class="o">+</span><span class="mi">1</span>
+					<span class="c1">#heter points larger than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+						<span class="n">sminus</span><span class="o">=</span><span class="n">sminus</span><span class="o">+</span><span class="mi">1</span>
+				<span class="k">if</span> <span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">vecB</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+					<span class="c1">#heter points smaller than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&lt;</span><span class="n">pairDis</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+						<span class="n">splus</span><span class="o">=</span><span class="n">splus</span><span class="o">+</span><span class="mi">1</span>
+					<span class="c1">#heter points larger than homo points</span>
+					<span class="k">if</span> <span class="n">pairDis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&gt;</span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+						<span class="n">sminus</span><span class="o">=</span><span class="n">sminus</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="p">(</span><span class="n">splus</span><span class="o">-</span><span class="n">sminus</span><span class="p">)</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nb</span><span class="o">*</span><span class="n">nw</span><span class="o">*</span><span class="n">nt</span><span class="o">*</span><span class="p">(</span><span class="n">nt</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.trace_w"><a class="viewcode-back" href="../validation.html#validation.validation.trace_w">[docs]</a>	<span class="k">def</span> <span class="nf">trace_w</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Trace_W index, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Trace_W index, a measure of connectedness&quot;</span>
+		<span class="n">wgss</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">wgssk</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#iterate through the  cluster members</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">wgssk</span><span class="o">=</span><span class="n">wgssk</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+			<span class="c1">#add to wgsss</span>
+			<span class="n">wgss</span><span class="o">=</span><span class="n">wgss</span><span class="o">+</span><span class="n">wgssk</span>
+		<span class="c1">#return the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">wgss</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.trace_wib"><a class="viewcode-back" href="../validation.html#validation.validation.trace_wib">[docs]</a>	<span class="k">def</span> <span class="nf">trace_wib</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Trace_WiB index, a measure of connectedness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Trace_WiB index, a measure of connectedness&quot;</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">b</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numCluster</span><span class="p">,</span><span class="n">attributes</span><span class="p">))</span>
+		<span class="n">wg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">attributes</span><span class="p">,</span><span class="n">attributes</span><span class="p">))</span>
+		<span class="c1">#compute the data center</span>
+		<span class="n">dataCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+		<span class="c1">#iterate all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="n">xCluster</span><span class="o">=</span><span class="n">clusterMember</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="n">clusterCenter</span><span class="o">-</span><span class="n">dataCenter</span>
+			<span class="c1">#compute wgk and wg</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attributes</span><span class="p">):</span>
+				<span class="n">columnVec</span><span class="o">=</span><span class="n">clusterMember</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span>
+				<span class="n">columnCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">columnVec</span><span class="p">)</span>
+				<span class="c1">#compute xk</span>
+				<span class="n">xCluster</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="n">columnVec</span><span class="o">-</span><span class="n">columnCenter</span>
+			<span class="c1">#compute wgk</span>
+			<span class="n">wg</span><span class="o">=</span><span class="n">wg</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">xCluster</span><span class="p">),</span><span class="n">xCluster</span><span class="p">)</span>
+		<span class="c1">#compute bg</span>
+		<span class="n">bg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="n">b</span><span class="p">)</span>
+		<span class="c1">#compute fitness</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">wg</span><span class="p">),</span><span class="n">bg</span><span class="p">))</span>
+		<span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+			<span class="c1"># Numpy will thrown an exception on singular matricies</span>
+			<span class="c1"># If this happens, warn the user and return 0</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Cannot calculate trace_wib, due to an undefined value&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.Wemmert_Gancarski"><a class="viewcode-back" href="../validation.html#validation.validation.Wemmert_Gancarski">[docs]</a>	<span class="k">def</span> <span class="nf">Wemmert_Gancarski</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Wemmert-Gancarski index, the quotients of distances between the points and the barycenters of all clusters, a measure of compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Wemmert-Gancarski index, a measure of compactness&quot;</span>
+		<span class="nb">sum</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">list_centers</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">numObj</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute all the centers</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">list_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+		<span class="c1">#iterate the clusters again for Rm</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">sumRm</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the currrent center</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">tempList</span><span class="o">=</span><span class="n">list_centers</span>
+			<span class="n">tempList</span> <span class="o">=</span> <span class="n">tempList</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">tempList</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="p">:]</span>
+			<span class="c1">#iterate through the member and compute rm</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="c1">#make it a 2d array</span>
+				<span class="n">memberArray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">attributes</span><span class="p">))</span>
+				<span class="n">memberArray</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">=</span><span class="n">member</span>
+				<span class="c1">#compute the pair wise distance</span>
+				<span class="n">list_dis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">memberArray</span><span class="p">,</span><span class="n">tempList</span><span class="p">)</span>
+				<span class="n">sumRm</span><span class="o">=</span><span class="n">sumRm</span><span class="o">+</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">))</span><span class="o">/</span><span class="nb">min</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">list_dis</span><span class="p">))</span>
+			<span class="c1">#compute the sum</span>
+			<span class="nb">sum</span><span class="o">=</span><span class="nb">sum</span><span class="o">+</span><span class="nb">max</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span><span class="o">-</span><span class="n">sumRm</span><span class="p">])</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="nb">sum</span><span class="o">/</span><span class="n">numObj</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.root_mean_square"><a class="viewcode-back" href="../validation.html#validation.validation.root_mean_square">[docs]</a>	<span class="k">def</span> <span class="nf">root_mean_square</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Root-Mean-Square Standard Deviation (RMSSTD), the root mean square</span>
+<span class="sd">		standard deviation of all variables within each cluster. A measure of</span>
+<span class="sd">		connectedness.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Root-Mean-Square Standard Deviation (RMSSTD), a measure of connectedness&quot;</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">denominator</span><span class="o">=</span><span class="n">attributes</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">)</span><span class="o">-</span><span class="n">numCluster</span><span class="p">)</span>
+		<span class="n">normSum</span><span class="o">=</span><span class="mi">0</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#compute the square error for every member in the cluster</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">normSum</span><span class="o">=</span><span class="n">normSum</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">normSum</span><span class="o">/</span><span class="n">denominator</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+
+<div class="viewcode-block" id="validation.r_squared"><a class="viewcode-back" href="../validation.html#validation.validation.r_squared">[docs]</a>	<span class="k">def</span> <span class="nf">r_squared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		R-squared, a statistical measure of how close the data is to a fitted regression line.</span>
+<span class="sd">		A measure of compactness.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;R-squared, a measure of compactness&quot;</span>
+		<span class="c1">#compute the center of the dataset</span>
+		<span class="n">dataCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">normClusterSum</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">normDatasetSum</span><span class="o">=</span><span class="mi">0</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#compute the norm for every member in the cluster with cluster center and dataset center</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">normClusterSum</span><span class="o">=</span><span class="n">normClusterSum</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">)</span>
+				<span class="n">normDatasetSum</span><span class="o">=</span><span class="n">normDatasetSum</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">dataCenter</span><span class="p">)</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="p">(</span><span class="n">normDatasetSum</span><span class="o">-</span><span class="n">normClusterSum</span><span class="p">)</span><span class="o">/</span><span class="n">normDatasetSum</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.modified_hubert_t"><a class="viewcode-back" href="../validation.html#validation.validation.modified_hubert_t">[docs]</a>	<span class="k">def</span> <span class="nf">modified_hubert_t</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Modified Hubert T Statistic, a measure of compactness.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Modified Hubert T Statistic, a measure of compactness&quot;</span>
+		<span class="n">sumDiff</span><span class="o">=</span><span class="mi">0</span>
+		<span class="c1">#compute the centers of all the clusters</span>
+		<span class="n">list_center</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="n">list_center</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+		<span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="c1">#iterate through each of the two pairs exhaustively</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">):</span>
+				<span class="c1">#get the cluster labels of the two objects</span>
+				<span class="n">label1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+				<span class="n">label2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+				<span class="c1">#compute the distance of the two objects</span>
+				<span class="n">pairDistance</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+				<span class="c1">#compute the distance of the cluster center of the two objects</span>
+				<span class="n">centerDistance</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">list_center</span><span class="p">[</span><span class="n">label1</span><span class="p">],</span> <span class="n">list_center</span><span class="p">[</span><span class="n">label2</span><span class="p">])</span>
+				<span class="c1">#add the product to the sum</span>
+				<span class="n">sumDiff</span><span class="o">=</span><span class="n">sumDiff</span><span class="o">+</span><span class="n">pairDistance</span><span class="o">*</span><span class="n">centerDistance</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">sumDiff</span><span class="o">/</span><span class="p">(</span><span class="n">size</span><span class="o">*</span><span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.i_index"><a class="viewcode-back" href="../validation.html#validation.validation.i_index">[docs]</a>	<span class="k">def</span> <span class="nf">i_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The I index, a measure of compactness.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The I Index, a measure of compactness.&quot;</span>
+		<span class="n">normClusterSum</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">normDatasetSum</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">list_centers</span><span class="o">=</span><span class="p">[]</span>
+		<span class="c1">#compute the number of clusters and attribute</span>
+		<span class="n">attributes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute the center of the dataset</span>
+		<span class="n">dataCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+		<span class="c1">#iterate through all the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the center of the cluster</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">list_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clusterCenter</span><span class="p">)</span>
+			<span class="c1">#compute the norm for every member in the cluster with cluster center and dataset center</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">normClusterSum</span><span class="o">=</span><span class="n">normClusterSum</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">clusterCenter</span><span class="p">)</span>
+				<span class="n">normDatasetSum</span><span class="o">=</span><span class="n">normDatasetSum</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">dataCenter</span><span class="p">)</span>
+		<span class="c1">#compute the max distance between cluster centers</span>
+		<span class="n">maxCenterDis</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">list_centers</span><span class="p">))</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(((</span><span class="n">normDatasetSum</span><span class="o">*</span><span class="n">maxCenterDis</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">normClusterSum</span><span class="o">*</span><span class="n">numCluster</span><span class="p">)),</span><span class="n">attributes</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+	<span class="c1">## Davies-Bouldin Index DB</span>
+<div class="viewcode-block" id="validation.Davies_Bouldin"><a class="viewcode-back" href="../validation.html#validation.validation.Davies_Bouldin">[docs]</a>	<span class="k">def</span> <span class="nf">Davies_Bouldin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Davies-Bouldin index, the average of all cluster similarities.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Davies-Bouldin index, the average of all cluster similarities&quot;</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">list_max</span><span class="o">=</span><span class="p">[]</span>
+		<span class="c1">#iterate through the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">list_tempMax</span><span class="o">=</span><span class="p">[]</span>
+			<span class="c1">#get all members from cluster i</span>
+			<span class="n">indices1</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices1</span><span class="p">,:]</span>
+			<span class="c1">#compute the cluster center</span>
+			<span class="n">clusterCenter1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="c1">#compute the cluster norm sum</span>
+			<span class="n">sumNorm1</span><span class="o">=</span><span class="mi">0</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember1</span><span class="p">:</span>
+				<span class="n">sumNorm1</span><span class="o">=</span><span class="n">sumNorm1</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span><span class="n">clusterCenter1</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">j</span><span class="o">!=</span><span class="n">i</span><span class="p">:</span>
+					<span class="c1">#get all members from cluster j</span>
+					<span class="n">indices2</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">j</span><span class="p">]</span>
+					<span class="n">clusterMember2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices2</span><span class="p">,:]</span>
+					<span class="c1">#compute the cluster center</span>
+					<span class="n">clusterCenter2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+					<span class="c1">#compute the cluster norm sum</span>
+					<span class="n">sumNorm2</span><span class="o">=</span><span class="mi">0</span>
+					<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember2</span><span class="p">:</span>
+						<span class="n">sumNorm2</span><span class="o">=</span><span class="n">sumNorm2</span><span class="o">+</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span><span class="n">clusterCenter2</span><span class="p">)</span>
+					<span class="n">tempDis</span><span class="o">=</span><span class="p">(</span><span class="n">sumNorm1</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">indices1</span><span class="p">)</span><span class="o">+</span><span class="n">sumNorm2</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">indices2</span><span class="p">))</span><span class="o">/</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">clusterCenter1</span><span class="p">,</span><span class="n">clusterCenter2</span><span class="p">)</span>
+					<span class="n">list_tempMax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempDis</span><span class="p">)</span>
+			<span class="n">list_max</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">list_tempMax</span><span class="p">))</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">list_max</span><span class="p">)</span><span class="o">/</span><span class="n">numCluster</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.Xie_Beni"><a class="viewcode-back" href="../validation.html#validation.validation.Xie_Beni">[docs]</a>	<span class="k">def</span> <span class="nf">Xie_Beni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The Xie-Beni index, a measure of compactness.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The Xie-Beni index, a measure of compactness&quot;</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="n">numObject</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span>
+		<span class="n">sumNorm</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">list_centers</span><span class="o">=</span><span class="p">[]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="c1">#get all members from cluster i</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the cluster center</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">list_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clusterCenter</span><span class="p">)</span>
+			<span class="c1">#interate through each member of the cluster</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember</span><span class="p">:</span>
+				<span class="n">sumNorm</span><span class="o">=</span><span class="n">sumNorm</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">member</span><span class="p">,</span><span class="n">clusterCenter</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+		<span class="n">minDis</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">list_centers</span><span class="p">))</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">sumNorm</span><span class="o">/</span><span class="p">(</span><span class="n">numObject</span><span class="o">*</span><span class="nb">pow</span><span class="p">(</span><span class="n">minDis</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+	<span class="c1">## density function for SDBW</span>
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">__density</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">stdev</span><span class="p">):</span>
+		<span class="n">dis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">euclidean</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">dis</span><span class="o">&gt;</span><span class="n">stdev</span><span class="p">:</span>
+			<span class="k">return</span> <span class="mi">0</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="mi">1</span>
+
+	<span class="c1">## S_Dbw validity index SDBW</span>
+<div class="viewcode-block" id="validation.s_dbw"><a class="viewcode-back" href="../validation.html#validation.validation.s_dbw">[docs]</a>	<span class="k">def</span> <span class="nf">s_dbw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The S_Dbw index, a measure of compactness.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The S_Dbw index, a measure of compactness&quot;</span>
+		<span class="n">sumDens</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">sumNormCluster</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">sumScat</span><span class="o">=</span><span class="mi">0</span>
+		<span class="n">list_centers</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#compute the norm of sigma(dataset)</span>
+		<span class="n">normSigDataset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+		<span class="c1">#iterate through all the clusters of self.classLabel</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="c1">#get all members from cluster i</span>
+			<span class="n">indices</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices</span><span class="p">,:]</span>
+			<span class="c1">#compute the cluster center</span>
+			<span class="n">clusterCenter</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="n">list_centers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clusterCenter</span><span class="p">)</span>
+			<span class="n">normSigCluster</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">clusterMember</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+			<span class="n">sumScat</span><span class="o">=</span><span class="n">sumScat</span><span class="o">+</span><span class="n">normSigCluster</span><span class="o">/</span><span class="n">normSigDataset</span>
+			<span class="n">sumNormCluster</span><span class="o">=</span><span class="n">sumNormCluster</span><span class="o">+</span><span class="n">normSigCluster</span>
+		<span class="c1">#compute stdev</span>
+		<span class="n">stdev</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sumNormCluster</span><span class="p">)</span><span class="o">/</span><span class="n">numCluster</span>
+		<span class="c1">#iterate again for density_bw</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+			<span class="n">sumDensity1</span><span class="o">=</span><span class="mi">0</span>
+			<span class="n">sumTemp</span><span class="o">=</span><span class="mi">0</span>
+			<span class="c1">#get all members from cluster i</span>
+			<span class="n">indices1</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices1</span><span class="p">,:]</span>
+			<span class="c1">#compute sum of f(x,ci)</span>
+			<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember1</span><span class="p">:</span>
+				<span class="n">sumDensity1</span><span class="o">=</span><span class="n">sumDensity1</span><span class="o">+</span><span class="n">validation</span><span class="o">.</span><span class="n">__density</span><span class="p">(</span><span class="n">member</span><span class="p">,</span><span class="n">list_centers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">stdev</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">j</span><span class="o">!=</span><span class="n">i</span><span class="p">:</span>
+					<span class="n">sumDensity2</span><span class="o">=</span><span class="mi">0</span>
+					<span class="n">sumDensityCombine</span><span class="o">=</span><span class="mi">0</span>
+					<span class="c1">#get all members from cluster j</span>
+					<span class="n">indices2</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">j</span><span class="p">]</span>
+					<span class="n">clusterMember2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices2</span><span class="p">,:]</span>
+					<span class="c1">#compute sum of f(x,cj)</span>
+					<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">clusterMember2</span><span class="p">:</span>
+						<span class="n">sumDensity2</span><span class="o">=</span><span class="n">sumDensity2</span><span class="o">+</span><span class="n">validation</span><span class="o">.</span><span class="n">__density</span><span class="p">(</span><span class="n">member</span><span class="p">,</span><span class="n">list_centers</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="n">stdev</span><span class="p">)</span>
+					<span class="c1">#compute the middle point of the two cluster centers</span>
+					<span class="n">midPoint</span><span class="o">=</span><span class="p">[]</span>
+					<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">list_centers</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+						<span class="n">midPoint</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">list_centers</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">+</span><span class="n">list_centers</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+					<span class="c1">#compute sum of f(x,uij)</span>
+					<span class="n">combined</span><span class="o">=</span><span class="n">clusterMember1</span><span class="o">+</span><span class="n">clusterMember2</span>
+					<span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">combined</span><span class="p">:</span>
+						<span class="n">sumDensityCombine</span><span class="o">=</span><span class="n">sumDensityCombine</span><span class="o">+</span><span class="n">validation</span><span class="o">.</span><span class="n">__density</span><span class="p">(</span><span class="n">member</span><span class="p">,</span><span class="n">midPoint</span><span class="p">,</span><span class="n">stdev</span><span class="p">)</span>
+					<span class="n">sumTemp</span><span class="o">=</span><span class="n">sumTemp</span><span class="o">+</span><span class="n">sumDensityCombine</span><span class="o">/</span><span class="nb">max</span><span class="p">([</span><span class="n">sumDensity1</span><span class="p">,</span><span class="n">sumDensity2</span><span class="p">])</span>
+			<span class="n">sumDens</span><span class="o">=</span><span class="n">sumDens</span><span class="o">+</span><span class="n">sumTemp</span>
+		<span class="c1">#compute scat and dens_bw</span>
+		<span class="n">scat</span><span class="o">=</span><span class="n">sumScat</span><span class="o">/</span><span class="n">numCluster</span>
+		<span class="n">dens_bw</span><span class="o">=</span><span class="n">sumDens</span><span class="o">/</span><span class="p">(</span><span class="n">numCluster</span><span class="o">*</span><span class="p">(</span><span class="n">numCluster</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">scat</span><span class="o">+</span><span class="n">dens_bw</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span></div>
+
+<div class="viewcode-block" id="validation.Dunns_index"><a class="viewcode-back" href="../validation.html#validation.validation.Dunns_index">[docs]</a>	<span class="k">def</span> <span class="nf">Dunns_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Dunn&#39;s index, a measure of cluster compactness</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Dunn&#39;s Index, a measure of compactness&quot;</span>
+		<span class="n">list_diam</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">list_minDis</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">numCluster</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+		<span class="c1">#iterate through the clusters</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numCluster</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+			<span class="c1">#get all members from cluster i</span>
+			<span class="n">indices1</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">i</span><span class="p">]</span>
+			<span class="n">clusterMember1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices1</span><span class="p">,:]</span>
+			<span class="c1">#compute the diameter of the cluster</span>
+			<span class="n">list_diam</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">clusterMember1</span><span class="p">)))</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">numCluster</span><span class="p">):</span>
+				<span class="c1">#get all members from cluster j</span>
+				<span class="n">indices2</span><span class="o">=</span><span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classLabel</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">j</span><span class="p">]</span>
+				<span class="n">clusterMember2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataMatrix</span><span class="p">[</span><span class="n">indices2</span><span class="p">,:]</span>
+				<span class="c1">#compute the diameter of the cluster</span>
+				<span class="n">diameter</span> <span class="o">=</span> <span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">clusterMember2</span><span class="p">)</span>
+				<span class="c1"># If it is zero, the value is undefined</span>
+				<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diameter</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+					<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Cannot calculate Dunns_index, due to an undefined value&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="mi">0</span>
+					<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span>
+				<span class="n">list_diam</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">diameter</span><span class="p">))</span>
+				<span class="c1">#get the pairwise distance and find the minimum</span>
+				<span class="n">pairDis</span><span class="o">=</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">clusterMember1</span><span class="p">,</span><span class="n">clusterMember2</span><span class="p">)</span>
+				<span class="n">minDis</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">pairDis</span><span class="p">)))</span>
+				<span class="n">list_minDis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">minDis</span><span class="p">)</span>
+		<span class="c1">#compute the fitness</span>
+		<span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">list_minDis</span><span class="p">)</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="n">list_diam</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

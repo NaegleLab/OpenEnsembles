@@ -1,0 +1,682 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Optimization (scipy.optimize) &#8212; OpenEnsembles 0 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">OpenEnsembles 0 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="optimization-scipy-optimize">
+<h1>Optimization (<code class="xref py py-mod docutils literal"><span class="pre">scipy.optimize</span></code>)<a class="headerlink" href="#optimization-scipy-optimize" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="xref py py-mod docutils literal"><span class="pre">scipy.optimize</span></code> package provides several commonly used
+optimization algorithms. A detailed listing is available:
+<code class="xref py py-mod docutils literal"><span class="pre">scipy.optimize</span></code> (can also be found by <code class="docutils literal"><span class="pre">help(scipy.optimize)</span></code>).</p>
+<p>The module contains:</p>
+<ol class="arabic simple">
+<li>Unconstrained and constrained minimization of multivariate scalar
+functions (<code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code>) using a variety of algorithms (e.g. BFGS,
+Nelder-Mead simplex, Newton Conjugate Gradient, COBYLA or SLSQP)</li>
+<li>Global (brute-force) optimization routines  (e.g., <code class="xref py py-func docutils literal"><span class="pre">anneal()</span></code>, <code class="xref py py-func docutils literal"><span class="pre">basinhopping()</span></code>)</li>
+<li>Least-squares minimization (<code class="xref py py-func docutils literal"><span class="pre">leastsq()</span></code>) and curve fitting
+(<code class="xref py py-func docutils literal"><span class="pre">curve_fit()</span></code>) algorithms</li>
+<li>Scalar univariate functions minimizers (<code class="xref py py-func docutils literal"><span class="pre">minimize_scalar()</span></code>) and
+root finders (<code class="xref py py-func docutils literal"><span class="pre">newton()</span></code>)</li>
+<li>Multivariate equation system solvers (<code class="xref py py-func docutils literal"><span class="pre">root()</span></code>) using a variety of
+algorithms (e.g. hybrid Powell, Levenberg-Marquardt or large-scale
+methods such as Newton-Krylov).</li>
+</ol>
+<p>Below, several examples demonstrate their basic usage.</p>
+<div class="section" id="unconstrained-minimization-of-multivariate-scalar-functions-minimize">
+<h2>Unconstrained minimization of multivariate scalar functions (<code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code>)<a class="headerlink" href="#unconstrained-minimization-of-multivariate-scalar-functions-minimize" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code> function provides a common interface to unconstrained
+and constrained minimization algorithms for multivariate scalar functions
+in <cite>scipy.optimize</cite>. To demonstrate the minimization function consider the
+problem of minimizing the Rosenbrock function of <img class="math" src="../_images/math/f4170ed8938b79490d8923857962695514a8e4cb.png" alt="N"/> variables:</p>
+<div class="math">
+<p><img src="../_images/math/34c26bfc891556c895fa33925bd5f11dcb354d93.png" alt="\[ f\left(\mathbf{x}\right)=\sum_{i=1}^{N-1}100\left(x_{i}-x_{i-1}^{2}\right)^{2}+\left(1-x_{i-1}\right)^{2}.\]"/></p>
+</div><p>The minimum value of this function is 0 which is achieved when
+<img class="math" src="../_images/math/ed9e501eb6756e5c586459531cfa76926fcbbb94.png" alt="x_{i}=1."/></p>
+<p>Note that the Rosenbrock function and its derivatives are included in
+<cite>scipy.optimize</cite>. The implementations shown in the following sections
+provide examples of how to define an objective function as well as its
+jacobian and hessian functions.</p>
+<div class="section" id="nelder-mead-simplex-algorithm-method-nelder-mead">
+<h3>Nelder-Mead Simplex algorithm (<code class="docutils literal"><span class="pre">method='Nelder-Mead'</span></code>)<a class="headerlink" href="#nelder-mead-simplex-algorithm-method-nelder-mead" title="Permalink to this headline">¶</a></h3>
+<p>In the example below, the <code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code> routine is used
+with the <em>Nelder-Mead</em> simplex algorithm (selected through the <code class="docutils literal"><span class="pre">method</span></code>
+parameter):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">rosen</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="sd">&quot;&quot;&quot;The Rosenbrock function&quot;&quot;&quot;</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="mf">100.0</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span><span class="o">**</span><span class="mf">2.0</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mf">2.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.9</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">rosen</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;nelder-mead&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;xtol&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="go">Optimization terminated successfully.</span>
+<span class="go">         Current function value: 0.000000</span>
+<span class="go">         Iterations: 339</span>
+<span class="go">         Function evaluations: 571</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">[ 1.  1.  1.  1.  1.]</span>
+</pre></div>
+</div>
+<p>The simplex algorithm is probably the simplest way to minimize a fairly
+well-behaved function. It requires only function evaluations and is a good
+choice for simple minimization problems. However, because it does not use
+any gradient evaluations, it may take longer to find the minimum.</p>
+<p>Another optimization algorithm that needs only function calls to find
+the minimum is <em>Powell</em>’s method available by setting <code class="docutils literal"><span class="pre">method='powell'</span></code> in
+<code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code>.</p>
+</div>
+<div class="section" id="broyden-fletcher-goldfarb-shanno-algorithm-method-bfgs">
+<h3>Broyden-Fletcher-Goldfarb-Shanno algorithm (<code class="docutils literal"><span class="pre">method='BFGS'</span></code>)<a class="headerlink" href="#broyden-fletcher-goldfarb-shanno-algorithm-method-bfgs" title="Permalink to this headline">¶</a></h3>
+<p>In order to converge more quickly to the solution, this routine uses
+the gradient of the objective function. If the gradient is not given
+by the user, then it is estimated using first-differences. The
+Broyden-Fletcher-Goldfarb-Shanno (BFGS) method typically requires
+fewer function calls than the simplex algorithm even when the gradient
+must be estimated.</p>
+<p>To demonstrate this algorithm, the Rosenbrock function is again used.
+The gradient of the Rosenbrock function is the vector:</p>
+<div class="math">
+<p><img src="../_images/math/60e92d66bc5dd88a0f77dc2ba17a9217cb66e3ce.png" alt="\begin{eqnarray*} \frac{\partial f}{\partial x_{j}} &amp; = &amp; \sum_{i=1}^{N}200\left(x_{i}-x_{i-1}^{2}\right)\left(\delta_{i,j}-2x_{i-1}\delta_{i-1,j}\right)-2\left(1-x_{i-1}\right)\delta_{i-1,j}.\\  &amp; = &amp; 200\left(x_{j}-x_{j-1}^{2}\right)-400x_{j}\left(x_{j+1}-x_{j}^{2}\right)-2\left(1-x_{j}\right).\end{eqnarray*}"/></p>
+</div><p>This expression is valid for the interior derivatives. Special cases
+are</p>
+<div class="math">
+<p><img src="../_images/math/24c9fbff5b5a7757bb297054d9ed0e45714222bb.png" alt="\begin{eqnarray*} \frac{\partial f}{\partial x_{0}} &amp; = &amp; -400x_{0}\left(x_{1}-x_{0}^{2}\right)-2\left(1-x_{0}\right),\\ \frac{\partial f}{\partial x_{N-1}} &amp; = &amp; 200\left(x_{N-1}-x_{N-2}^{2}\right).\end{eqnarray*}"/></p>
+</div><p>A Python function which computes this gradient is constructed by the
+code-segment:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">rosen_der</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">xm</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">xm_m1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">xm_p1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="gp">... </span>    <span class="n">der</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">der</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span><span class="o">*</span><span class="p">(</span><span class="n">xm</span><span class="o">-</span><span class="n">xm_m1</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">400</span><span class="o">*</span><span class="p">(</span><span class="n">xm_p1</span> <span class="o">-</span> <span class="n">xm</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">xm</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">xm</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">der</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">der</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">der</span>
+</pre></div>
+</div>
+<p>This gradient information is specified in the <code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code> function
+through the <code class="docutils literal"><span class="pre">jac</span></code> parameter as illustrated below.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">rosen</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;BFGS&#39;</span><span class="p">,</span> <span class="n">jac</span><span class="o">=</span><span class="n">rosen_der</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="go">Optimization terminated successfully.</span>
+<span class="go">         Current function value: 0.000000</span>
+<span class="go">         Iterations: 51</span>
+<span class="go">         Function evaluations: 63</span>
+<span class="go">         Gradient evaluations: 63</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">[ 1.  1.  1.  1.  1.]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="newton-conjugate-gradient-algorithm-method-newton-cg">
+<h3>Newton-Conjugate-Gradient algorithm (<code class="docutils literal"><span class="pre">method='Newton-CG'</span></code>)<a class="headerlink" href="#newton-conjugate-gradient-algorithm-method-newton-cg" title="Permalink to this headline">¶</a></h3>
+<p>The method which requires the fewest function calls and is therefore often
+the fastest method to minimize functions of many variables uses the
+Newton-Conjugate Gradient algorithm. This method is a modified Newton’s
+method and uses a conjugate gradient algorithm to (approximately) invert
+the local Hessian.  Newton’s method is based on fitting the function
+locally to a quadratic form:</p>
+<div class="math">
+<p><img src="../_images/math/ebbb713bf5fa52b999a62781e6a1de78434a0f29.png" alt="\[ f\left(\mathbf{x}\right)\approx f\left(\mathbf{x}_{0}\right)+\nabla f\left(\mathbf{x}_{0}\right)\cdot\left(\mathbf{x}-\mathbf{x}_{0}\right)+\frac{1}{2}\left(\mathbf{x}-\mathbf{x}_{0}\right)^{T}\mathbf{H}\left(\mathbf{x}_{0}\right)\left(\mathbf{x}-\mathbf{x}_{0}\right).\]"/></p>
+</div><p>where <img class="math" src="../_images/math/66bac4d97a51c3651cbd24a6df3513cbce8ed7cb.png" alt="\mathbf{H}\left(\mathbf{x}_{0}\right)"/> is a matrix of second-derivatives (the Hessian). If the Hessian is
+positive definite then the local minimum of this function can be found
+by setting the gradient of the quadratic form to zero, resulting in</p>
+<div class="math">
+<p><img src="../_images/math/ba7e840c60c08ad45c4113f4b7b2e6cb7ebd5c5c.png" alt="\[ \mathbf{x}_{\textrm{opt}}=\mathbf{x}_{0}-\mathbf{H}^{-1}\nabla f.\]"/></p>
+</div><p>The inverse of the Hessian is evaluated using the conjugate-gradient
+method. An example of employing this method to minimizing the
+Rosenbrock function is given below. To take full advantage of the
+Newton-CG method, a function which computes the Hessian must be
+provided. The Hessian matrix itself does not need to be constructed,
+only a vector which is the product of the Hessian with an arbitrary
+vector needs to be available to the minimization routine. As a result,
+the user can provide either a function to compute the Hessian matrix,
+or a function to compute the product of the Hessian with an arbitrary
+vector.</p>
+<div class="section" id="full-hessian-example">
+<h4>Full Hessian example:<a class="headerlink" href="#full-hessian-example" title="Permalink to this headline">¶</a></h4>
+<p>The Hessian of the Rosenbrock function is</p>
+<div class="math">
+<p><img src="../_images/math/cea401aab0b7287b75f52eee467220513bf1d5e6.png" alt="\begin{eqnarray*} H_{ij}=\frac{\partial^{2}f}{\partial x_{i}\partial x_{j}} &amp; = &amp; 200\left(\delta_{i,j}-2x_{i-1}\delta_{i-1,j}\right)-400x_{i}\left(\delta_{i+1,j}-2x_{i}\delta_{i,j}\right)-400\delta_{i,j}\left(x_{i+1}-x_{i}^{2}\right)+2\delta_{i,j},\\  &amp; = &amp; \left(202+1200x_{i}^{2}-400x_{i+1}\right)\delta_{i,j}-400x_{i}\delta_{i+1,j}-400x_{i-1}\delta_{i-1,j},\end{eqnarray*}"/></p>
+</div><p>if <img class="math" src="../_images/math/88efcf02be7d0efe3315711c5b7e8e5a1e807085.png" alt="i,j\in\left[1,N-2\right]"/> with <img class="math" src="../_images/math/fd6936b67e99634f243597b509a1267441a7cf5a.png" alt="i,j\in\left[0,N-1\right]"/> defining the <img class="math" src="../_images/math/0d6ecf115a0fefc045135d4dbfcfe920262c1b81.png" alt="N\times N"/> matrix. Other non-zero entries of the matrix are</p>
+<div class="math">
+<p><img src="../_images/math/ab4791f462962685d64f00f862063e6e80059958.png" alt="\begin{eqnarray*} \frac{\partial^{2}f}{\partial x_{0}^{2}} &amp; = &amp; 1200x_{0}^{2}-400x_{1}+2,\\ \frac{\partial^{2}f}{\partial x_{0}\partial x_{1}}=\frac{\partial^{2}f}{\partial x_{1}\partial x_{0}} &amp; = &amp; -400x_{0},\\ \frac{\partial^{2}f}{\partial x_{N-1}\partial x_{N-2}}=\frac{\partial^{2}f}{\partial x_{N-2}\partial x_{N-1}} &amp; = &amp; -400x_{N-2},\\ \frac{\partial^{2}f}{\partial x_{N-1}^{2}} &amp; = &amp; 200.\end{eqnarray*}"/></p>
+</div><p>For example, the Hessian when <img class="math" src="../_images/math/a93793a6f67f8de85a50ede468d4b0b91c599bf3.png" alt="N=5"/> is</p>
+<div class="math">
+<p><img src="../_images/math/6635f778f67ec14f7cc0e7c1234c600058042104.png" alt="\[ \mathbf{H}=\left[\begin{array}{ccccc} 1200x_{0}^{2}-400x_{1}+2 &amp; -400x_{0} &amp; 0 &amp; 0 &amp; 0\\ -400x_{0} &amp; 202+1200x_{1}^{2}-400x_{2} &amp; -400x_{1} &amp; 0 &amp; 0\\ 0 &amp; -400x_{1} &amp; 202+1200x_{2}^{2}-400x_{3} &amp; -400x_{2} &amp; 0\\ 0 &amp;  &amp; -400x_{2} &amp; 202+1200x_{3}^{2}-400x_{4} &amp; -400x_{3}\\ 0 &amp; 0 &amp; 0 &amp; -400x_{3} &amp; 200\end{array}\right].\]"/></p>
+</div><p>The code which computes this Hessian along with the code to minimize
+the function using Newton-CG method is shown in the following example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">rosen_hess</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="o">-</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">diagonal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">diagonal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1200</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span>
+<span class="gp">... </span>    <span class="n">diagonal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="gp">... </span>    <span class="n">diagonal</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">202</span> <span class="o">+</span> <span class="mi">1200</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="gp">... </span>    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">diagonal</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">H</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">rosen</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Newton-CG&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">jac</span><span class="o">=</span><span class="n">rosen_der</span><span class="p">,</span> <span class="n">hess</span><span class="o">=</span><span class="n">rosen_hess</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;avextol&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="go">Optimization terminated successfully.</span>
+<span class="go">         Current function value: 0.000000</span>
+<span class="go">         Iterations: 19</span>
+<span class="go">         Function evaluations: 22</span>
+<span class="go">         Gradient evaluations: 19</span>
+<span class="go">         Hessian evaluations: 19</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">[ 1.  1.  1.  1.  1.]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hessian-product-example">
+<h4>Hessian product example:<a class="headerlink" href="#hessian-product-example" title="Permalink to this headline">¶</a></h4>
+<p>For larger minimization problems, storing the entire Hessian matrix can
+consume considerable time and memory. The Newton-CG algorithm only needs
+the product of the Hessian times an arbitrary vector. As a result, the user
+can supply code to compute this product rather than the full Hessian by
+giving a <code class="docutils literal"><span class="pre">hess</span></code> function which take the minimization vector as the first
+argument and the arbitrary vector as the second argument (along with extra
+arguments passed to the function to be minimized). If possible, using
+Newton-CG with the Hessian product option is probably the fastest way to
+minimize the function.</p>
+<p>In this case, the product of the Rosenbrock Hessian with an arbitrary
+vector is not difficult to compute. If <img class="math" src="../_images/math/6c2e7ea2d68c5a9cde8e9ff9db0e3aad0ae52a13.png" alt="\mathbf{p}"/> is the arbitrary
+vector, then <img class="math" src="../_images/math/3b84ed6d32978d8fbdfef69bfd5dc62ff0bfdad1.png" alt="\mathbf{H}\left(\mathbf{x}\right)\mathbf{p}"/> has
+elements:</p>
+<div class="math">
+<p><img src="../_images/math/2e8a7f505f65b904616e4b8d3d93453fb4c2ae7c.png" alt="\[ \mathbf{H}\left(\mathbf{x}\right)\mathbf{p}=\left[\begin{array}{c} \left(1200x_{0}^{2}-400x_{1}+2\right)p_{0}-400x_{0}p_{1}\\ \vdots\\ -400x_{i-1}p_{i-1}+\left(202+1200x_{i}^{2}-400x_{i+1}\right)p_{i}-400x_{i}p_{i+1}\\ \vdots\\ -400x_{N-2}p_{N-2}+200p_{N-1}\end{array}\right].\]"/></p>
+</div><p>Code which makes use of this Hessian product to minimize the
+Rosenbrock function using <code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code> follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">rosen_hess_p</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">Hp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">Hp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1200</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">Hp</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="p">(</span><span class="mi">202</span><span class="o">+</span><span class="mi">1200</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span><span class="o">*</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> \
+<span class="gp">... </span>               <span class="o">-</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="gp">... </span>    <span class="n">Hp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">400</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">200</span><span class="o">*</span><span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">Hp</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">rosen</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Newton-CG&#39;</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">jac</span><span class="o">=</span><span class="n">rosen_der</span><span class="p">,</span> <span class="n">hess</span><span class="o">=</span><span class="n">rosen_hess_p</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;avextol&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="go">Optimization terminated successfully.</span>
+<span class="go">         Current function value: 0.000000</span>
+<span class="go">         Iterations: 20</span>
+<span class="go">         Function evaluations: 23</span>
+<span class="go">         Gradient evaluations: 20</span>
+<span class="go">         Hessian evaluations: 44</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">[ 1.  1.  1.  1.  1.]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="constrained-minimization-of-multivariate-scalar-functions-minimize">
+<span id="tutorial-sqlsp"></span><h2>Constrained minimization of multivariate scalar functions (<code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code>)<a class="headerlink" href="#constrained-minimization-of-multivariate-scalar-functions-minimize" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code> function also provides an interface to several
+constrained minimization algorithm. As an example, the Sequential Least
+SQuares Programming optimization algorithm (SLSQP) will be considered here.
+This algorithm allows to deal with constrained minimization problems of the
+form:</p>
+<div class="math">
+<p><img src="../_images/math/571f6bd73a5a009b84497e4ee7d5776834753aa9.png" alt="\begin{eqnarray*} \min F(x) \\ \text{subject to } &amp; C_j(X) =  0  ,  &amp;j = 1,...,\text{MEQ}\\
+         &amp; C_j(x) \geq 0  ,  &amp;j = \text{MEQ}+1,...,M\\
+        &amp;  XL  \leq x \leq XU , &amp;I = 1,...,N. \end{eqnarray*}"/></p>
+</div><p>As an example, let us consider the problem of maximizing the function:</p>
+<div class="math">
+<p><img src="../_images/math/386c3338f077844da5c04055cba17488a8a141ee.png" alt="\[ f(x, y) = 2 x y + 2 x - x^2 - 2 y^2 \]"/></p>
+</div><p>subject to an equality and an inequality constraints defined as:</p>
+<div class="math">
+<p><img src="../_images/math/26748a1e7d779ee4b1959945acc31679bdee50f8.png" alt="\[ x^3 - y = 0 \]
+\[ y - 1 \geq 0 \]"/></p>
+</div><p>The objective function and its derivative are defined as follows.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="sd">&quot;&quot;&quot; Objective function &quot;&quot;&quot;</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">sign</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">func_deriv</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="sd">&quot;&quot;&quot; Derivative of objective function &quot;&quot;&quot;</span>
+<span class="gp">... </span>    <span class="n">dfdx0</span> <span class="o">=</span> <span class="n">sign</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dfdx1</span> <span class="o">=</span> <span class="n">sign</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">4</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="n">dfdx0</span><span class="p">,</span> <span class="n">dfdx1</span> <span class="p">])</span>
+</pre></div>
+</div>
+<p>Note that since <code class="xref py py-func docutils literal"><span class="pre">minimize()</span></code> only minimizes functions, the <code class="docutils literal"><span class="pre">sign</span></code>
+parameter is introduced to multiply the objective function (and its
+derivative by -1) in order to perform a maximization.</p>
+<p>Then constraints are defined as a sequence of dictionaries, with keys
+<code class="docutils literal"><span class="pre">type</span></code>, <code class="docutils literal"><span class="pre">fun</span></code> and <code class="docutils literal"><span class="pre">jac</span></code>.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cons</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;eq&#39;</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s1">&#39;fun&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;jac&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mf">2.0</span><span class="p">),</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">])},</span>
+<span class="gp">... </span>        <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;ineq&#39;</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="s1">&#39;fun&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]),</span>
+<span class="gp">... </span>         <span class="s1">&#39;jac&#39;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])})</span>
+</pre></div>
+</div>
+<p>Now an unconstrained optimization can be performed as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,),</span> <span class="n">jac</span><span class="o">=</span><span class="n">func_deriv</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">method</span><span class="o">=</span><span class="s1">&#39;SLSQP&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="go">Optimization terminated successfully.    (Exit mode 0)</span>
+<span class="go">            Current function value: -2.0</span>
+<span class="go">            Iterations: 4</span>
+<span class="go">            Function evaluations: 5</span>
+<span class="go">            Gradient evaluations: 4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">[ 2.  1.]</span>
+</pre></div>
+</div>
+<p>and a constrained optimization as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,),</span> <span class="n">jac</span><span class="o">=</span><span class="n">func_deriv</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="n">constraints</span><span class="o">=</span><span class="n">cons</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;SLSQP&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;disp&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+<span class="go">Optimization terminated successfully.    (Exit mode 0)</span>
+<span class="go">            Current function value: -1.00000018311</span>
+<span class="go">            Iterations: 9</span>
+<span class="go">            Function evaluations: 14</span>
+<span class="go">            Gradient evaluations: 9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">[ 1.00000009  1.        ]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="least-square-fitting-leastsq">
+<h2>Least-square fitting (<code class="xref py py-func docutils literal"><span class="pre">leastsq()</span></code>)<a class="headerlink" href="#least-square-fitting-leastsq" title="Permalink to this headline">¶</a></h2>
+<p>All of the previously-explained minimization procedures can be used to
+solve a least-squares problem provided the appropriate objective
+function is constructed. For example, suppose it is desired to fit a
+set of data <img class="math" src="../_images/math/5aade83a7198997608bbbc1712190497ad49848c.png" alt="\left\{\mathbf{x}_{i}, \mathbf{y}_{i}\right\}"/>
+to a known model,
+<img class="math" src="../_images/math/7361e2ed4d8450a1c9b11218c1fc53bcbd1e6421.png" alt="\mathbf{y}=\mathbf{f}\left(\mathbf{x},\mathbf{p}\right)"/>
+where <img class="math" src="../_images/math/6c2e7ea2d68c5a9cde8e9ff9db0e3aad0ae52a13.png" alt="\mathbf{p}"/> is a vector of parameters for the model that
+need to be found. A common method for determining which parameter
+vector gives the best fit to the data is to minimize the sum of squares
+of the residuals. The residual is usually defined for each observed
+data-point as</p>
+<div class="math">
+<p><img src="../_images/math/43b37665154d36c311d7ed0e37d4839ee60c880c.png" alt="\[ e_{i}\left(\mathbf{p},\mathbf{y}_{i},\mathbf{x}_{i}\right)=\left\Vert \mathbf{y}_{i}-\mathbf{f}\left(\mathbf{x}_{i},\mathbf{p}\right)\right\Vert .\]"/></p>
+</div><p>An objective function to pass to any of the previous minization
+algorithms to obtain a least-squares fit is.</p>
+<div class="math">
+<p><img src="../_images/math/05ac30028a2f2b69d7f7d5fc5ce7444577a7d809.png" alt="\[ J\left(\mathbf{p}\right)=\sum_{i=0}^{N-1}e_{i}^{2}\left(\mathbf{p}\right).\]"/></p>
+</div><p>The <code class="xref py py-obj docutils literal"><span class="pre">leastsq</span></code> algorithm performs this squaring and summing of the
+residuals automatically. It takes as an input argument the vector
+function <img class="math" src="../_images/math/dc3428dbb9347f5e2fc34f04c8e692bd83c91949.png" alt="\mathbf{e}\left(\mathbf{p}\right)"/> and returns the
+value of <img class="math" src="../_images/math/6c2e7ea2d68c5a9cde8e9ff9db0e3aad0ae52a13.png" alt="\mathbf{p}"/> which minimizes
+<img class="math" src="../_images/math/fd74457728c32cb58b94797c0685566146a07cb1.png" alt="J\left(\mathbf{p}\right)=\mathbf{e}^{T}\mathbf{e}"/>
+directly. The user is also encouraged to provide the Jacobian matrix
+of the function (with derivatives down the columns or across the
+rows). If the Jacobian is not provided, it is estimated.</p>
+<p>An example should clarify the usage. Suppose it is believed some
+measured data follow a sinusoidal pattern</p>
+<div class="math">
+<p><img src="../_images/math/9f8850e93004dbbdb28d75b77fff1bc852cafa89.png" alt="\[ y_{i}=A\sin\left(2\pi kx_{i}+\theta\right)\]"/></p>
+</div><p>where the parameters <img class="math" src="../_images/math/9658772656bdaed40c73f3f663d843125b9dde48.png" alt="A,"/> <img class="math" src="../_images/math/0b7c1e16a3a8a849bb8ffdcdbf86f65fd1f30438.png" alt="k"/> , and <img class="math" src="../_images/math/3be04d4207434584251f6921820c24ac9fa8c6f1.png" alt="\theta"/> are unknown. The residual vector is</p>
+<div class="math">
+<p><img src="../_images/math/d2272506c40c664a942e8f72c9a943cada882efe.png" alt="\[ e_{i}=\left|y_{i}-A\sin\left(2\pi kx_{i}+\theta\right)\right|.\]"/></p>
+</div><p>By defining a function to compute the residuals and (selecting an
+appropriate starting position), the least-squares fit routine can be
+used to find the best-fit parameters <img class="math" src="../_images/math/50bd19832f69be898605df2b0e73c2229379f188.png" alt="\hat{A},\,\hat{k},\,\hat{\theta}"/>.
+This is shown in the following example:</p>
+</div>
+<div class="section" id="univariate-function-minimizers-minimize-scalar">
+<h2>Univariate function minimizers (<code class="xref py py-func docutils literal"><span class="pre">minimize_scalar()</span></code>)<a class="headerlink" href="#univariate-function-minimizers-minimize-scalar" title="Permalink to this headline">¶</a></h2>
+<p>Often only the minimum of an univariate function (i.e. a function that
+takes a scalar as input) is needed. In these circumstances, other
+optimization techniques have been developed that can work faster. These are
+accessible from the <code class="xref py py-func docutils literal"><span class="pre">minimize_scalar()</span></code> function which proposes several
+algorithms.</p>
+<div class="section" id="unconstrained-minimization-method-brent">
+<h3>Unconstrained minimization (<code class="docutils literal"><span class="pre">method='brent'</span></code>)<a class="headerlink" href="#unconstrained-minimization-method-brent" title="Permalink to this headline">¶</a></h3>
+<p>There are actually two methods that can be used to minimize an univariate
+function: <cite>brent</cite> and <cite>golden</cite>, but <cite>golden</cite> is included only for academic
+purposes and should rarely be used. These can be respectively selected
+through the <cite>method</cite> parameter in <code class="xref py py-func docutils literal"><span class="pre">minimize_scalar()</span></code>. The <cite>brent</cite>
+method uses Brent’s algorithm for locating a minimum. Optimally a bracket
+(the <cite>bs</cite> parameter) should be given which contains the minimum desired. A
+bracket is a triple <img class="math" src="../_images/math/5d0d58c53088b09d85d432ed0cc24082b9834755.png" alt="\left( a, b, c \right)"/> such that <img class="math" src="../_images/math/35d909604b2a5f48ff3127adc02766592556bf04.png" alt="f
+\left( a \right) &gt; f \left( b \right) &lt; f \left( c \right)"/> and <img class="math" src="../_images/math/d08e9da356f678efff57c5f843da1d00ea464608.png" alt="a &lt;
+b &lt; c"/> . If this is not given, then alternatively two starting points can
+be chosen and a bracket will be found from these points using a simple
+marching algorithm. If these two starting points are not provided <cite>0</cite> and
+<cite>1</cite> will be used (this may not be the right choice for your function and
+result in an unexpected minimum being returned).</p>
+<p>Here is an example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize_scalar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize_scalar</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;brent&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bounded-minimization-method-bounded">
+<h3>Bounded minimization (<code class="docutils literal"><span class="pre">method='bounded'</span></code>)<a class="headerlink" href="#bounded-minimization-method-bounded" title="Permalink to this headline">¶</a></h3>
+<p>Very often, there are constraints that can be placed on the solution space
+before minimization occurs. The <cite>bounded</cite> method in <code class="xref py py-func docutils literal"><span class="pre">minimize_scalar()</span></code>
+is an example of a constrained minimization procedure that provides a
+rudimentary interval constraint for scalar functions. The interval
+constraint allows the minimization to occur only between two fixed
+endpoints, specified using the mandatory <cite>bs</cite> parameter.</p>
+<p>For example, to find the minimum of <img class="math" src="../_images/math/e6c1158d4c1c76f7a17046076cd527c1cfe7e829.png" alt="J_{1}\left( x \right)"/> near
+<img class="math" src="../_images/math/adc78be24673057dde40fc2d4236040215d4adb0.png" alt="x=5"/> , <code class="xref py py-func docutils literal"><span class="pre">minimize_scalar()</span></code> can be called using the interval
+<img class="math" src="../_images/math/355c708eb358aeaaa9fef10f9ca694964686ae16.png" alt="\left[ 4, 7 \right]"/> as a constraint. The result is
+<img class="math" src="../_images/math/a923afb5bf35940085525a0de6c4e2105ff53c09.png" alt="x_{\textrm{min}}=5.3314"/> :</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.special</span> <span class="k">import</span> <span class="n">j1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">res</span> <span class="o">=</span> <span class="n">minimize_scalar</span><span class="p">(</span><span class="n">j1</span><span class="p">,</span> <span class="n">bs</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;bounded&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+<span class="go">5.33144184241</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="root-finding">
+<h2>Root finding<a class="headerlink" href="#root-finding" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="scalar-functions">
+<h3>Scalar functions<a class="headerlink" href="#scalar-functions" title="Permalink to this headline">¶</a></h3>
+<p>If one has a single-variable equation, there are four different root
+finding algorithms that can be tried. Each of these algorithms requires the
+endpoints of an interval in which a root is expected (because the function
+changes signs). In general <code class="xref py py-obj docutils literal"><span class="pre">brentq</span></code> is the best choice, but the other
+methods may be useful in certain circumstances or for academic purposes.</p>
+</div>
+<div class="section" id="fixed-point-solving">
+<h3>Fixed-point solving<a class="headerlink" href="#fixed-point-solving" title="Permalink to this headline">¶</a></h3>
+<p>A problem closely related to finding the zeros of a function is the
+problem of finding a fixed-point of a function. A fixed point of a
+function is the point at which evaluation of the function returns the
+point: <img class="math" src="../_images/math/2e0b2f028592b50701288ca8571f9350a43477ca.png" alt="g\left(x\right)=x."/> Clearly the fixed point of <img class="math" src="../_images/math/307b3725cbb03398131f9ca542d79aff4933195f.png" alt="g"/>
+is the root of <img class="math" src="../_images/math/af68576b55f66a1aed451c9fb92e5fcba03f67cc.png" alt="f\left(x\right)=g\left(x\right)-x."/>
+Equivalently, the root of <img class="math" src="../_images/math/875eb40014526135383caa89fd500ae40a835f56.png" alt="f"/> is the fixed_point of
+<img class="math" src="../_images/math/34800ef093e5d48dcb047c6545732f86dcc0eb33.png" alt="g\left(x\right)=f\left(x\right)+x."/> The routine
+<code class="xref py py-obj docutils literal"><span class="pre">fixed_point</span></code> provides a simple iterative method using Aitkens
+sequence acceleration to estimate the fixed point of <img class="math" src="../_images/math/307b3725cbb03398131f9ca542d79aff4933195f.png" alt="g"/> given a
+starting point.</p>
+</div>
+<div class="section" id="sets-of-equations">
+<h3>Sets of equations<a class="headerlink" href="#sets-of-equations" title="Permalink to this headline">¶</a></h3>
+<p>Finding a root of a set of non-linear equations can be achieve using the
+<code class="xref py py-func docutils literal"><span class="pre">root()</span></code> function. Several methods are available, amongst which <code class="docutils literal"><span class="pre">hybr</span></code>
+(the default) and <code class="docutils literal"><span class="pre">lm</span></code> which respectively use the hybrid method of Powell
+and the Levenberg-Marquardt method from MINPACK.</p>
+<p>The following example considers the single-variable transcendental
+equation</p>
+<div class="math">
+<p><img src="../_images/math/9a7ded29663f339b65d4699427ccc3481689f672.png" alt="\[ x+2\cos\left(x\right)=0,\]"/></p>
+</div><p>a root of which can be found as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">root</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sol</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sol</span><span class="o">.</span><span class="n">x</span>
+<span class="go">array([-1.02986653])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sol</span><span class="o">.</span><span class="n">fun</span>
+<span class="go">array([ -6.66133815e-16])</span>
+</pre></div>
+</div>
+<p>Consider now a set of non-linear equations</p>
+<div class="math">
+<p><img src="../_images/math/07bc5984b2b11a41383245d62abb6c11844b97a2.png" alt="\begin{eqnarray*}
+ x_{0}\cos\left(x_{1}\right) &amp; = &amp; 4,\\
+ x_{0}x_{1}-x_{1} &amp; = &amp; 5.
+ \end{eqnarray*}"/></p>
+</div><p>We define the objective function so that it also returns the Jacobian and
+indicate this by setting the <code class="docutils literal"><span class="pre">jac</span></code> parameter to <code class="docutils literal"><span class="pre">True</span></code>. Also, the
+Levenberg-Marquardt solver is used here.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">func2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span>
+<span class="gp">... </span>         <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">5</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="n">df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+<span class="gp">... </span>                   <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">df</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sol</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="n">func2</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">jac</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sol</span><span class="o">.</span><span class="n">x</span>
+<span class="go">array([ 6.50409711,  0.90841421])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="root-finding-for-large-problems">
+<h3>Root finding for large problems<a class="headerlink" href="#root-finding-for-large-problems" title="Permalink to this headline">¶</a></h3>
+<p>Methods <code class="docutils literal"><span class="pre">hybr</span></code> and <code class="docutils literal"><span class="pre">lm</span></code> in <code class="xref py py-func docutils literal"><span class="pre">root()</span></code> cannot deal with a very large
+number of variables (<em>N</em>), as they need to calculate and invert a dense <em>N
+x N</em> Jacobian matrix on every Newton step. This becomes rather inefficient
+when <em>N</em> grows.</p>
+<p>Consider for instance the following problem: we need to solve the
+following integrodifferential equation on the square
+<img class="math" src="../_images/math/9ad5ac07b1e9afa997294b017760fe6fc35c569c.png" alt="[0,1]\times[0,1]"/>:</p>
+<div class="math">
+<p><img src="../_images/math/e323e6cbcf8253d17357c79579485a666d759196.png" alt="(\partial_x^2 + \partial_y^2) P + 5 \left(\int_0^1\int_0^1\cosh(P)\,dx\,dy\right)^2 = 0"/></p>
+</div><p>with the boundary condition <img class="math" src="../_images/math/108d4a04d59681002c26cba004fae85e7ab31d9d.png" alt="P(x,1) = 1"/> on the upper edge and
+<img class="math" src="../_images/math/c9261671369425fefd9f29cf951ac739a88e5103.png" alt="P=0"/> elsewhere on the boundary of the square. This can be done
+by approximating the continuous function <em>P</em> by its values on a grid,
+<img class="math" src="../_images/math/86e0665f852c8fe0394510c37c5b174a28b2654e.png" alt="P_{n,m}\approx{}P(n h, m h)"/>, with a small grid spacing
+<em>h</em>. The derivatives and integrals can then be approximated; for
+instance <img class="math" src="../_images/math/1d8c76a56cb0dc5f1ca5ebe9320a003343430055.png" alt="\partial_x^2 P(x,y)\approx{}(P(x+h,y) - 2 P(x,y) +
+P(x-h,y))/h^2"/>. The problem is then equivalent to finding the root of
+some function <code class="docutils literal"><span class="pre">residual(P)</span></code>, where <code class="docutils literal"><span class="pre">P</span></code> is a vector of length
+<img class="math" src="../_images/math/793f7cfff86021488f0e35895c579f92dc0f6117.png" alt="N_x N_y"/>.</p>
+<p>Now, because <img class="math" src="../_images/math/793f7cfff86021488f0e35895c579f92dc0f6117.png" alt="N_x N_y"/> can be large, methods <code class="docutils literal"><span class="pre">hybr</span></code> or <code class="docutils literal"><span class="pre">lm</span></code> in
+<code class="xref py py-func docutils literal"><span class="pre">root()</span></code> will take a long time to solve this problem. The solution can
+however be found using one of the large-scale solvers, for example
+<code class="docutils literal"><span class="pre">krylov</span></code>, <code class="docutils literal"><span class="pre">broyden2</span></code>, or <code class="docutils literal"><span class="pre">anderson</span></code>. These use what is known as the
+inexact Newton method, which instead of computing the Jacobian matrix
+exactly, forms an approximation for it.</p>
+<p>The problem we have can now be solved as follows:</p>
+</div>
+<div class="section" id="still-too-slow-preconditioning">
+<h3>Still too slow? Preconditioning.<a class="headerlink" href="#still-too-slow-preconditioning" title="Permalink to this headline">¶</a></h3>
+<p>When looking for the zero of the functions <img class="math" src="../_images/math/9e9fc0e4d714f1213ac74e72ff2e0714cf1e4156.png" alt="f_i({\bf x}) = 0"/>,
+<em>i = 1, 2, …, N</em>, the <code class="docutils literal"><span class="pre">krylov</span></code> solver spends most of its
+time inverting the Jacobian matrix,</p>
+<div class="math">
+<p><img src="../_images/math/0d05791529ec0c8f1285b4ae0c1ad0261975554c.png" alt="J_{ij} = \frac{\partial f_i}{\partial x_j} ."/></p>
+</div><p>If you have an approximation for the inverse matrix
+<img class="math" src="../_images/math/aa3dfdd950cd7e82f9b86459bc5121c41c08f58b.png" alt="M\approx{}J^{-1}"/>, you can use it for <em>preconditioning</em> the
+linear inversion problem. The idea is that instead of solving
+<img class="math" src="../_images/math/0c75e99747d080650aa73d10eb231cfe23250f50.png" alt="J{\bf s}={\bf y}"/> one solves <img class="math" src="../_images/math/94ce3ba6f23c8d34ba30846de395656e583e0405.png" alt="MJ{\bf s}=M{\bf y}"/>: since
+matrix <img class="math" src="../_images/math/d1feaf1b06261b4fc7e2c89bc7dd82b2e14c0cf7.png" alt="MJ"/> is “closer” to the identity matrix than <img class="math" src="../_images/math/ca54d3a4a8a221da5f7a13a28ec6a45b4abcc5a5.png" alt="J"/>
+is, the equation should be easier for the Krylov method to deal with.</p>
+<p>The matrix <em>M</em> can be passed to <code class="xref py py-func docutils literal"><span class="pre">root()</span></code> with method <code class="docutils literal"><span class="pre">krylov</span></code> as an
+option <code class="docutils literal"><span class="pre">options['jac_options']['inner_M']</span></code>. It can be a (sparse) matrix
+or a <code class="xref py py-obj docutils literal"><span class="pre">scipy.sparse.linalg.LinearOperator</span></code> instance.</p>
+<p>For the problem in the previous section, we note that the function to
+solve consists of two parts: the first one is application of the
+Laplace operator, <img class="math" src="../_images/math/8a9671c5408ba6ce1a3b543b91f04346ee25cecc.png" alt="[\partial_x^2 + \partial_y^2] P"/>, and the second
+is the integral. We can actually easily compute the Jacobian corresponding
+to the Laplace operator part: we know that in one dimension</p>
+<div class="math">
+<p><img src="../_images/math/6af120ceb569e167e142505a257240d606f3960c.png" alt="\partial_x^2 \approx \frac{1}{h_x^2} \begin{pmatrix}
+-2 &amp; 1 &amp; 0 &amp; 0 \cdots \\
+1 &amp; -2 &amp; 1 &amp; 0 \cdots \\
+0 &amp; 1 &amp; -2 &amp; 1 \cdots \\
+\ldots
+\end{pmatrix}
+= h_x^{-2} L"/></p>
+</div><p>so that the whole 2-D operator is represented by</p>
+<div class="math">
+<p><img src="../_images/math/d099c108e65df08a3f414c6104d504dcb915a3ad.png" alt="J_1 = \partial_x^2 + \partial_y^2
+\simeq
+h_x^{-2} L \otimes I + h_y^{-2} I \otimes L"/></p>
+</div><p>The matrix <img class="math" src="../_images/math/4812b76296cdbb4261e700cb5324c6eb326fbb8c.png" alt="J_2"/> of the Jacobian corresponding to the integral
+is more difficult to calculate, and since <em>all</em> of it entries are
+nonzero, it will be difficult to invert. <img class="math" src="../_images/math/d6519c2bb49e7a7940ca54798004caf8a0b274ef.png" alt="J_1"/> on the other hand
+is a relatively simple matrix, and can be inverted by
+<code class="xref py py-obj docutils literal"><span class="pre">scipy.sparse.linalg.splu</span></code> (or the inverse can be approximated by
+<code class="xref py py-obj docutils literal"><span class="pre">scipy.sparse.linalg.spilu</span></code>). So we are content to take
+<img class="math" src="../_images/math/8a476e3eb02f799fff707992cf9043ab1075c468.png" alt="M\approx{}J_1^{-1}"/> and hope for the best.</p>
+<p>In the example below, we use the preconditioner <img class="math" src="../_images/math/ff6ae20dba80474e1c631a4cf77163d1f318c4a9.png" alt="M=J_1^{-1}"/>.</p>
+<p>Resulting run, first without preconditioning:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">803.614</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.000257947</span>
+<span class="mi">1</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">345.912</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.166755</span>
+<span class="mi">2</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">139.159</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.145657</span>
+<span class="mi">3</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">27.3682</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.0348109</span>
+<span class="mi">4</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">1.03303</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.00128227</span>
+<span class="mi">5</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">0.0406634</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.00139451</span>
+<span class="mi">6</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">0.00344341</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.00645373</span>
+<span class="mi">7</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">0.000153671</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.00179246</span>
+<span class="mi">8</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">6.7424e-06</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.00173256</span>
+<span class="n">Residual</span> <span class="mf">3.57078908664e-07</span>
+<span class="n">Evaluations</span> <span class="mi">317</span>
+</pre></div>
+</div>
+<p>and then with preconditioning:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">136.993</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">7.49599e-06</span>
+<span class="mi">1</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">4.80983</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.00110945</span>
+<span class="mi">2</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">0.195942</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">0.00149362</span>
+<span class="mi">3</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">0.000563597</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">7.44604e-06</span>
+<span class="mi">4</span><span class="p">:</span>  <span class="o">|</span><span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">|</span> <span class="o">=</span> <span class="mf">1.00698e-09</span><span class="p">;</span> <span class="n">step</span> <span class="mi">1</span><span class="p">;</span> <span class="n">tol</span> <span class="mf">2.87308e-12</span>
+<span class="n">Residual</span> <span class="mf">9.29603061195e-11</span>
+<span class="n">Evaluations</span> <span class="mi">77</span>
+</pre></div>
+</div>
+<p>Using a preconditioner reduced the number of evaluations of the
+<code class="docutils literal"><span class="pre">residual</span></code> function by a factor of <em>4</em>. For problems where the
+residual is expensive to compute, good preconditioning can be crucial
+— it can even decide whether the problem is solvable in practice or
+not.</p>
+<p>Preconditioning is an art, science, and industry. Here, we were lucky
+in making a simple choice that worked reasonably well, but there is a
+lot more depth to this topic than is shown here.</p>
+<p class="rubric">References</p>
+<p>Some further reading and related software:</p>
+<table class="docutils citation" frame="void" id="kk" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[KK]</td><td>D.A. Knoll and D.E. Keyes, “Jacobian-free Newton-Krylov methods”,
+J. Comp. Phys. 193, 357 (2003).</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="pp" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[PP]</td><td>PETSc <a class="reference external" href="http://www.mcs.anl.gov/petsc/">http://www.mcs.anl.gov/petsc/</a> and its Python bindings
+<a class="reference external" href="http://code.google.com/p/petsc4py/">http://code.google.com/p/petsc4py/</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="amg" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[AMG]</td><td>PyAMG (algebraic multigrid preconditioners/solvers)
+<a class="reference external" href="http://code.google.com/p/pyamg/">http://code.google.com/p/pyamg/</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">The OpenEnsembles Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../finishing.html">Finishing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cooccurrence.html">Cooccurrence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../validation.html">Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clustering_algorithms.html">Clustering Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transforms.html">Transformations</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="../_sources/scipy-sphinx-theme-master/test_optimize.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
