@@ -11,7 +11,7 @@ OpenEnsembles
 	:maxdepth: 2
 	:caption: Contents:
 
-	openensembles
+	OpenEnsembles
 	Supporting
 	Examples/Examples
 	Dependencies
