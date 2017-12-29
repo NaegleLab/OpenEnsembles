@@ -160,7 +160,7 @@ class clustering_algorithms:
         params['n_jobs']=1
 
         if not self.K:
-            raise ValueError('kmeans clustering requires an argument K=<intiger value>')
+            raise ValueError('spectral clustering requires an argument K=<intiger value>')
 
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'spectral')
@@ -205,7 +205,7 @@ class clustering_algorithms:
         params['affinity'] = params['distance']
 
         if not self.K:
-            raise ValueError('kmeans clustering requires an argument K=<intiger value>')
+            raise ValueError('agglomerative clustering requires an argument K=<intiger value>')
 
         solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
             connectivity=params['connectivity'],
@@ -321,6 +321,9 @@ class clustering_algorithms:
         params['compute_labels'] = True
         params['copy'] = True
         
+        if not self.K:
+            raise ValueError('Birch clustering requires an argument K=<intiger value>')
+
         params = returnParams(self.var_params, params, 'Birch')
         d = returnDistanceMatrix(self.data, params['distance'])
 

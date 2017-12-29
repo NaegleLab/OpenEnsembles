@@ -332,7 +332,8 @@ class cluster:
         self.dataObj = dataObj 
         self.labels= {} #key here is the name like HC_parent for hierarchically clustered parent
         self.data_source = {} # keep track of the key to the data source in object used
-        self.params = {}
+        self.params = {} # keep track of the parameters used (includes random seed)
+        self.algorithms = {} #keep track of the algorithm used
         self.clusterNumbers = {}
 
     def algorithms_available(self):
@@ -348,7 +349,7 @@ class cluster:
         """
         This runs clustering algorithms on the data matrix defined by
         source_name with parameters that are variable for each algorithm. Note that K is 
-        required for most algorithms and is given a default of K=2. 
+        required for most algorithms. 
         
         Parameters
         ----------
@@ -359,7 +360,8 @@ class cluster:
         output_name: string
             this is the dict key for interacting with the results of this clustering solution in any of the cluster class dictionary attributes
         K: int
-            number of clusters to create (ignored for algorithms that define K during clustering). Deafault is K=2
+            number of clusters to create (ignored for algorithms that define K during clustering). The var_params gets K after, either the parameter passed, or the number of clusters produced
+            if the K was not passed.
         Require_Unique: bool
             If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
             solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False
@@ -425,14 +427,18 @@ class cluster:
         # CHECK that K is as requested 
         uniqueClusters = np.unique(c.out)
         if K: #check if K was overwritten
+            c.var_params['K'] = K
             if len(uniqueClusters) != K:
                 warnings.warn("Number of unique clusters %d returned does not match number requested %d for solution: %s"%(len(uniqueClusters), K, output_name), UserWarning)
+        else:
+            c.var_params['K'] = len(uniqueClusters)
 
 
         self.labels[output_name] = c.out
         self.data_source[output_name] = source_name
         self.params[output_name] = c.var_params
         self.clusterNumbers[output_name] = uniqueClusters
+        self.algorithms[output_name] = algorithm
 
     def co_occurrence_matrix(self, data_source_name='parent'):
         """
@@ -512,6 +518,7 @@ class cluster:
         c.data_source[name] = 'parent'
         c.clusterNumbers[name] = np.unique(c.labels[name])
         c.params[name] = params
+        c.algorithms[name] = 'mixture_model'
         return c
 
     def finish_co_occ_linkage(self, threshold, linkage='average'):
@@ -560,6 +567,7 @@ class cluster:
         c.params[name] = params
         c.data_source[name] = 'parent'
         c.clusterNumbers[name] = np.unique(c.labels[name])
+        c.algorithms[name] = 'co_occ_linkage'
         return c
 
     def finish_graph_closure(self, threshold, clique_size = 3):
@@ -597,6 +605,7 @@ class cluster:
         c.params[name] = params
         c.data_source[name] = 'parent'
         c.clusterNumbers[name] = np.unique(c.labels[name])
+        c.algorithms[name] = 'graph_closure'
         return c
 
     def finish_majority_vote(self, threshold=0.5):
@@ -634,6 +643,7 @@ class cluster:
         c.params[name] = params
         c.data_source[name] = 'parent'
         c.clusterNumbers[name] = np.unique(c.labels[name])
+        c.algorithms[name] = 'majority_vote'
         return c
 
 
@@ -664,6 +674,78 @@ class cluster:
         """
         indexes = np.where(self.labels[solution_name]==clusterNum)
         return indexes
+
+    
+    def search_field(self, field, value):
+        """
+        Find solutions that were made with 
+
+        Parameters
+        ----------
+        field: string {'algorithm', 'data_source', 'K', 'linkage', 'distance', 'clusterNumber', etc.}
+            The name of field, either in algorithm used, data_source selected, or a parameter passed to search for an exact value
+        value: string or int
+            The value to search for (where ints are passed for K (desired clusters) or clusterNumber (actual returned clusters))
+
+        Returns
+        -------
+        names: list of strings
+            The names of dictionary entries in clustering solutions matching field, value criteria. Returns empty list if nothing was found
+
+        Raises
+        ------
+        ValueError
+            If the field was not recognized.
+
+        Examples
+        --------
+        Find all clustering solutions where K=2 was used
+        >>> names = c.search_field('K', 2)
+
+        Find all clustering solutions where the actual cluster numbers were 2
+        >>> names = c.search_field('clusterNumber', 2)
+
+        Find all solutions clustered using kmeans
+        >>> names = c.search_field('algorithm', 'kmeans')
+
+        Find all clustering solutions where ward linkage was used
+        >>> names = c.search_field('linkage', 'ward')
+        
+        """
+        names = []
+
+        if field=='data_source':
+            for name in list(self.data_source.keys()):
+                if self.data_source[name]==value:
+                    names.append(name)
+
+
+
+        elif field == 'algorithm':
+            for name in list(self.algorithms.keys()):
+                if self.algorithms[name]==value:
+                    names.append(name)
+
+
+        elif field=='clusterNumber':
+            for name in list(self.clusterNumbers.keys()):
+                clusterNumber = len(self.clusterNumbers[name])
+                if clusterNumber == value:
+                    names.append(name)
+
+
+        else: #otherwise, we're searching through the parameters
+            paramFound = False
+            for name in self.params.keys():
+                params = self.params[name]
+                if field in params.keys():
+                    paramFound = True
+                    if params[field] == value:
+                        names.append(name)
+            if not paramFound:
+                raise ValueError("Field %s was not found in parameters of an clustering solutions"%(field))
+
+        return names
 
     def slice(self, names):
         """
@@ -707,6 +789,7 @@ class cluster:
             c.data_source[name] = self.data_source[name]
             c.params[name] = self.params[name]
             c.clusterNumbers[name] = self.clusterNumbers[name]
+            c.algorithms[name] = self.algorithms[name]
         return c
 
 

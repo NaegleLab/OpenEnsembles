@@ -169,6 +169,43 @@ class TestFunctions(unittest.TestCase):
         names = ['kmeans_2', 'gooblygook']
         self.assertRaises(ValueError, lambda: c.slice(names))
 
+    def test_cluster_search_field(self):
+        self.data.transform('parent', 'zscore', 'zscore', axis=0)
+        c = oe.cluster(self.data)
+
+        c.cluster('parent', 'kmeans', 'parent_kmeans_2', K=2)
+        c.cluster('zscore', 'kmeans', 'kmeans_3', K=3)
+        c.cluster('zscore', 'agglomerative', 'zscore_agglom_ward', K=2, linkage='ward')
+        c.cluster('zscore', 'agglomerative', 'zscore_agglom_complete', K=2, linkage='complete')
+        self.assertEqual(4, len(c.labels))
+        
+        #test for algorithm
+        names = c.search_field('algorithm', 'kmeans')
+        self.assertEqual(2, len(names))
+
+        #test for data_source
+        names = c.search_field('data_source', 'parent')
+        self.assertEqual(1, len(names))
+        self.assertEqual('parent_kmeans_2', names[0])
+
+        #test for cluster number
+        names = c.search_field('clusterNumber', 3)
+        self.assertEqual(1, len(names))
+        self.assertEqual('kmeans_3', names[0])
+
+        #test for K
+        names = c.search_field('K', 2)
+        self.assertEqual(3, len(names))
+
+        #test for linkage
+        names = c.search_field('linkage', 'ward')
+        self.assertEqual(1, len(names))
+        self.assertEqual('zscore_agglom_ward', names[0])
+
+
+        #test for no parameter of that type found
+        self.assertRaises(ValueError, lambda: c.search_field('gobbly', 'gook'))
+
 
 
     def test_clustering_namingTestRequireNotUnique(self):
