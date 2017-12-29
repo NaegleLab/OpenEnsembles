@@ -335,7 +335,6 @@ class cluster:
         self.params = {}
         self.clusterNumbers = {}
 
-
     def algorithms_available(self):
         """ 
         Call this to list all algorithms currently available in algorithms.py
@@ -609,11 +608,20 @@ class cluster:
         greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster 
         a majority of the time. Outliers will get their own cluster. 
 
-        :param threshold: the threshold, or fraction of times objects co-cluster to consider a 'majority'. Default is 0.5 (50% of the time)
-        :type threshold: float
+        Parameters
+        ----------
+        threshold: float
+            the threshold, or fraction of times objects co-cluster to consider a 'majority'. Default is 0.5 (50% of the time)
 
-        :returns:
+        Returns
+        -------
+        c: openensembles cluster object
             New cluster object with final solution and name 'majority_vote'
+
+        Examples
+        --------
+        c_MV = c.majority_vote(threshold=0.7)
+        labels = c_MV.labels['majority_vote']
         """
         params = {}
         coMatObj = self.co_occurrence_matrix('parent')
@@ -631,17 +639,69 @@ class cluster:
 
     def get_cluster_members(self, solution_name, clusterNum):
         """ Return the dataframe row indexes of a cluster number in solution named by solution_name 
+        
+        Parameters
+        ----------
+        solution_name: string
+            the name of the clustering solution of interest
+        clusterNum: int
+            The cluster number of interest
 
-        :param solution_name: the name of the clustering solution of interest
-        :type solution_name: string
-        :param clusterNum: The cluster number of interest
-        :type clusterNum: int
+        Returns
+        -------
+        indexes: list
+            a list of indexes of objects with clusterNum in solution_name
 
-        :returns:
-            indexes - a list of indexes of objects with clusterNum in solution_name
+        Examples
+        --------
+        name = 'zscore_agglomerative_ward'
+        c.cluster('zscore', 'agglomerative', name, K=4, linkage='ward')
+        labels = {}
+        for i in c.clusterNumbers[name]:
+            labels{i} = c.get_cluster_members(name, i)
         """
         indexes = np.where(self.labels[solution_name]==clusterNum)
         return indexes
+
+    def slice(self, names):
+        """
+        Returns a new cluster object containing a slice indicated by the list of names given (dictionary keys shared amongst labels, params, etc.)
+
+        Parameters
+        ----------
+        names: list
+            A list of strings matching the names to keep in the new slice
+
+        Returns
+        --------
+        c: an openensembles clustering object
+            A oe.cluster object that contains only those names passed in
+
+        Examples
+        --------
+        names = c.search_field('algorithm', 'agglomerative') #return all solutions with agglomerative
+        cNew = c.slice(names)
+
+        names = c.search_field('K', 2) #return all solution names that used K=2
+        cNew = c.slice(names)
+
+        Raises
+        ------
+        ValueError
+            If a name in the list of names does not exist in cluster object
+
+
+        """
+        c = oe.cluster(self.dataObj)
+        names_existing = list(self.labels.keys())
+        for name in names:
+            if name not in names_existing:
+                raise ValueError("ERROR: the source you requested for slicing does not exist in cluster object %s"%(name))
+            c.labels[name] = self.labels[name]
+            c.data_source[name] = self.data_source[name]
+            c.params[name] = self.params[name]
+            c.clusterNumbers[name] = self.clusterNumbers[name]
+        return c
 
 
 

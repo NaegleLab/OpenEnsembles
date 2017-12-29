@@ -152,6 +152,24 @@ class TestFunctions(unittest.TestCase):
         c.cluster('parent', 'kmeans', 'kmeans', Require_Unique=1, K=2)
         self.assertEqual(1, len(c.labels))
 
+    def test_cluster_slice(self):
+        c = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans_0', K=2)
+        c.cluster('parent', 'kmeans', 'kmeans_1', K=2)
+        c.cluster('parent', 'kmeans', 'kmeans_2', K=2)
+        self.assertEqual(3, len(c.labels))
+
+        names = ['kmeans_1', 'kmeans_2']
+        cNew = c.slice(names)
+        self.assertEqual(2, len(cNew.labels))
+        self.assertEqual(2, len(cNew.params))
+        self.assertEqual(2, len(cNew.clusterNumbers))
+        self.assertEqual(2, len(cNew.data_source))
+
+        names = ['kmeans_2', 'gooblygook']
+        self.assertRaises(ValueError, lambda: c.slice(names))
+
+
 
     def test_clustering_namingTestRequireNotUnique(self):
         c = oe.cluster(self.data)
