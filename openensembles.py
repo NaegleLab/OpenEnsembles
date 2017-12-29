@@ -620,8 +620,8 @@ class cluster:
 
         Examples
         --------
-        c_MV = c.majority_vote(threshold=0.7)
-        labels = c_MV.labels['majority_vote']
+        >>> c_MV = c.majority_vote(threshold=0.7)
+        >>> labels = c_MV.labels['majority_vote']
         """
         params = {}
         coMatObj = self.co_occurrence_matrix('parent')
@@ -654,11 +654,13 @@ class cluster:
 
         Examples
         --------
-        name = 'zscore_agglomerative_ward'
-        c.cluster('zscore', 'agglomerative', name, K=4, linkage='ward')
-        labels = {}
-        for i in c.clusterNumbers[name]:
-            labels{i} = c.get_cluster_members(name, i)
+        Get a list of objects that belong to each cluster type in a solution
+
+        >>> name = 'zscore_agglomerative_ward'
+        >>> c.cluster('zscore', 'agglomerative', name, K=4, linkage='ward')
+        >>> labels = {}
+        >>> for i in c.clusterNumbers[name]:
+        >>>     labels{i} = c.get_cluster_members(name, i)
         """
         indexes = np.where(self.labels[solution_name]==clusterNum)
         return indexes
@@ -679,11 +681,15 @@ class cluster:
 
         Examples
         --------
-        names = c.search_field('algorithm', 'agglomerative') #return all solutions with agglomerative
-        cNew = c.slice(names)
+        Get only the solutions made by agglomerative clustering
 
-        names = c.search_field('K', 2) #return all solution names that used K=2
-        cNew = c.slice(names)
+        >>> names = c.search_field('algorithm', 'agglomerative') #return all solutions with agglomerative
+        >>> cNew = c.slice(names)
+
+        Get only the solutions that were made with K=2 calls
+
+        >>> names = c.search_field('K', 2) #return all solution names that used K=2
+        >>> cNew = c.slice(names)
 
         Raises
         ------
