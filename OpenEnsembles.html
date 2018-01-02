@@ -290,6 +290,35 @@ When clustering is performed, the dictionaries of all attributes are extended us
 </table>
 <p class="rubric">Methods</p>
 <dl class="method">
+<dt id="openensembles.cluster.MI">
+<code class="descname">MI</code><span class="sig-paren">(</span><em>MI_type='standard'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.MI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.MI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the mutual information between all pairs of clustering solutions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>MI_type: string {‘standard’, ‘adjusted’, ‘normalized’}</strong></p>
+<blockquote>
+<div><p>The sklearn.metric mutual information to use, either mutual_info, adjusted_mutual_info, or normalized_mutual_info</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">MI class</p>
+<blockquote class="last">
+<div><p>mutualinformation.MI class, where MI.matrix is the claculated matrix of pairwise mutual information. The diagonal is not guaranteed to be 1 (it depends on the type of MI calculated)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">MI</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;adjusted&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MI</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="openensembles.cluster.algorithms_available">
 <code class="descname">algorithms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.algorithms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.algorithms_available" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call this to list all algorithms currently available in algorithms.py</p>
@@ -300,7 +329,7 @@ When clustering is performed, the dictionaries of all attributes are extended us
 <code class="descname">cluster</code><span class="sig-paren">(</span><em>source_name</em>, <em>algorithm</em>, <em>output_name</em>, <em>K=None</em>, <em>Require_Unique=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>This runs clustering algorithms on the data matrix defined by
 source_name with parameters that are variable for each algorithm. Note that K is 
-required for most algorithms and is given a default of K=2.</p>
+required for most algorithms.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -319,7 +348,8 @@ required for most algorithms and is given a default of K=2.</p>
 </div></blockquote>
 <p><strong>K: int</strong></p>
 <blockquote>
-<div><p>number of clusters to create (ignored for algorithms that define K during clustering). Deafault is K=2</p>
+<div><p>number of clusters to create (ignored for algorithms that define K during clustering). The var_params gets K after, either the parameter passed, or the number of clusters produced
+if the K was not passed.</p>
 </div></blockquote>
 <p><strong>Require_Unique: bool</strong></p>
 <blockquote>
@@ -465,12 +495,25 @@ a majority of the time. Outliers will get their own cluster.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>threshold</strong> (<em>float</em>) – the threshold, or fraction of times objects co-cluster to consider a ‘majority’. Default is 0.5 (50% of the time)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>threshold: float</strong></p>
+<blockquote>
+<div><p>the threshold, or fraction of times objects co-cluster to consider a ‘majority’. Default is 0.5 (50% of the time)</p>
+</div></blockquote>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New cluster object with final solution and name ‘majority_vote’</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">c: openensembles cluster object</p>
+<blockquote class="last">
+<div><p>New cluster object with final solution and name ‘majority_vote’</p>
+</div></blockquote>
+</td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c_MV</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">majority_vote</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">c_MV</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;majority_vote&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -481,17 +524,33 @@ a majority of the time. Outliers will get their own cluster.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>solution_name</strong> (<em>string</em>) – the name of the clustering solution of interest</li>
-<li><strong>clusterNum</strong> (<em>int</em>) – The cluster number of interest</li>
-</ul>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>solution_name: string</strong></p>
+<blockquote>
+<div><p>the name of the clustering solution of interest</p>
+</div></blockquote>
+<p><strong>clusterNum: int</strong></p>
+<blockquote>
+<div><p>The cluster number of interest</p>
+</div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">indexes - a list of indexes of objects with clusterNum in solution_name</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">indexes: list</p>
+<blockquote class="last">
+<div><p>a list of indexes of objects with clusterNum in solution_name</p>
+</div></blockquote>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<p>Get a list of objects that belong to each cluster type in a solution</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zscore_agglomerative_ward&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">labels</span><span class="p">{</span><span class="n">i</span><span class="p">}</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_cluster_members</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -534,6 +593,90 @@ See finishing.mixture_model for more details.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cMM</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">mixture_model</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">cluster_labels</span><span class="o">=</span><span class="n">cMM</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;mixture_model&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.search_field">
+<code class="descname">search_field</code><span class="sig-paren">(</span><em>field</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.search_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.search_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find solutions that were made with</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>field: string {‘algorithm’, ‘data_source’, ‘K’, ‘linkage’, ‘distance’, ‘clusterNumber’, etc.}</strong></p>
+<blockquote>
+<div><p>The name of field, either in algorithm used, data_source selected, or a parameter passed to search for an exact value</p>
+</div></blockquote>
+<p><strong>value: string or int</strong></p>
+<blockquote>
+<div><p>The value to search for (where ints are passed for K (desired clusters) or clusterNumber (actual returned clusters))</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">names: list of strings</p>
+<blockquote>
+<div><p>The names of dictionary entries in clustering solutions matching field, value criteria. Returns empty list if nothing was found</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If the field was not recognized.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Find all clustering solutions where K=2 was used
+&gt;&gt;&gt; names = c.search_field(‘K’, 2)</p>
+<p>Find all clustering solutions where the actual cluster numbers were 2
+&gt;&gt;&gt; names = c.search_field(‘clusterNumber’, 2)</p>
+<p>Find all solutions clustered using kmeans
+&gt;&gt;&gt; names = c.search_field(‘algorithm’, ‘kmeans’)</p>
+<p>Find all clustering solutions where ward linkage was used
+&gt;&gt;&gt; names = c.search_field(‘linkage’, ‘ward’)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.slice">
+<code class="descname">slice</code><span class="sig-paren">(</span><em>names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new cluster object containing a slice indicated by the list of names given (dictionary keys shared amongst labels, params, etc.)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>names: list</strong></p>
+<blockquote>
+<div><p>A list of strings matching the names to keep in the new slice</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">c: an openensembles clustering object</p>
+<blockquote>
+<div><p>A oe.cluster object that contains only those names passed in</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If a name in the list of names does not exist in cluster object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Get only the solutions made by agglomerative clustering</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">search_field</span><span class="p">(</span><span class="s1">&#39;algorithm&#39;</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">)</span> <span class="c1">#return all solutions with agglomerative</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cNew</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Get only the solutions that were made with K=2 calls</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">search_field</span><span class="p">(</span><span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">#return all solution names that used K=2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cNew</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

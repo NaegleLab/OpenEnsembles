@@ -211,7 +211,7 @@ during scipy.cluster.hierarchy.linkage</p>
 
 <dl class="method">
 <dt id="cooccurrence.coMat.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>threshold='avg'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>threshold='avg'</em>, <em>linkage='average'</em>, <em>add_labels=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the co_occurrence matrix with a dendrogram and heatmap 
 By Default labels=True, set to false to suppress labels in graph
 By default label_vec equal to the index list of the dataObj dataframe. Otherwise, you can pass in an alternate naming scheme, 
@@ -226,14 +226,18 @@ vector length should be the same as</p>
 This is useful for identifying visually how to call .cut()
 Default is the average value in the co-occurrence matrix, which is updated to float when ‘avg’ is passed</p>
 </div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>labels: bool</strong></p>
+<p><strong>add_labels: bool</strong></p>
 <blockquote>
 <div><p>If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers</p>
 </div></blockquote>
-<p><strong>label_vec: list</strong></p>
+<p><strong>linkage: string</strong></p>
+<blockquote>
+<div><p>Linkage type to use for dendrogram. Default is average</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>label_vec: list</strong></p>
 <blockquote>
 <div><p>If you want to add labels, but not the same in co-occurrence matrix dataframe, then pass those here</p>
 </div></blockquote>
@@ -254,6 +258,42 @@ Default is the average value in the co-occurrence matrix, which is updated to fl
 </div>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="cooccurrence.plot_matrix_sorted">
+<code class="descclassname">cooccurrence.</code><code class="descname">plot_matrix_sorted</code><span class="sig-paren">(</span><em>matrix</em>, <em>label_vec</em>, <em>threshold</em>, <em>lnk1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#plot_matrix_sorted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.plot_matrix_sorted" title="Permalink to this definition">¶</a></dt>
+<dd><p>A heatmap plotting function, for both co-occurrence and mutual information</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>matrix: np.array</strong></p>
+<blockquote>
+<div><p>An array of values to plot as a heatmap</p>
+</div></blockquote>
+<p><strong>label_vec: list of strings</strong></p>
+<blockquote>
+<div><p>A label_vec to label the row-wise objects. Empty if labels not requested</p>
+</div></blockquote>
+<p><strong>threshold: float</strong></p>
+<blockquote>
+<div><p>Threshold to use for coloring of dendrogram</p>
+</div></blockquote>
+<p><strong>lnk1: linkage object</strong></p>
+<blockquote>
+<div><p>A pre-calcluated linkage object to use to sort.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">fig: matplotlib.pyplot figure</p>
+<blockquote class="last">
+<div><p>The figure handle</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
