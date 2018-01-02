@@ -30,12 +30,33 @@ import numpy as np
 import pylab
 import pandas as pd
 import scipy.cluster.hierarchy as sch
+import cooccurrence as co
+
 from scipy.spatial import distance as ssd
 
 
 class MI:
 	"""
 	A class that allows you to calculate a mutual information matrix comparing all clustering solutions
+	
+	Parameters
+	----------
+	cObj: an openensembles.cluster object
+	    The clustering object and all contained solutions of interest
+	MI_type: string {'standard', 'normalized', 'adjusted'}
+		The type of mutual information to use
+
+	Attributes
+	----------
+	matrix: pandas dataframe
+		A pandas dataframe with rows and index equal to the solution names in cObj.labels and entries with mutual information
+	MI_type: string
+		Stores the type of MI object was instantiated with
+
+	See Also
+	--------
+	openensembles.cluster.MI()
+
 
 
 	"""
@@ -68,6 +89,62 @@ class MI:
 
 		#self.matrix = pd.Dataframe
 		self.matrix = d
+
+	def plot(self, threshold=0, linkage='average', add_labels= True, **kwargs):#dist_thresh=self.avg_dist):
+		"""
+		Plot the mutual information matrix with a dendrogram and heatmap 
+		By Default labels=True, set to false to suppress labels in graph
+		By default label_vec equal to the index list of the solution. Otherwise, you can pass in an alternate naming scheme, 
+		vector length should be the same as matrix dimension length
+
+		Parameters
+		----------
+		threshold: float
+		    Use threshold to color the dendrogram
+		    This is useful for identifying visually how to call .cut()
+		add_labels: bool
+		    If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
+		linkage: string
+		    Linkage type to use for dendrogram. Default is average
+
+
+		Other Parameters
+		----------------
+		label_vec: list
+		    If you want to add labels, but not the same in mutual information matrix dataframe, then pass those here
+
+
+		Raises
+		------
+		    ValueError: 
+		        if label_vec in **kwargs is different size then number of objects
+
+		Examples
+		--------
+		Plot the adjusted Mutual Information, with no labels
+		>>> MI = c.MI(MI_type='adjusted')
+		>>> MI.plot(threshold=1, linkage='average', labels=False)
+
+
+		"""
+		if add_labels:
+		    if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
+		        label_vec = kwargs['label_vec']
+		        if len(label_vec) != len(self.matrix):
+		            raise ValueError("ERROR: the length of label vector does not equal the number of objects in the co_occurrence matrix")
+		    else:
+		        label_vec = self.matrix.index.values.tolist()
+		else: 
+		    label_vec = []
+
+		arr = 1 - self.matrix
+		lnk = sch.linkage(ssd.squareform(arr), method=linkage, metric='euclidean')
+
+
+		fig = co.plot_matrix_sorted(self.matrix.astype('float32'), label_vec, threshold, lnk)
+		    
+		return fig
+
 
 
 

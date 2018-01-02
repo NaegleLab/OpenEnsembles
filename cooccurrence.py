@@ -189,7 +189,7 @@ class coMat:
         return ind
 
      
-    def plot(self, threshold='avg', **kwargs):#dist_thresh=self.avg_dist):
+    def plot(self, threshold='avg', linkage='average', add_labels= True, **kwargs):#dist_thresh=self.avg_dist):
         """
         Plot the co_occurrence matrix with a dendrogram and heatmap 
         By Default labels=True, set to false to suppress labels in graph
@@ -202,13 +202,18 @@ class coMat:
             Use threshold to color the dendrogram
             This is useful for identifying visually how to call .cut()
             Default is the average value in the co-occurrence matrix, which is updated to float when 'avg' is passed
+        add_labels: bool
+            If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
+        linkage: string
+            Linkage type to use for dendrogram. Default is average
+
 
         Other Parameters
         ----------------
-        labels: bool
-            If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
+
         label_vec: list
             If you want to add labels, but not the same in co-occurrence matrix dataframe, then pass those here
+
         
         Raises
         ------
@@ -225,69 +230,83 @@ class coMat:
         if isinstance(threshold, str):
             threshold = self.avg_dist
         
-        #if threshold < 0:
-        #    raise ValueError('Error: threshold cannot be less than 0')
-        #if threshold > 1:
-        #    raise ValueError('Error: threshold cannot be greater than 1')
-
-        if "labels" in kwargs:
-            add_labels = kwargs['labels']
-        else:
-            add_labels = True
-
-        if 'linkage' in kwargs:
-            linkage = kwargs['linkage']
-        else:
-            linkage = 'average'
-
-        if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
-            label_vec = kwargs['label_vec']
-            if len(label_vec) != len(self.co_matrix):
-                raise ValueError("ERROR: the length of label vector does not equal the number of objects in the co_occurrence matrix")
-        else:
-            label_vec = self.cObj.dataObj.df.index.values.tolist() #using parent just to get column names
-            
-
-        fig = pylab.figure(figsize=(10,10))
-        panel3 = fig.add_axes([0,0,1,1])
-        panel3.axis('off')
-
-        # Add dendrogram 
-        
-        lnk1 = self.link(linkage=linkage)
         if add_labels:
-            ax1 = add_subplot_axes(panel3,[0.0,0.3,0.11,.6])
-            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=threshold, labels=label_vec)
-        else:
-            ax1 = add_subplot_axes(panel3,[0.16,0.3,0.11,.6])
-            Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=threshold)
-            ax1.set_yticks([])
-        idx_pp = Z_pp['leaves']
-        #
-        fig.gca().invert_yaxis() # must couple with matshow origin='upper',
-        ax1.set_xticks([])
-        for side in ['top','right','bottom','left']:
-            ax1.spines[side].set_visible(False)
+            if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
+                label_vec = kwargs['label_vec']
+                if len(label_vec) != len(self.co_matrix):
+                    raise ValueError("ERROR: the length of label vector does not equal the number of objects in the co_occurrence matrix")
+            else:
+                label_vec = self.cObj.dataObj.df.index.values.tolist() #using parent just to get column names
+        else: 
+            label_vec = []
 
-         # plot heatmap
-        axmatrix = add_subplot_axes(panel3,[0.28,0.3,0.7,.6])
-        hm = self.co_matrix
-        hm = hm.ix[idx_pp,idx_pp]
-        im = axmatrix.matshow(hm, aspect='auto', origin='upper', cmap='afmhot')
-        axmatrix.axis('off')
-
-
-
-         # Plot colorbar indicating scale
-        axcolor = add_subplot_axes(panel3,[0.28,0.2,0.7,.02]) # [xmin, ymin, dx, and dy]
-        h=pylab.colorbar(im, cax=axcolor,orientation='horizontal')
-        h.ax.tick_params(labelsize=10)
-        h.set_ticks([0.0,.25,.50,.75,1])
-        #h.set_ticklabels(['0%','25%','50%','75%','100%'])
-
-        #plt.show()
+        fig = plot_matrix_sorted(self.co_matrix, label_vec, threshold, self.link(linkage=linkage))
+            
         return fig
 
+def plot_matrix_sorted(matrix, label_vec, threshold, lnk1):
+    """
+    A heatmap plotting function, for both co-occurrence and mutual information
+
+    Parameters
+    ----------
+    matrix: np.array
+        An array of values to plot as a heatmap
+    label_vec: list of strings
+        A label_vec to label the row-wise objects. Empty if labels not requested
+    threshold: float
+        Threshold to use for coloring of dendrogram
+    lnk1: linkage object
+        A pre-calcluated linkage object to use to sort.
+
+    Returns
+    -------
+    fig: matplotlib.pyplot figure 
+        The figure handle 
+
+    """
+    fig = pylab.figure(figsize=(10,10))
+    panel3 = fig.add_axes([0,0,1,1])
+    panel3.axis('off')
+
+    # Add dendrogram 
+    if label_vec:
+        add_labels = True
+    else:
+        add_labels = False
+    
+    if add_labels:
+        ax1 = add_subplot_axes(panel3,[0.0,0.3,0.11,.6])
+        Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=threshold, labels=label_vec)
+    else:
+        ax1 = add_subplot_axes(panel3,[0.16,0.3,0.11,.6])
+        Z_pp = sch.dendrogram(lnk1, orientation='left', color_threshold=threshold)
+        ax1.set_yticks([])
+    idx_pp = Z_pp['leaves']
+    #
+    fig.gca().invert_yaxis() # must couple with matshow origin='upper',
+    ax1.set_xticks([])
+    for side in ['top','right','bottom','left']:
+        ax1.spines[side].set_visible(False)
+
+     # plot heatmap
+    axmatrix = add_subplot_axes(panel3,[0.28,0.3,0.7,.6])
+    hm = matrix
+    hm = hm.ix[idx_pp,idx_pp]
+    im = axmatrix.matshow(hm, aspect='auto', origin='upper', cmap='afmhot')
+    axmatrix.axis('off')
+
+
+
+     # Plot colorbar indicating scale
+    axcolor = add_subplot_axes(panel3,[0.28,0.2,0.7,.02]) # [xmin, ymin, dx, and dy]
+    h=pylab.colorbar(im, cax=axcolor,orientation='horizontal')
+    h.ax.tick_params(labelsize=10)
+    h.set_ticks([0.0,.25,.50,.75,1])
+    #h.set_ticklabels(['0%','25%','50%','75%','100%'])
+
+    #plt.show()
+    return fig
 
 
 def add_subplot_axes(ax,rect,facecolor='w'):
