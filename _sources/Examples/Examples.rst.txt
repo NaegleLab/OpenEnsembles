@@ -9,3 +9,4 @@ Examples
 
    Example_Kmeans_MajorityVote.ipynb
    Ensemble_Distances_Algorithms_No_Structure.ipynb
+   Demonstrate_RandomSeed.ipynb

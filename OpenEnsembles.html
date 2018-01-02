@@ -286,6 +286,9 @@ When clustering is performed, the dictionaries of all attributes are extended us
 <tr class="row-odd"><td><strong>clusterNumbers: dict of lists</strong></td>
 <td>A listing of the unique set of cluster numbers produced in a clustering</td>
 </tr>
+<tr class="row-even"><td><strong>random_state: dict of objects</strong></td>
+<td>A listing of the random state objects that can be used to reset the state and</td>
+</tr>
 </tbody>
 </table>
 <p class="rubric">Methods</p>
@@ -326,7 +329,7 @@ When clustering is performed, the dictionaries of all attributes are extended us
 
 <dl class="method">
 <dt id="openensembles.cluster.cluster">
-<code class="descname">cluster</code><span class="sig-paren">(</span><em>source_name</em>, <em>algorithm</em>, <em>output_name</em>, <em>K=None</em>, <em>Require_Unique=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.cluster" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cluster</code><span class="sig-paren">(</span><em>source_name</em>, <em>algorithm</em>, <em>output_name</em>, <em>K=None</em>, <em>Require_Unique=False</em>, <em>random_seed=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>This runs clustering algorithms on the data matrix defined by
 source_name with parameters that are variable for each algorithm. Note that K is 
 required for most algorithms.</p>
@@ -355,6 +358,11 @@ if the K was not passed.</p>
 <blockquote>
 <div><p>If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
 solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False</p>
+</div></blockquote>
+<p><strong>random_seed: int or random.getstate()</strong></p>
+<blockquote>
+<div><p>Pass a random seed or random seed state (random.getstate()) in order to force the starting point of a clustering algorithm to that state. 
+Default is None</p>
 </div></blockquote>
 </td>
 </tr>
