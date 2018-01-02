@@ -118,12 +118,15 @@ class clustering_algorithms:
         params['n_jobs'] = 1
         if not self.K:
             raise ValueError('kmeans clustering requires an argument K=<intiger value>')
+
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'kmeans')
+
+        seed = params['random_state'][1][0]
         solution=skc.KMeans(n_clusters=self.K, init=params['init'], 
             n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'],
             precompute_distances=params['precompute_distances'], verbose=params['verbose'],
-            random_state=params['random_state'], copy_x=params['copy_x'], n_jobs=params['n_jobs'])
+            random_state=seed, copy_x=params['copy_x'], n_jobs=params['n_jobs'])
         solution.fit(self.data)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
@@ -160,13 +163,15 @@ class clustering_algorithms:
         params['n_jobs']=1
 
         if not self.K:
-            raise ValueError('spectral clustering requires an argument K=<intiger value>')
+            raise ValueError('kmeans clustering requires an argument K=<intiger value>')
 
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'spectral')
  
+        seed = params['random_state'][1][0]
+
         solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
-                        eigen_solver=params['eigen_solver'], random_state=params['random_state'], n_init=params['n_init'],
+                        eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
                         affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
                         eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
         solution.fit(self.data)
@@ -219,7 +224,7 @@ class clustering_algorithms:
         """
         Uses `sklearn's DBSCAN <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html>`_
 
-        **Defaults and var_params:** sklearn.cluster.DBSCAN(eps=0.5, min_samples=5, metric='euclidean', algorithm='auto', leaf_size=30, p=None, random_state=None)
+        **Defaults and var_params:** sklearn.cluster.DBSCAN(eps=0.5, min_samples=5, metric='euclidean', algorithm='auto', leaf_size=30, p=None, n_jobs=1)
         
         Other Parameters
         ----------------
@@ -241,7 +246,6 @@ class clustering_algorithms:
         params['leaf_size']=30
         params['p']=None, 
         params['n_jobs'] = 1
-        params['random_state']=None
 
         params = returnParams(self.var_params, params, 'DBSCAN')
 
@@ -249,12 +253,10 @@ class clustering_algorithms:
         d = returnDistanceMatrix(self.data, params['distance'])
         params['affinity'] = 'precomputed'
         
-        #solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
-        #    algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
-        #    p=params['p'], random_state=params['random_state']) 
+
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
-            p=params['p'], n_jobs=params['n_jobs']) #random_state=params['random_state']) 
+            p=params['p'], n_jobs=params['n_jobs']) 
         solution.fit(d)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.

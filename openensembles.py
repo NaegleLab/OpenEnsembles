@@ -30,6 +30,7 @@ import mutualinformation as mi
 import validation as val
 import warnings
 from random import randint
+import numpy.random as random
 import openensembles as oe
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -314,6 +315,8 @@ class cluster:
         A dictionary of all parameters passed during clustering
     clusterNumbers: dict of lists
         A listing of the unique set of cluster numbers produced in a clustering 
+    random_state: dict of objects
+        A listing of the random state objects that can be used to reset the state and 
 
     Examples
     --------
@@ -336,6 +339,7 @@ class cluster:
         self.params = {} # keep track of the parameters used (includes random seed)
         self.algorithms = {} #keep track of the algorithm used
         self.clusterNumbers = {}
+        self.random_state = {}
 
     def algorithms_available(self):
         """ 
@@ -345,7 +349,7 @@ class cluster:
         ALG_FCN_DICT = algorithms.clustering_algorithms_available()
         return ALG_FCN_DICT
 
-    def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, **kwargs):
+    def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, random_seed=None, **kwargs):
 
         """
         This runs clustering algorithms on the data matrix defined by
@@ -366,6 +370,9 @@ class cluster:
         Require_Unique: bool
             If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
             solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False
+        random_seed: int or random.getstate()
+            Pass a random seed or random seed state (random.getstate()) in order to force the starting point of a clustering algorithm to that state. 
+            Default is None
 
         Warnings
         --------
@@ -401,7 +408,20 @@ class cluster:
             var_params = {} 
         else:
             var_params = kwargs
-        
+
+        #Here if handle if random seed was passed, set it. Else, store the random seed.
+        if 'random_seed':
+            try:
+                random.set_state(random_seed)
+                state = random_seed
+
+
+            except TypeError:
+                random.seed(random_seed)
+                state = random.get_state()
+
+        var_params['random_state'] = state
+
         ##### Check to see if the same name exists for clustering solution name and decide what to do according to Require_Unique
         if output_name in list(self.labels.keys()):
             if Require_Unique:
@@ -419,6 +439,7 @@ class cluster:
             raise ValueError( "The algorithm you requested does not exist, currently the following are supported %s"%(list(ALG_FCN_DICT.keys())))
 
 
+        random.set_state(state)
         c = ca.clustering_algorithms(self.dataObj.D[source_name], var_params, K)
         func = getattr(c,algorithm)
         func()
@@ -440,6 +461,7 @@ class cluster:
         self.params[output_name] = c.var_params
         self.clusterNumbers[output_name] = uniqueClusters
         self.algorithms[output_name] = algorithm
+        self.random_state[output_name] = state
 
     def co_occurrence_matrix(self, data_source_name='parent'):
         """
