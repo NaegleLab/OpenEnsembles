@@ -26,6 +26,7 @@ import transforms as tx
 import clustering_algorithms as ca 
 import finishing as finish
 import cooccurrence as co
+import mutualinformation as mi
 import validation as val
 import warnings
 from random import randint
@@ -462,6 +463,29 @@ class cluster:
       """
         coMat = co.coMat(self, data_source_name)
         return coMat
+
+    def MI(self, MI_type='standard'):
+        """
+        Calculate the mutual information between all pairs of clustering solutions
+
+        Parameters
+        ----------
+        MI_type: string {'standard', 'adjusted', 'normalized'}
+            The sklearn.metric mutual information to use, either mutual_info, adjusted_mutual_info, or normalized_mutual_info
+
+        Returns
+        -------
+        MI class
+            mutualinformation.MI class, where MI.matrix is the claculated matrix of pairwise mutual information. The diagonal is not guaranteed to be 1 (it depends on the type of MI calculated)
+
+        Examples
+        --------
+        >>> MI = c.MI(MI_type='adjusted')
+        >>> MI.plot(sorted=True)
+
+        """
+        MI = mi.MI(self, MI_type)
+        return MI
 
 
     def mixture_model(self, K=2, iterations=10):
