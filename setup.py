@@ -11,7 +11,8 @@ PACKAGE_FILES = [
     'cooccurrence.py',
     'finishing.py',
     'transforms.py',
-    'validation.py'
+    'validation.py',
+    'mutualinformation.py'
 ]
 
 # Create a temporary package directory and copy all src files to it
