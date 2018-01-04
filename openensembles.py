@@ -318,6 +318,10 @@ class cluster:
     random_state: dict of objects
         A listing of the random state objects that can be used to reset the state and 
 
+    See also
+    --------
+    clustering_algorithms
+    
     Examples
     --------
     Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4
@@ -348,6 +352,30 @@ class cluster:
         algorithms = ca.clustering_algorithms(self.dataObj.D['parent'], {})
         ALG_FCN_DICT = algorithms.clustering_algorithms_available()
         return ALG_FCN_DICT
+
+    def clustering_algorithm_parameters(self):
+        """
+        This function returns a dictionary with keys equal to parameters of interest {K, linkage, affinity} whose entries
+        indicate algorithms that take those as free parameters. For example K-means takes K as an argument, but Affinity
+        Propagation does not, so you will find kmeans is listed in dict['K'], but not AffinityPropagation. This is not inclusive of all
+        paramaters of every algorithm, but the common parameters one might want to vary.
+
+        Returns
+        -------
+        a: dictionary
+            Keys equal to parameters {K, linkages, distances} and values as lists of algorithms that use that key as a variable
+
+        Warning
+        -------
+        This must be updated if clustering_algorithms is expanded.
+
+        """
+        a = {}
+        a['K'] = ['kmeans', 'agglomerative', 'spectral', 'Birch']
+        a['linkage'] = ['agglomerative']
+        a['distance'] = ['DBSCAN', 'spectral', 'AffinityPropagation', 'agglomerative']
+        a['affinity'] = ['spectral']
+        return a
 
     def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, random_seed=None, **kwargs):
 
@@ -462,6 +490,8 @@ class cluster:
         self.clusterNumbers[output_name] = uniqueClusters
         self.algorithms[output_name] = algorithm
         self.random_state[output_name] = state
+
+
 
     def co_occurrence_matrix(self, data_source_name='parent'):
         """

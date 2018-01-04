@@ -49,6 +49,9 @@ class clustering_algorithms:
         Data matrix, assumes feature dimensions are found column wise (objects in rows)
     kwargs: dict
         Variable parameters passed in as a dict. These are specific to each algorithm
+        The keyword 'distance' is used by OpenEnsembles to generalize distance/similarity calls across algorithms. Use 'distance' and a string for distance metric. 
+        Algorithms requiring similarity will use the conversion of Distance (D) to Similarity (S) according to: S = np.exp(-D / D.std()). 
+        Use 'affinity' and 'precomputed' to exert greater control over usage. 
     K: int
         Number of clusters to create, required for most, but not all algorithms. Default K=2
 
@@ -87,6 +90,7 @@ class clustering_algorithms:
             if not re.match('__', method):
                 methodDict[method] = ''
         return methodDict
+
 
     def kmeans(self):
         """
@@ -163,18 +167,29 @@ class clustering_algorithms:
         params['n_jobs']=1
 
         if not self.K:
-            raise ValueError('kmeans clustering requires an argument K=<intiger value>')
+            raise ValueError('spectral clustering requires an argument K=<intiger value>')
 
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'spectral')
  
         seed = params['random_state'][1][0]
 
-        solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
+        if 'distance' in self.var_params:
+        #params['distance'] says what to precompute on
+            params['affinity'] = 'precomputed'
+            D = returnDistanceMatrix(self.data, params['distance'])
+            S = convertDistanceToSimilarity(D)
+            solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
                         eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
                         affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
                         eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
-        solution.fit(self.data)
+            solution.fit(S)
+        else:
+            solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
+                            eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                            affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
+                            eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
+            solution.fit(self.data)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.        
 
@@ -360,6 +375,8 @@ def returnParams(paramsSent, paramsExpected, algorithm):
         del paramsToCheck[key]
 
     #warn if there are keys in paramsToCheck (means they were sent, but not expected) (covers distance metric as well)
+    if 'random_state' in paramsToCheck:
+        del paramsToCheck['random_state']
     for key in paramsToCheck:
         warnings.warn("Parameter %s was not expected in algorithm %s and will be ignored"%(key, algorithm), UserWarning)
 
@@ -398,4 +415,23 @@ def returnDistanceMatrix(data, distance):
     d = distDict[distance](data)
 
     return d
+
+def convertDistanceToSimilarity(D, beta=1.0):
+    """
+    A utility to convert a distance matrix to a similarity matrix
+
+    Parameters
+    ----------
+    D: matrix of floats
+        A matrix of distances, such as returned by returnDistanceMatrix(data,distanceType)
+    beta: float
+        A variable for mapping distance to similarity.
+
+    Returns
+    -------
+    S: a matrix of floats
+        A matrix of similarity values. according to S = np.exp(-beta * D / D.std())
+    """
+    S = np.exp(-beta*D/D.std())
+    return S
 
