@@ -177,8 +177,13 @@ class clustering_algorithms:
  
         seed = params['random_state'][1][0]
 
+        # handle the cases of affinity set, affinity as precomputed with a matrix, distance as a string that needs to be converted and distance as precomputed, which shoudl fail
+
         if 'distance' in self.var_params:
         #params['distance'] says what to precompute on
+            if self.var_params['distance'] == 'precomputed':
+                raise ValueError("If precomputing a matrix for Spectral clustering, it must be a similarity matrix")
+
             params['affinity'] = 'precomputed'
             D = returnDistanceMatrix(self.data, params['distance'])
             S = convertDistanceToSimilarity(D)

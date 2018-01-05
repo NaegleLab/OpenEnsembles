@@ -25,6 +25,7 @@ import random
 import pandas as pd
 
 import openensembles as oe
+import clustering_algorithms as ca
 
 class TestFunctions(unittest.TestCase):
 
@@ -141,6 +142,9 @@ class TestFunctions(unittest.TestCase):
 
         self.assertRaises(ValueError, lambda: c.cluster('parent', 'agglomerative', 'agglomerative', K=2, linkage='complete', distance='precomputed'))
         self.assertRaises(ValueError, lambda: c.cluster('parent', 'spectral', 'spectral', K=2, affinity='precomputed'))
+
+        D = ca.returnDistanceMatrix(self.data.D['parent'], 'euclidean')
+        self.assertRaises(ValueError, lambda: c.cluster('parent', 'spectral', 'spectral', K=2, distance='precomputed', W=D))
 
 
     def test_clustering_NoSource(self):
