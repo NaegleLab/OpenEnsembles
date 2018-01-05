@@ -168,6 +168,7 @@ class clustering_algorithms:
 
         #NOt used directly by spectral, the true default is affinity with rbf
         params['distance'] = 'euclidean'
+        params['M'] = []
 
         if not self.K:
             raise ValueError('spectral clustering requires an argument K=<intiger value>')
