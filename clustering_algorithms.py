@@ -372,6 +372,12 @@ def returnParams(paramsSent, paramsExpected, algorithm):
     --------
         Will warn users if a key in sent does not appear in expected.
     """
+
+    if 'distance' in paramsSent:
+        if paramsSent['distance'] == 'precomputed':
+            if 'M' not in paramsSent:
+                raise ValueError("Precomputed distances require a distance matrix passed as 'M' ")
+
     overlap = set(paramsSent.keys()) & set(paramsExpected.keys())
     params = paramsExpected
     paramsToCheck = paramsSent
