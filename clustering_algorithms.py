@@ -288,10 +288,11 @@ class clustering_algorithms:
 
         params = returnParams(self.var_params, params, 'DBSCAN')
 
-        #params['distance'] says what to precompute on
-        d = returnDistanceMatrix(self.data, params['distance'])
-        params['affinity'] = 'precomputed'
-        
+        if 'distance' in self.var_params:
+            if self.var_params['distance'] == 'precomputed':
+                d = self.var_params['M']
+        else:
+            d = returnDistanceMatrix(self.data, params['distance'])        
 
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 

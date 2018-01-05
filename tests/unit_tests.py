@@ -144,7 +144,13 @@ class TestFunctions(unittest.TestCase):
         self.assertRaises(ValueError, lambda: c.cluster('parent', 'spectral', 'spectral', K=2, affinity='precomputed'))
 
         D = ca.returnDistanceMatrix(self.data.D['parent'], 'euclidean')
-        self.assertRaises(ValueError, lambda: c.cluster('parent', 'spectral', 'spectral', K=2, distance='precomputed', W=D))
+        S = ca.convertDistanceToSimilarity(D)
+        self.assertRaises(ValueError, lambda: c.cluster('parent', 'spectral', 'spectral', K=2, distance='precomputed', M=D))
+        c.cluster('parent', 'spectral', 'spectral', K=2, affinity='precomputed', M=S)
+        self.assertEqual(1, len(c.labels))
+
+
+
 
 
     def test_clustering_NoSource(self):
