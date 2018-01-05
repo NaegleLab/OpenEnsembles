@@ -153,18 +153,22 @@ class clustering_algorithms:
         """
         params = {}
 
-        params['eigen_solver']=None
-        params['random_state'] = None
-        params['n_init'] = 10
-        params['gamma'] = 1.0
         params['affinity'] = 'rbf'
-        params['n_neighbors'] = 10
-        params['eigen_tol'] = '0.0'
         params['assign_labels'] = 'kmeans'
-        params['degree'] = 3
         params['coef0'] = 1
+        params['degree'] = 3
+        params['eigen_solver']=None
+        params['eigen_tol'] = '0.0'
+        params['gamma'] = 1.0
         params['kernel_params']=None
+        params['n_init'] = 10
         params['n_jobs']=1
+        params['n_neighbors'] = 10
+        params['random_state'] = None
+
+        #NOt used directly by spectral, the true default is affinity with rbf
+        params['distance'] = 'euclidean'
+        params['M'] = []
 
         if not self.K:
             raise ValueError('spectral clustering requires an argument K=<intiger value>')
@@ -174,17 +178,37 @@ class clustering_algorithms:
  
         seed = params['random_state'][1][0]
 
-        if 'distance' in self.var_params:
-        #params['distance'] says what to precompute on
+        # handle the cases of affinity set, affinity as precomputed with a matrix, distance as a string that needs to be converted and distance as precomputed, which shoudl fail
+
+        if 'affinity' in self.var_params:
+            if self.var_params['affinity'] == 'precomputed':
+                solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
+                    eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                    affinity='precomputed', coef0=params['coef0'], kernel_params=params['kernel_params'],
+                    eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
+                x = np.shape(self.var_params['M'])
+                solution.fit(self.var_params['M'])
+                params['M'] = self.var_params['M']
+            else: #it's affinity, that's not precomputed, but overrides the default
+                solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
+                            eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                            affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
+                            eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
+                solution.fit(self.data)
+
+        elif 'distance' in self.var_params:
+            if self.var_params['distance'] == 'precomputed':
+                raise ValueError("If precomputing a matrix for Spectral clustering, it must be a similarity matrix")
+
             params['affinity'] = 'precomputed'
-            D = returnDistanceMatrix(self.data, params['distance'])
+            D = returnDistanceMatrix(self.data, self.var_params['distance'])
             S = convertDistanceToSimilarity(D)
             solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
                         eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
-                        affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
+                        affinity='precomputed', coef0=params['coef0'], kernel_params=params['kernel_params'],
                         eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
             solution.fit(S)
-        else:
+        else: #else it's an affinity that is not precomputed.
             solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
                             eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
                             affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
@@ -264,10 +288,13 @@ class clustering_algorithms:
 
         params = returnParams(self.var_params, params, 'DBSCAN')
 
-        #params['distance'] says what to precompute on
-        d = returnDistanceMatrix(self.data, params['distance'])
-        params['affinity'] = 'precomputed'
-        
+        if 'distance' in self.var_params:
+            if self.var_params['distance'] == 'precomputed':
+                d = self.var_params['M']
+            else:
+                d = returnDistanceMatrix(self.data, params['distance'])        
+        else:
+            d = returnDistanceMatrix(self.data, params['distance'])        
 
         solution = skc.DBSCAN(eps=params['eps'], min_samples=params['min_samples'], metric=params['metric'], 
             algorithm=params['algorithm'], leaf_size=params['leaf_size'], 
@@ -362,14 +389,27 @@ def returnParams(paramsSent, paramsExpected, algorithm):
     -------
     params: dict
         Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent
+        This will handle checking to make sure that if precomputed distances have been selected, that a distance 
+        or similarity matrix is also passed.
 
     Warnings
     --------
         Will warn users if a key in sent does not appear in expected.
     """
+
+    if 'distance' in paramsSent:
+        if paramsSent['distance'] == 'precomputed':
+            if 'M' not in paramsSent:
+                raise ValueError("Precomputed distances require a distance matrix passed as 'M' ")
+
+    if 'affinity' in paramsSent:
+        if paramsSent['affinity'] == 'precomputed':
+            if 'M' not in paramsSent:
+                raise ValueError("Precomputed affinity require a similarity matrix passed as 'M' ")
+
     overlap = set(paramsSent.keys()) & set(paramsExpected.keys())
-    params = paramsExpected
-    paramsToCheck = paramsSent
+    params = paramsExpected.copy()
+    paramsToCheck = paramsSent.copy()
     for key in overlap:
         params[key] = paramsSent[key] #if it was sent, overwrite default.
         del paramsToCheck[key]
@@ -408,11 +448,12 @@ def returnDistanceMatrix(data, distance):
     ValueError:
         if the distance metric is not available.
     """
-    distDict = sk.metrics.pairwise.distance_metrics()
-    if distance not in distDict:
-        raise ValueError("ERROR: the distance you requested is not available by that name %s. Please see sklearn.metrics.pairwise.distance_metrics()"%(distance))
+    #distDict = sk.metrics.pairwise.pairwise_distances()
+    #if distance not in distDict:
+    #    raise ValueError("ERROR: the distance you requested, %s, is not available. Please see sklearn.metrics.pairwise.distance_metrics()"%(distance))
     
-    d = distDict[distance](data)
+    #d = distDict[distance](data)
+    d = sk.metrics.pairwise.pairwise_distances(data, metric=distance)
 
     return d
 

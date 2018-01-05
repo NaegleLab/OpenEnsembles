@@ -153,6 +153,7 @@ class data:
         color=iter(plt.cm.rainbow(np.linspace(0,1,len(clusters))))
         
         fig = plt.figure(fig_num, figsize=(6, 6))
+        plt.cla()
         #plt.hold(True)
 
         #SETUP axes, as either 2D or 3D
@@ -374,7 +375,6 @@ class cluster:
         a['K'] = ['kmeans', 'agglomerative', 'spectral', 'Birch']
         a['linkage'] = ['agglomerative']
         a['distance'] = ['DBSCAN', 'spectral', 'AffinityPropagation', 'agglomerative']
-        a['affinity'] = ['spectral']
         return a
 
     def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, random_seed=None, **kwargs):

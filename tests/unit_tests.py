@@ -25,6 +25,7 @@ import random
 import pandas as pd
 
 import openensembles as oe
+import clustering_algorithms as ca
 
 class TestFunctions(unittest.TestCase):
 
@@ -135,6 +136,25 @@ class TestFunctions(unittest.TestCase):
     def test_clustering_setup(self):
         c = oe.cluster(self.data)
         self.assertEqual(1, len(c.dataObj.D))
+
+    def test_distance_requirements_clustering(self):
+        c = oe.cluster(self.data)
+
+        self.assertRaises(ValueError, lambda: c.cluster('parent', 'agglomerative', 'agglomerative', K=2, linkage='complete', distance='precomputed'))
+        self.assertRaises(ValueError, lambda: c.cluster('parent', 'spectral', 'spectral', K=2, affinity='precomputed'))
+
+        D = ca.returnDistanceMatrix(self.data.D['parent'], 'euclidean')
+        S = ca.convertDistanceToSimilarity(D)
+        self.assertRaises(ValueError, lambda: c.cluster('parent', 'spectral', 'spectral', K=2, distance='precomputed', M=D))
+        c.cluster('parent', 'spectral', 'spectral', K=2, affinity='precomputed', M=S)
+        self.assertEqual(1, len(c.labels))
+
+        c.cluster('parent', 'DBSCAN', 'DBSCAN', K=2, affinity='precomputed', M=D)
+        self.assertEqual(2, len(c.labels))
+
+
+
+
 
     def test_clustering_NoSource(self):
         c = oe.cluster(self.data)
