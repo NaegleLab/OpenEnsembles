@@ -291,6 +291,8 @@ class clustering_algorithms:
         if 'distance' in self.var_params:
             if self.var_params['distance'] == 'precomputed':
                 d = self.var_params['M']
+            else:
+                d = returnDistanceMatrix(self.data, params['distance'])        
         else:
             d = returnDistanceMatrix(self.data, params['distance'])        
 
