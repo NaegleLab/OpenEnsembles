@@ -378,6 +378,11 @@ def returnParams(paramsSent, paramsExpected, algorithm):
             if 'M' not in paramsSent:
                 raise ValueError("Precomputed distances require a distance matrix passed as 'M' ")
 
+    if 'affinity' in paramsSent:
+        if paramsSent['affinity'] == 'precomputed':
+            if 'M' not in paramsSent:
+                raise ValueError("Precomputed affinity require a similarity matrix passed as 'M' ")
+
     overlap = set(paramsSent.keys()) & set(paramsExpected.keys())
     params = paramsExpected
     paramsToCheck = paramsSent
