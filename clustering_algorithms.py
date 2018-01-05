@@ -444,11 +444,12 @@ def returnDistanceMatrix(data, distance):
     ValueError:
         if the distance metric is not available.
     """
-    distDict = sk.metrics.pairwise.distance_metrics()
-    if distance not in distDict:
-        raise ValueError("ERROR: the distance you requested is not available by that name %s. Please see sklearn.metrics.pairwise.distance_metrics()"%(distance))
+    #distDict = sk.metrics.pairwise.pairwise_distances()
+    #if distance not in distDict:
+    #    raise ValueError("ERROR: the distance you requested, %s, is not available. Please see sklearn.metrics.pairwise.distance_metrics()"%(distance))
     
-    d = distDict[distance](data)
+    #d = distDict[distance](data)
+    d = sk.metrics.pairwise.pairwise_distances(data, metric=distance)
 
     return d
 
