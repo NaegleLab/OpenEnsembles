@@ -166,6 +166,9 @@ class clustering_algorithms:
         params['kernel_params']=None
         params['n_jobs']=1
 
+        #NOt used directly by spectral, the true default is affinity with rbf
+        params['distance'] = 'euclidean'
+
         if not self.K:
             raise ValueError('spectral clustering requires an argument K=<intiger value>')
 
@@ -362,6 +365,8 @@ def returnParams(paramsSent, paramsExpected, algorithm):
     -------
     params: dict
         Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent
+        This will handle checking to make sure that if precomputed distances have been selected, that a distance 
+        or similarity matrix is also passed.
 
     Warnings
     --------
