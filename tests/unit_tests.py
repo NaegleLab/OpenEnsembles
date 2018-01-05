@@ -149,6 +149,9 @@ class TestFunctions(unittest.TestCase):
         c.cluster('parent', 'spectral', 'spectral', K=2, affinity='precomputed', M=S)
         self.assertEqual(1, len(c.labels))
 
+        c.cluster('parent', 'DBSCAN', 'DBSCAN', K=2, affinity='precomputed', M=D)
+        self.assertEqual(2, len(c.labels))
+
 
 
 
