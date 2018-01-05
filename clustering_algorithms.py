@@ -153,18 +153,18 @@ class clustering_algorithms:
         """
         params = {}
 
-        params['eigen_solver']=None
-        params['random_state'] = None
-        params['n_init'] = 10
-        params['gamma'] = 1.0
         params['affinity'] = 'rbf'
-        params['n_neighbors'] = 10
-        params['eigen_tol'] = '0.0'
         params['assign_labels'] = 'kmeans'
-        params['degree'] = 3
         params['coef0'] = 1
+        params['degree'] = 3
+        params['eigen_solver']=None
+        params['eigen_tol'] = '0.0'
+        params['gamma'] = 1.0
         params['kernel_params']=None
+        params['n_init'] = 10
         params['n_jobs']=1
+        params['n_neighbors'] = 10
+        params['random_state'] = None
 
         #NOt used directly by spectral, the true default is affinity with rbf
         params['distance'] = 'euclidean'
@@ -179,20 +179,35 @@ class clustering_algorithms:
 
         # handle the cases of affinity set, affinity as precomputed with a matrix, distance as a string that needs to be converted and distance as precomputed, which shoudl fail
 
-        if 'distance' in self.var_params:
-        #params['distance'] says what to precompute on
+        if 'affinity' in self.var_params:
+            if self.var_params['affinity'] == 'precomputed':
+                solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
+                    eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                    affinity='precomputed', coef0=params['coef0'], kernel_params=params['kernel_params'],
+                    eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
+                x = np.shape(self.var_params['M'])
+                solution.fit(self.var_params['M'])
+                params['M'] = self.var_params['M']
+            else: #it's affinity, that's not precomputed, but overrides the default
+                solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
+                            eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                            affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
+                            eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
+                solution.fit(self.data)
+
+        elif 'distance' in self.var_params:
             if self.var_params['distance'] == 'precomputed':
                 raise ValueError("If precomputing a matrix for Spectral clustering, it must be a similarity matrix")
 
             params['affinity'] = 'precomputed'
-            D = returnDistanceMatrix(self.data, params['distance'])
+            D = returnDistanceMatrix(self.data, self.var_params['distance'])
             S = convertDistanceToSimilarity(D)
             solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
                         eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
-                        affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
+                        affinity='precomputed', coef0=params['coef0'], kernel_params=params['kernel_params'],
                         eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
             solution.fit(S)
-        else:
+        else: #else it's an affinity that is not precomputed.
             solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
                             eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
                             affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
@@ -389,8 +404,8 @@ def returnParams(paramsSent, paramsExpected, algorithm):
                 raise ValueError("Precomputed affinity require a similarity matrix passed as 'M' ")
 
     overlap = set(paramsSent.keys()) & set(paramsExpected.keys())
-    params = paramsExpected
-    paramsToCheck = paramsSent
+    params = paramsExpected.copy()
+    paramsToCheck = paramsSent.copy()
     for key in overlap:
         params[key] = paramsSent[key] #if it was sent, overwrite default.
         del paramsToCheck[key]
