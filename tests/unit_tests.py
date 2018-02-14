@@ -127,6 +127,10 @@ class TestFunctions(unittest.TestCase):
         c = oe.cluster(self.data)
         ALG_FCN_DICT = c.algorithms_available()
         num = 0
+
+        #remove MeanShift, which cannot be used in this dataset
+        del ALG_FCN_DICT['MeanShift']
+
         for algorithm in ALG_FCN_DICT:
             name = algorithm + 'parent'
             c.cluster('parent', algorithm, name, K=2)
