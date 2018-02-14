@@ -380,6 +380,44 @@ class clustering_algorithms:
         self.var_params = params
 
 
+    def MeanShift(self):
+        """
+        Uses `sklearn's MeanShift <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html>`_
+
+         **Defaults and var_params:** sklearn.cluster.MeanShift(bandwidth=None, seeds=None, bin_seeding=False, min_bin_freq=1, cluster_all=True, n_jobs=1)
+
+        Other Parameters
+        ----------------
+        var_params: dict
+            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above
+
+        Returns
+        -------
+        labels: list of ints
+            Solution of clustering labels for each object (updated in object.out)
+
+        """
+
+        params = {}
+        params['bandwidth']=None
+        params['seeds']=None
+        params['bin_seeding']=False 
+        params['min_bin_freq']=1
+        params['cluster_all']=True
+        params['n_jobs']=1
+        params['quantile'] = 0.3
+
+        params = returnParams(self.var_params, params, 'GaussianMixture')
+
+        bandwidth = skc.estimate_bandwidth(self.data, quantile=params['quantile'])
+        params['bandwidth'] = bandwidth
+        solution = skc.MeanShift(bandwidth=params['bandwidth'], seeds=params['seeds'], bin_seeding=params['bin_seeding'], 
+            min_bin_freq=params['min_bin_freq'], cluster_all=params['cluster_all'], n_jobs=params['n_jobs'])
+        solution.fit(self.data)
+        labels = solution.fit_predict(self.data)
+        self.out = labels
+        self.var_params = params
+
     def GaussianMixture(self):
         """
         Uses `sklearn's GuassianMixture <http://scikit-learn.org/stable/modules/mixture.html>`_
