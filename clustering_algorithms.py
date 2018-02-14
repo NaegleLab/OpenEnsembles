@@ -34,6 +34,7 @@ import scipy.stats as stats
 from types import FunctionType
 import re
 import warnings
+from sklearn import mixture
 
 class clustering_algorithms:
     """
@@ -378,6 +379,57 @@ class clustering_algorithms:
         self.out = solution.labels_
         self.var_params = params
 
+
+    def GaussianMixture(self):
+        """
+        Uses `sklearn's GuassianMixture <http://scikit-learn.org/stable/modules/mixture.html>`_
+
+         **Defaults and var_params:** (n_components=k, covariance_type=’full’, tol=0.001, reg_covar=1e-06, max_iter=100, n_init=1, init_params=’kmeans’, weights_init=None, means_init=None, precisions_init=None, random_state=None, warm_start=False, verbose=0, verbose_interval=10)
+
+        Other Parameters
+        ----------------
+        var_params: dict
+            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above
+
+        Returns
+        -------
+        labels: list of ints
+            Solution of clustering labels for each object (updated in object.out)
+
+        """
+        params = {}
+        params['n_components'] = self.K
+        params['covariance_type']='full'
+        params['tol']=0.001
+        params['reg_covar']=1e-06
+        params['max_iter']=100
+        params['n_init']=1
+        params['init_params']='kmeans'
+        params['weights_init']=None
+        params['means_init']=None 
+        params['precisions_init']=None
+        params['random_state']=None
+        params['warm_start']=False 
+        params['verbose']=0
+        params['verbose_interval']=10
+
+        if not self.K:
+            raise ValueError('GaussinaMixture clustering requires an argument K=<intiger value>')
+
+        params = returnParams(self.var_params, params, 'GaussianMixture')
+
+        seed = params['random_state'][1][0]
+
+
+        solution=mixture.GaussianMixture(n_components=params['n_components'], covariance_type=params['covariance_type'], 
+            tol=params['tol'], reg_covar=params['reg_covar'], max_iter=params['max_iter'], n_init=params['n_init'], 
+            init_params=params['init_params'], weights_init=params['weights_init'], means_init=params['means_init'], 
+            precisions_init=params['precisions_init'], random_state = seed, warm_start=params['warm_start'], 
+            verbose=params['verbose'], verbose_interval=params['verbose_interval'])
+        solution.fit(self.data)
+        labels = solution.predict(self.data)
+        self.out = labels
+        self.var_params = params
 
 def returnParams(paramsSent, paramsExpected, algorithm):
     """
