@@ -12,7 +12,7 @@ To install via conda, execute `conda install openensembles`.
 
 Tarball
 ---------
-To install via a tarball, head over to the Releases page and download the latest stable tar release.
+To install via a tarball, head over to the `Releases page <https://github.com/NaegleLab/OpenEnsembles/releases>`_ and download the latest stable tar release.
 
 Afterwards, navigate to your downloads directory and execute the following commands, substituting <version> for the release's version number:
 ```
