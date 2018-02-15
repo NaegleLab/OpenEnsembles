@@ -252,6 +252,10 @@ When clustering is performed, the dictionaries of all attributes are extended us
 </tr>
 </tbody>
 </table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="clustering_algorithms.html#module-clustering_algorithms" title="clustering_algorithms"><code class="xref py py-obj docutils literal"><span class="pre">clustering_algorithms</span></code></a></p>
+</div>
 <p class="rubric">Examples</p>
 <p>Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -390,6 +394,27 @@ Default is None</p>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.cluster.clustering_algorithm_parameters">
+<code class="descname">clustering_algorithm_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.clustering_algorithm_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.clustering_algorithm_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns a dictionary with keys equal to parameters of interest {K, linkage, affinity} whose entries
+indicate algorithms that take those as free parameters. For example K-means takes K as an argument, but Affinity
+Propagation does not, so you will find kmeans is listed in dict[‘K’], but not AffinityPropagation. This is not inclusive of all
+paramaters of every algorithm, but the common parameters one might want to vary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a: dictionary</p>
+<blockquote class="last">
+<div><p>Keys equal to parameters {K, linkages, distances} and values as lists of algorithms that use that key as a variable</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -749,6 +774,7 @@ Appends to validation with key value equal to the validation_name+source_name+cl
 <li class="toctree-l1"><a class="reference internal" href="Supporting.html">Supporting Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
 </ul>
 
   <h4>Previous topic</h4>

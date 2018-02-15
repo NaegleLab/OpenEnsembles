@@ -8,5 +8,7 @@ Examples
    :caption: Contents:
 
    Example_Kmeans_MajorityVote.ipynb
+   Example_Kmeans_MajorityVote-halfMoons.ipynb
    Ensemble_Distances_Algorithms_No_Structure.ipynb
    Demonstrate_RandomSeed.ipynb
+   Demonstrate_Distance_Affinity_effects.ipynb

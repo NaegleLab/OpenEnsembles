@@ -22,7 +22,9 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space." href="Demonstrate_Distance_Affinity_effects.html" />
+    <link rel="prev" title="Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure" href="Ensemble_Distances_Algorithms_No_Structure.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -34,7 +36,14 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="Demonstrate_Distance_Affinity_effects.html" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space."
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Ensemble_Distances_Algorithms_No_Structure.html" title="Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -426,13 +435,38 @@ left=0.0, right=0
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Example_Kmeans_MajorityVote.html">Use Majority Vote to stabilize k-means clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Ensemble_Distances_Algorithms_No_Structure.html">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Compare-results-with-and-without-using-a-random-seed:-Kmeans">Compare results with and without using a random seed: Kmeans</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Mutual-information-should-show-results-vary-when-seed-is-not-forced-to-the-same-starting-point">Mutual information should show results vary when seed is not forced to the same starting point</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#When-the-seed-is-forced-to-the-same,-Kmeans-should-return-the-same-results,-as-indicated-by-mutual-information-of-1-between-all-clustering-results.">When the seed is forced to the same, Kmeans should return the same results, as indicated by mutual information of 1 between all clustering results.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Compare-results-with-and-without-random-seed-for-spectral-clustering">Compare results with and without random seed for spectral clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Mutual-information-should-show-results-vary-when-seed-is-not-forced-to-the-same-starting-point">Mutual information should show results vary when seed is not forced to the same starting point</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#When-the-seed-is-forced-to-the-same,-Spectral-clustering-should-return-the-same-results,-as-indicated-by-mutual-information-of-1-between-all-clustering-results.">When the seed is forced to the same, Spectral clustering should return the same results, as indicated by mutual information of 1 between all clustering results.</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Demonstrate_Distance_Affinity_effects.html">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Ensemble_Distances_Algorithms_No_Structure.html"
+                        title="previous chapter">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Demonstrate_Distance_Affinity_effects.html"
+                        title="next chapter">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -463,7 +497,14 @@ left=0.0, right=0
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+        <li class="right" >
+          <a href="Demonstrate_Distance_Affinity_effects.html" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space."
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Ensemble_Distances_Algorithms_No_Structure.html" title="Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

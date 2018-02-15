@@ -81,6 +81,7 @@
 <span class="kn">from</span> <span class="nn">types</span> <span class="k">import</span> <span class="n">FunctionType</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">mixture</span>
 
 <div class="viewcode-block" id="clustering_algorithms"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms">[docs]</a><span class="k">class</span> <span class="nc">clustering_algorithms</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -96,6 +97,9 @@
 <span class="sd">        Data matrix, assumes feature dimensions are found column wise (objects in rows)</span>
 <span class="sd">    kwargs: dict</span>
 <span class="sd">        Variable parameters passed in as a dict. These are specific to each algorithm</span>
+<span class="sd">        The keyword &#39;distance&#39; is used by OpenEnsembles to generalize distance/similarity calls across algorithms. Use &#39;distance&#39; and a string for distance metric. </span>
+<span class="sd">        Algorithms requiring similarity will use the conversion of Distance (D) to Similarity (S) according to: S = np.exp(-D / D.std()). </span>
+<span class="sd">        Use &#39;affinity&#39; and &#39;precomputed&#39; to exert greater control over usage. </span>
 <span class="sd">    K: int</span>
 <span class="sd">        Number of clusters to create, required for most, but not all algorithms. Default K=2</span>
 
@@ -135,11 +139,12 @@
                 <span class="n">methodDict</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">return</span> <span class="n">methodDict</span></div>
 
+
 <div class="viewcode-block" id="clustering_algorithms.kmeans"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.kmeans">[docs]</a>    <span class="k">def</span> <span class="nf">kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        kmeans clustering see `skc.KMeans &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html&gt;`_</span>
 
-<span class="sd">        **Defaults and var_params:** skc.KMeans(init=&#39;k-means++&#39;, n_init=10, max_iter=300, tol=0.0001, precompute_distances=&#39;auto&#39;, verbose=0, random_state=None, copy_x=True, n_jobs=1)</span>
+<span class="sd">        **Defaults and var_params:** skc.KMeans(n_clusters=2, init=&#39;k-means++&#39;, n_init=10, max_iter=300, tol=0.0001, precompute_distances=&#39;auto&#39;, verbose=0, random_state=None, copy_x=True, n_jobs=1)</span>
 
 <span class="sd">    </span>
 <span class="sd">        Other Parameters</span>
@@ -183,7 +188,7 @@
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Spectral clustering, see `skc.SpectralClustering &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html&gt;`_</span>
 
-<span class="sd">        **Defaults and var_params:** skc.SpectralClustering(n_clusters=8, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)</span>
+<span class="sd">        **Defaults and var_params:** skc.SpectralClustering(n_clusters=2, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)</span>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        var_params: dict</span>
@@ -196,32 +201,67 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;rbf&#39;</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0.0&#39;</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;degree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;degree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0.0&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1">#NOt used directly by spectral, the true default is affinity with rbf</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;kmeans clustering requires an argument K=&lt;intiger value&gt;&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;spectral clustering requires an argument K=&lt;intiger value&gt;&#39;</span><span class="p">)</span>
 
         <span class="c1">#for anything in self.var_params that may replace defaults, update the param list</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">)</span>
  
         <span class="n">seed</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">SpectralClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">],</span>
+        <span class="c1"># handle the cases of affinity set, affinity as precomputed with a matrix, distance as a string that needs to be converted and distance as precomputed, which shoudl fail</span>
+
+        <span class="k">if</span> <span class="s1">&#39;affinity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+                <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">SpectralClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">],</span>
+                    <span class="n">eigen_solver</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">],</span>
+                    <span class="n">affinity</span><span class="o">=</span><span class="s1">&#39;precomputed&#39;</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">],</span> <span class="n">kernel_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">],</span>
+                    <span class="n">eigen_tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">],</span> <span class="n">assign_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">])</span>
+                <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">])</span>
+                <span class="n">params</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1">#it&#39;s affinity, that&#39;s not precomputed, but overrides the default</span>
+                <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">SpectralClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">],</span>
+                            <span class="n">eigen_solver</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">],</span>
+                            <span class="n">affinity</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">],</span> <span class="n">coef0</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">],</span> <span class="n">kernel_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">],</span>
+                            <span class="n">eigen_tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">],</span> <span class="n">assign_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+                <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="s1">&#39;distance&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If precomputing a matrix for Spectral clustering, it must be a similarity matrix&quot;</span><span class="p">)</span>
+
+            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;precomputed&#39;</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">])</span>
+            <span class="n">S</span> <span class="o">=</span> <span class="n">convertDistanceToSimilarity</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">SpectralClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">],</span>
                         <span class="n">eigen_solver</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">],</span>
-                        <span class="n">affinity</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">],</span> <span class="n">coef0</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">],</span> <span class="n">kernel_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">],</span>
+                        <span class="n">affinity</span><span class="o">=</span><span class="s1">&#39;precomputed&#39;</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">],</span> <span class="n">kernel_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">],</span>
                         <span class="n">eigen_tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">],</span> <span class="n">assign_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
-        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1">#else it&#39;s an affinity that is not precomputed.</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">SpectralClustering</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">n_neighbors</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_neighbors&#39;</span><span class="p">],</span> <span class="n">gamma</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;gamma&#39;</span><span class="p">],</span>
+                            <span class="n">eigen_solver</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_solver&#39;</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">],</span>
+                            <span class="n">affinity</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">],</span> <span class="n">coef0</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;coef0&#39;</span><span class="p">],</span> <span class="n">kernel_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;kernel_params&#39;</span><span class="p">],</span>
+                            <span class="n">eigen_tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">],</span> <span class="n">assign_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+            <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.        </span></div>
 
@@ -296,10 +336,13 @@
 
         <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;DBSCAN&#39;</span><span class="p">)</span>
 
-        <span class="c1">#params[&#39;distance&#39;] says what to precompute on</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">])</span>
-        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;precomputed&#39;</span>
-        
+        <span class="k">if</span> <span class="s1">&#39;distance&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">])</span>        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">])</span>        
 
         <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">DBSCAN</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eps&#39;</span><span class="p">],</span> <span class="n">min_samples</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_samples&#39;</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;metric&#39;</span><span class="p">],</span> 
             <span class="n">algorithm</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;algorithm&#39;</span><span class="p">],</span> <span class="n">leaf_size</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;leaf_size&#39;</span><span class="p">],</span> 
@@ -381,8 +424,97 @@
         <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div>
 
+
+<div class="viewcode-block" id="clustering_algorithms.MeanShift"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.MeanShift">[docs]</a>    <span class="k">def</span> <span class="nf">MeanShift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses `sklearn&#39;s MeanShift &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html&gt;`_</span>
+
+<span class="sd">         **Defaults and var_params:** sklearn.cluster.MeanShift(bandwidth=None, seeds=None, bin_seeding=False, min_bin_freq=1, cluster_all=True, n_jobs=1)</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;bandwidth&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;seeds&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;bin_seeding&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">False</span> 
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_bin_freq&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;cluster_all&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;quantile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;GaussianMixture&#39;</span><span class="p">)</span>
+
+        <span class="n">bandwidth</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">estimate_bandwidth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;quantile&#39;</span><span class="p">])</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;bandwidth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bandwidth</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">skc</span><span class="o">.</span><span class="n">MeanShift</span><span class="p">(</span><span class="n">bandwidth</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;bandwidth&#39;</span><span class="p">],</span> <span class="n">seeds</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;seeds&#39;</span><span class="p">],</span> <span class="n">bin_seeding</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;bin_seeding&#39;</span><span class="p">],</span> 
+            <span class="n">min_bin_freq</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;min_bin_freq&#39;</span><span class="p">],</span> <span class="n">cluster_all</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;cluster_all&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div>
+
+<div class="viewcode-block" id="clustering_algorithms.GaussianMixture"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.clustering_algorithms.GaussianMixture">[docs]</a>    <span class="k">def</span> <span class="nf">GaussianMixture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Uses `sklearn&#39;s GuassianMixture &lt;http://scikit-learn.org/stable/modules/mixture.html&gt;`_</span>
+
+<span class="sd">         **Defaults and var_params:** (n_components=2, covariance_type=’full’, tol=0.001, reg_covar=1e-06, max_iter=100, n_init=1, init_params=’kmeans’, weights_init=None, means_init=None, precisions_init=None, random_state=None, warm_start=False, verbose=0, verbose_interval=10)</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        var_params: dict</span>
+<span class="sd">            Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        labels: list of ints</span>
+<span class="sd">            Solution of clustering labels for each object (updated in object.out)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_components&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;covariance_type&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;full&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;tol&#39;</span><span class="p">]</span><span class="o">=</span><span class="mf">0.001</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;reg_covar&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">06</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">100</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;init_params&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;kmeans&#39;</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;weights_init&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;means_init&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span> 
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;precisions_init&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;warm_start&#39;</span><span class="p">]</span><span class="o">=</span><span class="kc">False</span> 
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose_interval&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">10</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;GaussinaMixture clustering requires an argument K=&lt;intiger value&gt;&#39;</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;GaussianMixture&#39;</span><span class="p">)</span>
+
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+
+        <span class="n">solution</span><span class="o">=</span><span class="n">mixture</span><span class="o">.</span><span class="n">GaussianMixture</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_components&#39;</span><span class="p">],</span> <span class="n">covariance_type</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;covariance_type&#39;</span><span class="p">],</span> 
+            <span class="n">tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;tol&#39;</span><span class="p">],</span> <span class="n">reg_covar</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;reg_covar&#39;</span><span class="p">],</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">],</span> <span class="n">n_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">],</span> 
+            <span class="n">init_params</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;init_params&#39;</span><span class="p">],</span> <span class="n">weights_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;weights_init&#39;</span><span class="p">],</span> <span class="n">means_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;means_init&#39;</span><span class="p">],</span> 
+            <span class="n">precisions_init</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;precisions_init&#39;</span><span class="p">],</span> <span class="n">random_state</span> <span class="o">=</span> <span class="n">seed</span><span class="p">,</span> <span class="n">warm_start</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;warm_start&#39;</span><span class="p">],</span> 
+            <span class="n">verbose</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">],</span> <span class="n">verbose_interval</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;verbose_interval&#39;</span><span class="p">])</span>
+        <span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div></div>
 
 <div class="viewcode-block" id="returnParams"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.returnParams">[docs]</a><span class="k">def</span> <span class="nf">returnParams</span><span class="p">(</span><span class="n">paramsSent</span><span class="p">,</span> <span class="n">paramsExpected</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -394,19 +526,34 @@
 <span class="sd">    -------</span>
 <span class="sd">    params: dict</span>
 <span class="sd">        Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent</span>
+<span class="sd">        This will handle checking to make sure that if precomputed distances have been selected, that a distance </span>
+<span class="sd">        or similarity matrix is also passed.</span>
 
 <span class="sd">    Warnings</span>
 <span class="sd">    --------</span>
 <span class="sd">        Will warn users if a key in sent does not appear in expected.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s1">&#39;distance&#39;</span> <span class="ow">in</span> <span class="n">paramsSent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">paramsSent</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;M&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">paramsSent</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Precomputed distances require a distance matrix passed as &#39;M&#39; &quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;affinity&#39;</span> <span class="ow">in</span> <span class="n">paramsSent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">paramsSent</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;precomputed&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;M&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">paramsSent</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Precomputed affinity require a similarity matrix passed as &#39;M&#39; &quot;</span><span class="p">)</span>
+
     <span class="n">overlap</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">paramsSent</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">paramsExpected</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="n">paramsExpected</span>
-    <span class="n">paramsToCheck</span> <span class="o">=</span> <span class="n">paramsSent</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">paramsExpected</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">paramsToCheck</span> <span class="o">=</span> <span class="n">paramsSent</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">overlap</span><span class="p">:</span>
         <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">paramsSent</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="c1">#if it was sent, overwrite default.</span>
         <span class="k">del</span> <span class="n">paramsToCheck</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
     <span class="c1">#warn if there are keys in paramsToCheck (means they were sent, but not expected) (covers distance metric as well)</span>
+    <span class="k">if</span> <span class="s1">&#39;random_state&#39;</span> <span class="ow">in</span> <span class="n">paramsToCheck</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">paramsToCheck</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">paramsToCheck</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Parameter </span><span class="si">%s</span><span class="s2"> was not expected in algorithm </span><span class="si">%s</span><span class="s2"> and will be ignored&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span>
 
@@ -438,13 +585,33 @@
 <span class="sd">    ValueError:</span>
 <span class="sd">        if the distance metric is not available.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">distDict</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">pairwise</span><span class="o">.</span><span class="n">distance_metrics</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">distance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">distDict</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the distance you requested is not available by that name </span><span class="si">%s</span><span class="s2">. Please see sklearn.metrics.pairwise.distance_metrics()&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">distance</span><span class="p">))</span>
+    <span class="c1">#distDict = sk.metrics.pairwise.pairwise_distances()</span>
+    <span class="c1">#if distance not in distDict:</span>
+    <span class="c1">#    raise ValueError(&quot;ERROR: the distance you requested, %s, is not available. Please see sklearn.metrics.pairwise.distance_metrics()&quot;%(distance))</span>
     
-    <span class="n">d</span> <span class="o">=</span> <span class="n">distDict</span><span class="p">[</span><span class="n">distance</span><span class="p">](</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1">#d = distDict[distance](data)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">pairwise</span><span class="o">.</span><span class="n">pairwise_distances</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="convertDistanceToSimilarity"><a class="viewcode-back" href="../clustering_algorithms.html#clustering_algorithms.convertDistanceToSimilarity">[docs]</a><span class="k">def</span> <span class="nf">convertDistanceToSimilarity</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility to convert a distance matrix to a similarity matrix</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    D: matrix of floats</span>
+<span class="sd">        A matrix of distances, such as returned by returnDistanceMatrix(data,distanceType)</span>
+<span class="sd">    beta: float</span>
+<span class="sd">        A variable for mapping distance to similarity.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    S: a matrix of floats</span>
+<span class="sd">        A matrix of similarity values. according to S = np.exp(-beta * D / D.std())</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">beta</span><span class="o">*</span><span class="n">D</span><span class="o">/</span><span class="n">D</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">S</span></div>
 
 </pre></div>
 
@@ -460,6 +627,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

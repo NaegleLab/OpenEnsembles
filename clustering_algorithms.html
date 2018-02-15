@@ -87,7 +87,10 @@ var_params contains all the final parameters used in the act of clustering</p>
 </div></blockquote>
 <p><strong>kwargs: dict</strong></p>
 <blockquote>
-<div><p>Variable parameters passed in as a dict. These are specific to each algorithm</p>
+<div><p>Variable parameters passed in as a dict. These are specific to each algorithm
+The keyword ‘distance’ is used by OpenEnsembles to generalize distance/similarity calls across algorithms. Use ‘distance’ and a string for distance metric. 
+Algorithms requiring similarity will use the conversion of Distance (D) to Similarity (S) according to: S = np.exp(-D / D.std()). 
+Use ‘affinity’ and ‘precomputed’ to exert greater control over usage.</p>
 </div></blockquote>
 <p><strong>K: int</strong></p>
 <blockquote class="last">
@@ -193,6 +196,60 @@ var_params contains all the final parameters used in the act of clustering</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="clustering_algorithms.clustering_algorithms.GaussianMixture">
+<code class="descname">GaussianMixture</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_algorithms.html#clustering_algorithms.GaussianMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_algorithms.clustering_algorithms.GaussianMixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/mixture.html">sklearn’s GuassianMixture</a></p>
+<blockquote>
+<div><strong>Defaults and var_params:</strong> (n_components=2, covariance_type=’full’, tol=0.001, reg_covar=1e-06, max_iter=100, n_init=1, init_params=’kmeans’, weights_init=None, means_init=None, precisions_init=None, random_state=None, warm_start=False, verbose=0, verbose_interval=10)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
+<blockquote>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
+<blockquote class="last">
+<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clustering_algorithms.clustering_algorithms.MeanShift">
+<code class="descname">MeanShift</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_algorithms.html#clustering_algorithms.MeanShift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_algorithms.clustering_algorithms.MeanShift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html">sklearn’s MeanShift</a></p>
+<blockquote>
+<div><strong>Defaults and var_params:</strong> sklearn.cluster.MeanShift(bandwidth=None, seeds=None, bin_seeding=False, min_bin_freq=1, cluster_all=True, n_jobs=1)</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
+<blockquote>
+<div><p>Solution of clustering labels for each object (updated in object.out)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
+<blockquote class="last">
+<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="clustering_algorithms.clustering_algorithms.agglomerative">
 <code class="descname">agglomerative</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_algorithms.html#clustering_algorithms.agglomerative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_algorithms.clustering_algorithms.agglomerative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses sklearns <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html">AgglomerativeClustering algorithm</a></p>
@@ -240,7 +297,7 @@ var_params contains all the final parameters used in the act of clustering</p>
 <dt id="clustering_algorithms.clustering_algorithms.kmeans">
 <code class="descname">kmeans</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_algorithms.html#clustering_algorithms.kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_algorithms.clustering_algorithms.kmeans" title="Permalink to this definition">¶</a></dt>
 <dd><p>kmeans clustering see <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">skc.KMeans</a></p>
-<p><strong>Defaults and var_params:</strong> skc.KMeans(init=’k-means++’, n_init=10, max_iter=300, tol=0.0001, precompute_distances=’auto’, verbose=0, random_state=None, copy_x=True, n_jobs=1)</p>
+<p><strong>Defaults and var_params:</strong> skc.KMeans(n_clusters=2, init=’k-means++’, n_init=10, max_iter=300, tol=0.0001, precompute_distances=’auto’, verbose=0, random_state=None, copy_x=True, n_jobs=1)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -266,7 +323,7 @@ var_params contains all the final parameters used in the act of clustering</p>
 <dt id="clustering_algorithms.clustering_algorithms.spectral">
 <code class="descname">spectral</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_algorithms.html#clustering_algorithms.spectral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_algorithms.clustering_algorithms.spectral" title="Permalink to this definition">¶</a></dt>
 <dd><p>Spectral clustering, see <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html">skc.SpectralClustering</a></p>
-<p><strong>Defaults and var_params:</strong> skc.SpectralClustering(n_clusters=8, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)
+<p><strong>Defaults and var_params:</strong> skc.SpectralClustering(n_clusters=2, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)
 Other Parameters
 —————-
 var_params: dict</p>
@@ -286,6 +343,34 @@ var_params: dict</p>
 </table>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="clustering_algorithms.convertDistanceToSimilarity">
+<code class="descclassname">clustering_algorithms.</code><code class="descname">convertDistanceToSimilarity</code><span class="sig-paren">(</span><em>D</em>, <em>beta=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/clustering_algorithms.html#convertDistanceToSimilarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clustering_algorithms.convertDistanceToSimilarity" title="Permalink to this definition">¶</a></dt>
+<dd><p>A utility to convert a distance matrix to a similarity matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>D: matrix of floats</strong></p>
+<blockquote>
+<div><p>A matrix of distances, such as returned by returnDistanceMatrix(data,distanceType)</p>
+</div></blockquote>
+<p><strong>beta: float</strong></p>
+<blockquote>
+<div><p>A variable for mapping distance to similarity.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">S: a matrix of floats</p>
+<blockquote class="last">
+<div><p>A matrix of similarity values. according to S = np.exp(-beta * D / D.std())</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -334,7 +419,9 @@ with anything in paramsSent.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">params: dict</p>
 <blockquote class="last">
-<div><p>Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent</p>
+<div><p>Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent
+This will handle checking to make sure that if precomputed distances have been selected, that a distance 
+or similarity matrix is also passed.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -368,6 +455,7 @@ with anything in paramsSent.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
 </ul>
 
   <h4>Previous topic</h4>

@@ -222,7 +222,7 @@ div.nboutput div.output_area.stderr {
 <h1>Use Majority Vote to stabilize k-means clustering<a class="headerlink" href="#Use-Majority-Vote-to-stabilize-k-means-clustering" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [1]:
+<span></span>In [13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -230,27 +230,30 @@ div.nboutput div.output_area.stderr {
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
+
 
 
 <span class="c1">#Set up a dataobject of samples from two Guassians</span>
 <span class="n">n_samples</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 <span class="c1">#centers = [(0,0), (3, 6.32)] #Change distance between centers to make the problem easier/harder</span>
-<span class="n">centers</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
+<span class="n">centers</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
 <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_blobs</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="n">n_samples</span><span class="p">,</span><span class="n">centers</span><span class="o">=</span> <span class="n">centers</span><span class="p">,</span><span class="n">cluster_std</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="c1">#put the dataset into a dataframe</span>
 
 <span class="n">dataObj</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span> <span class="c1">#instantiate the oe data object</span>
 <span class="n">dataObj</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span> <span class="c1"># Plot this data - now referenced as &#39;parent&#39;</span>
-
+<span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span> <span class="c1">#set the limits of x to y, so it&#39;s clear that these are spherical classes</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[1]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/Examples_Example_Kmeans_MajorityVote_1_0.png" src="../_images/Examples_Example_Kmeans_MajorityVote_1_0.png" />
@@ -260,7 +263,7 @@ div.nboutput div.output_area.stderr {
 <h2>Example of calculating and plotting a single clustering solution<a class="headerlink" href="#Example-of-calculating-and-plotting-a-single-clustering-solution" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [2]:
+<span></span>In [14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -268,18 +271,18 @@ div.nboutput div.output_area.stderr {
 <span class="c1"># We have to override default Scikit-learn settings, which have built in some determinism</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">dataObj</span><span class="p">)</span> <span class="c1">#instantiate an openesembles clustering object</span>
-<span class="n">K</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">K</span> <span class="o">=</span> <span class="mi">12</span>
 <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;kmeans&#39;</span>
 <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">init</span> <span class="o">=</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">n_init</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">#This solution will be called &#39;kmeans&#39;</span>
 <span class="n">dataObj</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;kmeans&#39;</span><span class="p">])</span> <span class="c1">#plot the data according to solution &#39;kmeans&#39;</span>
-
+<span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[2]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/Examples_Example_Kmeans_MajorityVote_3_0.png" src="../_images/Examples_Example_Kmeans_MajorityVote_3_0.png" />
@@ -290,7 +293,7 @@ div.nboutput div.output_area.stderr {
 <h2>Build the ensemble of many heuristic k-means solutions with large K<a class="headerlink" href="#Build-the-ensemble-of-many-heuristic-k-means-solutions-with-large-K" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<span></span>In [15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -298,10 +301,9 @@ div.nboutput div.output_area.stderr {
 <span class="c1"># A solution is added.</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">dataObj</span><span class="p">)</span>
 <span class="n">K</span> <span class="o">=</span> <span class="mi">12</span>  <span class="c1"># number of clusters to create</span>
-<span class="n">numIterations</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">numIterations</span> <span class="o">=</span> <span class="mi">40</span>
 <span class="n">c_MV_arr</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">fig_arr</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">modulo</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">numIterations</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;kmeans_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c1">#to append a new solution, it must have a name (dictionary key) that is unique</span>
     <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">init</span> <span class="o">=</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">n_init</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">#c.cluster will eventually become numIterations long</span>
@@ -312,7 +314,7 @@ div.nboutput div.output_area.stderr {
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [4]:
+<span></span>In [16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -321,6 +323,8 @@ div.nboutput div.output_area.stderr {
 
     <span class="n">fig</span> <span class="o">=</span> <span class="n">dataObj</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">c_MV_arr</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;majority_vote&#39;</span><span class="p">])</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Majority vote across </span><span class="si">%d</span><span class="s1"> solutions&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">ind</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 </pre></div>
@@ -387,7 +391,7 @@ div.nboutput div.output_area.stderr {
 <h2>Calculate and plot two validation metrics across majority voting solutions<a class="headerlink" href="#Calculate-and-plot-two-validation-metrics-across-majority-voting-solutions" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -415,12 +419,12 @@ div.nboutput div.output_area.stderr {
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="c1">#Plot the two validation metrics as a function of index</span>
-<span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_MV_arr</span><span class="p">)))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_MV_arr</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sil_arr</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Validation metric for compactness&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Number of k-means solutions included&#39;</span><span class="p">)</span>
@@ -454,7 +458,7 @@ div.nboutput div.output_area.stderr {
 <h2>Plot the co-occurrence matrix of the ensemble<a class="headerlink" href="#Plot-the-co-occurrence-matrix-of-the-ensemble" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
+<span></span>In [11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -466,7 +470,7 @@ div.nboutput div.output_area.stderr {
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[7]:
+<span></span>Out[11]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -506,9 +510,12 @@ div.nboutput div.output_area.stderr {
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Ensemble_Distances_Algorithms_No_Structure.html">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Demonstrate_RandomSeed.html">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Demonstrate_Distance_Affinity_effects.html">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 </ul>
 
   <h4>Previous topic</h4>

@@ -15,6 +15,7 @@ OpenEnsembles
 	Supporting
 	Examples/Examples
 	Dependencies
+	Installation
 
 
 

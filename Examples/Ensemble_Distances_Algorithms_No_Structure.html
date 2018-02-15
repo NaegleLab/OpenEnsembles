@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Dependencies" href="../Dependencies.html" />
+    <link rel="next" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms" href="Demonstrate_RandomSeed.html" />
     <link rel="prev" title="Use Majority Vote to stabilize k-means clustering" href="Example_Kmeans_MajorityVote.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../Dependencies.html" title="Dependencies"
+          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="Example_Kmeans_MajorityVote.html" title="Use Majority Vote to stabilize k-means clustering"
@@ -233,7 +233,7 @@ div.nboutput div.output_area.stderr {
 
 
 <span class="n">n_samples</span> <span class="o">=</span> <span class="mi">800</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#this helps to establish the same dataset and functionality, but is not required</span>
 
 <span class="n">no_structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="bp">None</span>
 <span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">no_structure</span>
@@ -264,27 +264,18 @@ div.nboutput div.output_area.stderr {
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="n">c</span>  <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1">#instantiate an object so we can get all available algorithms</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">algorithms_available</span><span class="p">()</span>
-<span class="c1">#Seteverything to false by default, then change just those that are true</span>
-<span class="k">for</span> <span class="n">alg</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-    <span class="n">a</span><span class="p">[</span><span class="n">alg</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">paramsC</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">clustering_algorithm_parameters</span><span class="p">()</span> <span class="c1">#here we will rely on walking through</span>
 
 <span class="c1"># remove DBSCAN -- this does very well on unstructured data, we want to ask if we can use poorly performing algorithms</span>
-<span class="c1"># to identify there isn&#39;t structure.</span>
-<span class="k">del</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;DBSCAN&#39;</span><span class="p">]</span>
+<span class="c1"># to identify if there isn&#39;t structure.</span>
+<span class="n">algorithmsToRemove</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DBSCAN&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">algToRemove</span> <span class="ow">in</span> <span class="n">algorithmsToRemove</span><span class="p">:</span>
+    <span class="k">del</span> <span class="n">a</span><span class="p">[</span><span class="n">algToRemove</span><span class="p">]</span>
 
+<span class="n">takesLinkages</span> <span class="o">=</span> <span class="n">paramsC</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span>
+<span class="n">takesDistances</span> <span class="o">=</span> <span class="n">paramsC</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span>
+<span class="n">takesK</span> <span class="o">=</span> <span class="n">paramsC</span><span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">]</span>
 
-<span class="n">takesLinkages</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">takesDistances</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">takesK</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">takesLinkages</span><span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-
-<span class="n">takesDistances</span><span class="p">[</span><span class="s1">&#39;AffinityPropagation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">takesDistances</span><span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-
-<span class="n">takesK</span><span class="p">[</span><span class="s1">&#39;kmeans&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">takesK</span><span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">takesK</span><span class="p">[</span><span class="s1">&#39;spectral&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-<span class="n">takesK</span><span class="p">[</span><span class="s1">&#39;Birch&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
 
 </pre></div>
 </div>
@@ -296,9 +287,9 @@ div.nboutput div.output_area.stderr {
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="c1">#setup the parameters of clustering here, algorithms are set by algorithms_available</span>
-<span class="n">K</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">K</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">linkages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="s1">&#39;ward&#39;</span><span class="p">]</span>
-<span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">]</span>
+<span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">]</span>
 
 </pre></div>
 </div>
@@ -312,11 +303,11 @@ div.nboutput div.output_area.stderr {
 <span></span><span class="c1"># Create an ensemble: sweep K, distance metrics</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#if there were transformations in d.D</span>
-    <span class="k">for</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">takesK</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#linkage is only for agglomerative, which also accepts K and distances, so handle that here</span>
-        <span class="k">if</span> <span class="n">takesK</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span> <span class="c1">#linkage is only for agglomerative, which also accepts K and distances, so handle that here</span>
+        <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">takesK</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">takesDistances</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">takesLinkages</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">takesDistances</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">takesLinkages</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">linkage</span> <span class="ow">in</span> <span class="n">linkages</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">linkage</span> <span class="o">==</span> <span class="s1">&#39;ward&#39;</span><span class="p">:</span>
                                 <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
@@ -338,7 +329,7 @@ div.nboutput div.output_area.stderr {
 
 
         <span class="k">else</span><span class="p">:</span> <span class="c1"># does not take K</span>
-            <span class="k">if</span> <span class="n">takesDistances</span><span class="p">[</span><span class="n">algorithm</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">takesDistances</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
                         <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">dist</span><span class="p">])</span>
                         <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
@@ -589,24 +580,24 @@ div.nboutput div.output_area.stderr {
       <th>parent_AffinityPropagation_euclidean</th>
       <th>parent_AffinityPropagation_l1</th>
       <th>parent_AffinityPropagation_l2</th>
-      <th>parent_AffinityPropagation_cosine</th>
-      <th>parent_Birch_2</th>
-      <th>parent_Birch_4</th>
-      <th>parent_Birch_6</th>
-      <th>parent_Birch_8</th>
-      <th>parent_Birch_10</th>
-      <th>parent_Birch_12</th>
+      <th>parent_Birch_3</th>
+      <th>parent_Birch_5</th>
+      <th>parent_Birch_7</th>
+      <th>parent_Birch_9</th>
+      <th>parent_Birch_11</th>
+      <th>parent_Birch_13</th>
+      <th>parent_Birch_15</th>
       <th>...</th>
-      <th>parent_kmeans_18</th>
-      <th>parent_spectral_2</th>
-      <th>parent_spectral_4</th>
-      <th>parent_spectral_6</th>
-      <th>parent_spectral_8</th>
-      <th>parent_spectral_10</th>
-      <th>parent_spectral_12</th>
-      <th>parent_spectral_14</th>
-      <th>parent_spectral_16</th>
-      <th>parent_spectral_18</th>
+      <th>parent_spectral_l2_13</th>
+      <th>parent_spectral_euclidean_15</th>
+      <th>parent_spectral_l1_15</th>
+      <th>parent_spectral_l2_15</th>
+      <th>parent_spectral_euclidean_17</th>
+      <th>parent_spectral_l1_17</th>
+      <th>parent_spectral_l2_17</th>
+      <th>parent_spectral_euclidean_19</th>
+      <th>parent_spectral_l1_19</th>
+      <th>parent_spectral_l2_19</th>
     </tr>
   </thead>
   <tbody>
@@ -615,720 +606,720 @@ div.nboutput div.output_area.stderr {
       <td>1</td>
       <td>0.969461</td>
       <td>1</td>
-      <td>0.209621</td>
-      <td>0.335141</td>
-      <td>0.590467</td>
-      <td>0.512404</td>
-      <td>0.48408</td>
-      <td>0.44523</td>
-      <td>0.414046</td>
+      <td>0.47185</td>
+      <td>0.550541</td>
+      <td>0.515455</td>
+      <td>0.461976</td>
+      <td>0.426</td>
+      <td>0.413298</td>
+      <td>0.389352</td>
       <td>...</td>
-      <td>0.408465</td>
-      <td>0.294497</td>
-      <td>0.862462</td>
-      <td>0.440445</td>
-      <td>0.424347</td>
-      <td>0.402987</td>
-      <td>0.401602</td>
-      <td>0.394069</td>
-      <td>0.410029</td>
-      <td>0.38081</td>
+      <td>0.435873</td>
+      <td>0.414618</td>
+      <td>0.390257</td>
+      <td>0.415368</td>
+      <td>0.385858</td>
+      <td>0.396539</td>
+      <td>0.388509</td>
+      <td>0.363028</td>
+      <td>0.373439</td>
+      <td>0.365509</td>
     </tr>
     <tr>
       <th>parent_AffinityPropagation_l1</th>
       <td>0.969461</td>
       <td>1</td>
       <td>0.969461</td>
-      <td>0.213415</td>
-      <td>0.335435</td>
-      <td>0.59303</td>
-      <td>0.512087</td>
-      <td>0.483666</td>
-      <td>0.443893</td>
-      <td>0.413146</td>
+      <td>0.471528</td>
+      <td>0.551682</td>
+      <td>0.514644</td>
+      <td>0.460579</td>
+      <td>0.42472</td>
+      <td>0.412512</td>
+      <td>0.38861</td>
       <td>...</td>
-      <td>0.41119</td>
-      <td>0.290525</td>
-      <td>0.884902</td>
-      <td>0.441567</td>
-      <td>0.425006</td>
-      <td>0.408257</td>
-      <td>0.406893</td>
-      <td>0.396504</td>
-      <td>0.407576</td>
-      <td>0.383026</td>
+      <td>0.435468</td>
+      <td>0.420074</td>
+      <td>0.388147</td>
+      <td>0.420788</td>
+      <td>0.386825</td>
+      <td>0.39792</td>
+      <td>0.38942</td>
+      <td>0.363668</td>
+      <td>0.37529</td>
+      <td>0.365794</td>
     </tr>
     <tr>
       <th>parent_AffinityPropagation_l2</th>
       <td>1</td>
       <td>0.969461</td>
       <td>1</td>
-      <td>0.209621</td>
-      <td>0.335141</td>
-      <td>0.590467</td>
-      <td>0.512404</td>
-      <td>0.48408</td>
-      <td>0.44523</td>
-      <td>0.414046</td>
+      <td>0.47185</td>
+      <td>0.550541</td>
+      <td>0.515455</td>
+      <td>0.461976</td>
+      <td>0.426</td>
+      <td>0.413298</td>
+      <td>0.389352</td>
       <td>...</td>
-      <td>0.408465</td>
-      <td>0.294497</td>
-      <td>0.862462</td>
-      <td>0.440445</td>
-      <td>0.424347</td>
-      <td>0.402987</td>
-      <td>0.401602</td>
-      <td>0.394069</td>
-      <td>0.410029</td>
-      <td>0.38081</td>
+      <td>0.435873</td>
+      <td>0.414618</td>
+      <td>0.390257</td>
+      <td>0.415368</td>
+      <td>0.385858</td>
+      <td>0.396539</td>
+      <td>0.388509</td>
+      <td>0.363028</td>
+      <td>0.373439</td>
+      <td>0.365509</td>
     </tr>
     <tr>
-      <th>parent_AffinityPropagation_cosine</th>
-      <td>0.209621</td>
-      <td>0.213415</td>
-      <td>0.209621</td>
+      <th>parent_Birch_3</th>
+      <td>0.47185</td>
+      <td>0.471528</td>
+      <td>0.47185</td>
       <td>1</td>
-      <td>0.242749</td>
-      <td>0.234526</td>
-      <td>0.185983</td>
-      <td>0.210336</td>
-      <td>0.190399</td>
-      <td>0.176324</td>
+      <td>0.663886</td>
+      <td>0.550815</td>
+      <td>0.484374</td>
+      <td>0.442792</td>
+      <td>0.412642</td>
+      <td>0.388473</td>
       <td>...</td>
-      <td>0.188379</td>
-      <td>0.0216086</td>
-      <td>0.23508</td>
-      <td>0.168258</td>
-      <td>0.259891</td>
-      <td>0.186782</td>
-      <td>0.182965</td>
-      <td>0.193135</td>
-      <td>0.19965</td>
-      <td>0.196216</td>
+      <td>0.316598</td>
+      <td>0.315282</td>
+      <td>0.315271</td>
+      <td>0.315378</td>
+      <td>0.305555</td>
+      <td>0.292182</td>
+      <td>0.301978</td>
+      <td>0.283765</td>
+      <td>0.285804</td>
+      <td>0.296302</td>
     </tr>
     <tr>
-      <th>parent_Birch_2</th>
-      <td>0.335141</td>
-      <td>0.335435</td>
-      <td>0.335141</td>
-      <td>0.242749</td>
+      <th>parent_Birch_5</th>
+      <td>0.550541</td>
+      <td>0.551682</td>
+      <td>0.550541</td>
+      <td>0.663886</td>
       <td>1</td>
-      <td>0.508628</td>
-      <td>0.387425</td>
-      <td>0.333584</td>
-      <td>0.30102</td>
-      <td>0.277996</td>
+      <td>0.829675</td>
+      <td>0.729517</td>
+      <td>0.666798</td>
+      <td>0.621283</td>
+      <td>0.584759</td>
       <td>...</td>
-      <td>0.209868</td>
-      <td>0.0467874</td>
-      <td>0.369432</td>
-      <td>0.207698</td>
-      <td>0.233777</td>
-      <td>0.23128</td>
-      <td>0.226265</td>
-      <td>0.196106</td>
-      <td>0.200548</td>
-      <td>0.193935</td>
+      <td>0.460372</td>
+      <td>0.462782</td>
+      <td>0.460737</td>
+      <td>0.460849</td>
+      <td>0.449125</td>
+      <td>0.422942</td>
+      <td>0.445373</td>
+      <td>0.423259</td>
+      <td>0.41632</td>
+      <td>0.428678</td>
     </tr>
     <tr>
-      <th>parent_Birch_4</th>
-      <td>0.590467</td>
-      <td>0.59303</td>
-      <td>0.590467</td>
-      <td>0.234526</td>
-      <td>0.508628</td>
+      <th>parent_Birch_7</th>
+      <td>0.515455</td>
+      <td>0.514644</td>
+      <td>0.515455</td>
+      <td>0.550815</td>
+      <td>0.829675</td>
       <td>1</td>
-      <td>0.76154</td>
-      <td>0.655546</td>
-      <td>0.591377</td>
-      <td>0.54595</td>
+      <td>0.879187</td>
+      <td>0.803491</td>
+      <td>0.748506</td>
+      <td>0.70433</td>
       <td>...</td>
-      <td>0.392312</td>
-      <td>0.198955</td>
-      <td>0.642191</td>
-      <td>0.483194</td>
-      <td>0.417515</td>
-      <td>0.420269</td>
-      <td>0.410429</td>
-      <td>0.402403</td>
-      <td>0.405292</td>
-      <td>0.401369</td>
+      <td>0.552846</td>
+      <td>0.560904</td>
+      <td>0.547815</td>
+      <td>0.558991</td>
+      <td>0.539924</td>
+      <td>0.514103</td>
+      <td>0.536182</td>
+      <td>0.507555</td>
+      <td>0.494372</td>
+      <td>0.523523</td>
     </tr>
     <tr>
-      <th>parent_Birch_6</th>
-      <td>0.512404</td>
-      <td>0.512087</td>
-      <td>0.512404</td>
-      <td>0.185983</td>
-      <td>0.387425</td>
-      <td>0.76154</td>
+      <th>parent_Birch_9</th>
+      <td>0.461976</td>
+      <td>0.460579</td>
+      <td>0.461976</td>
+      <td>0.484374</td>
+      <td>0.729517</td>
+      <td>0.879187</td>
       <td>1</td>
-      <td>0.860791</td>
-      <td>0.776469</td>
-      <td>0.716725</td>
+      <td>0.913878</td>
+      <td>0.851275</td>
+      <td>0.800923</td>
       <td>...</td>
-      <td>0.502456</td>
-      <td>0.210214</td>
-      <td>0.548609</td>
-      <td>0.661448</td>
-      <td>0.520614</td>
-      <td>0.533831</td>
-      <td>0.523745</td>
-      <td>0.533287</td>
-      <td>0.520753</td>
-      <td>0.534332</td>
+      <td>0.622663</td>
+      <td>0.630586</td>
+      <td>0.618948</td>
+      <td>0.628647</td>
+      <td>0.597772</td>
+      <td>0.589919</td>
+      <td>0.59426</td>
+      <td>0.56635</td>
+      <td>0.552682</td>
+      <td>0.581835</td>
     </tr>
     <tr>
-      <th>parent_Birch_8</th>
-      <td>0.48408</td>
-      <td>0.483666</td>
-      <td>0.48408</td>
-      <td>0.210336</td>
-      <td>0.333584</td>
-      <td>0.655546</td>
-      <td>0.860791</td>
+      <th>parent_Birch_11</th>
+      <td>0.426</td>
+      <td>0.42472</td>
+      <td>0.426</td>
+      <td>0.442792</td>
+      <td>0.666798</td>
+      <td>0.803491</td>
+      <td>0.913878</td>
       <td>1</td>
-      <td>0.901994</td>
-      <td>0.832497</td>
+      <td>0.931447</td>
+      <td>0.876249</td>
       <td>...</td>
-      <td>0.578111</td>
-      <td>0.242268</td>
-      <td>0.512285</td>
-      <td>0.582165</td>
-      <td>0.577697</td>
-      <td>0.614991</td>
-      <td>0.604489</td>
-      <td>0.602341</td>
-      <td>0.565292</td>
-      <td>0.60368</td>
+      <td>0.670469</td>
+      <td>0.664053</td>
+      <td>0.659505</td>
+      <td>0.662095</td>
+      <td>0.628322</td>
+      <td>0.646462</td>
+      <td>0.624923</td>
+      <td>0.620017</td>
+      <td>0.594294</td>
+      <td>0.623674</td>
     </tr>
     <tr>
-      <th>parent_Birch_10</th>
-      <td>0.44523</td>
-      <td>0.443893</td>
-      <td>0.44523</td>
-      <td>0.190399</td>
-      <td>0.30102</td>
-      <td>0.591377</td>
-      <td>0.776469</td>
-      <td>0.901994</td>
+      <th>parent_Birch_13</th>
+      <td>0.413298</td>
+      <td>0.412512</td>
+      <td>0.413298</td>
+      <td>0.412642</td>
+      <td>0.621283</td>
+      <td>0.748506</td>
+      <td>0.851275</td>
+      <td>0.931447</td>
       <td>1</td>
-      <td>0.922896</td>
+      <td>0.940677</td>
       <td>...</td>
-      <td>0.632064</td>
-      <td>0.241825</td>
-      <td>0.467227</td>
-      <td>0.566899</td>
-      <td>0.569175</td>
-      <td>0.647343</td>
-      <td>0.640963</td>
-      <td>0.652209</td>
-      <td>0.608745</td>
-      <td>0.654803</td>
+      <td>0.721066</td>
+      <td>0.696608</td>
+      <td>0.710368</td>
+      <td>0.694629</td>
+      <td>0.661231</td>
+      <td>0.686351</td>
+      <td>0.657149</td>
+      <td>0.646025</td>
+      <td>0.633005</td>
+      <td>0.64669</td>
     </tr>
     <tr>
-      <th>parent_Birch_12</th>
-      <td>0.414046</td>
-      <td>0.413146</td>
-      <td>0.414046</td>
-      <td>0.176324</td>
-      <td>0.277996</td>
-      <td>0.54595</td>
-      <td>0.716725</td>
-      <td>0.832497</td>
-      <td>0.922896</td>
+      <th>parent_Birch_15</th>
+      <td>0.389352</td>
+      <td>0.38861</td>
+      <td>0.389352</td>
+      <td>0.388473</td>
+      <td>0.584759</td>
+      <td>0.70433</td>
+      <td>0.800923</td>
+      <td>0.876249</td>
+      <td>0.940677</td>
       <td>1</td>
       <td>...</td>
-      <td>0.656606</td>
-      <td>0.223226</td>
-      <td>0.434206</td>
-      <td>0.537632</td>
-      <td>0.557722</td>
-      <td>0.655527</td>
-      <td>0.649619</td>
-      <td>0.65647</td>
-      <td>0.604525</td>
-      <td>0.664299</td>
+      <td>0.723527</td>
+      <td>0.737951</td>
+      <td>0.760141</td>
+      <td>0.736082</td>
+      <td>0.707519</td>
+      <td>0.727009</td>
+      <td>0.703423</td>
+      <td>0.689421</td>
+      <td>0.681628</td>
+      <td>0.682925</td>
     </tr>
     <tr>
-      <th>parent_Birch_14</th>
-      <td>0.401978</td>
-      <td>0.401213</td>
-      <td>0.401978</td>
-      <td>0.17428</td>
-      <td>0.261107</td>
-      <td>0.512584</td>
-      <td>0.672807</td>
-      <td>0.781366</td>
-      <td>0.866126</td>
-      <td>0.938449</td>
+      <th>parent_Birch_17</th>
+      <td>0.384262</td>
+      <td>0.384809</td>
+      <td>0.384262</td>
+      <td>0.371696</td>
+      <td>0.559383</td>
+      <td>0.673601</td>
+      <td>0.765888</td>
+      <td>0.837841</td>
+      <td>0.89941</td>
+      <td>0.956163</td>
       <td>...</td>
-      <td>0.698166</td>
-      <td>0.209923</td>
-      <td>0.420044</td>
-      <td>0.51146</td>
-      <td>0.550516</td>
-      <td>0.647858</td>
-      <td>0.642208</td>
-      <td>0.64287</td>
-      <td>0.605493</td>
-      <td>0.650045</td>
+      <td>0.701424</td>
+      <td>0.715313</td>
+      <td>0.741844</td>
+      <td>0.714695</td>
+      <td>0.717888</td>
+      <td>0.743659</td>
+      <td>0.71376</td>
+      <td>0.708991</td>
+      <td>0.696404</td>
+      <td>0.693339</td>
     </tr>
     <tr>
-      <th>parent_Birch_16</th>
-      <td>0.380923</td>
-      <td>0.380299</td>
-      <td>0.380923</td>
-      <td>0.181386</td>
-      <td>0.24737</td>
-      <td>0.485406</td>
-      <td>0.636992</td>
-      <td>0.739619</td>
-      <td>0.819721</td>
-      <td>0.888084</td>
+      <th>parent_Birch_19</th>
+      <td>0.375528</td>
+      <td>0.376623</td>
+      <td>0.375528</td>
+      <td>0.359189</td>
+      <td>0.540438</td>
+      <td>0.650623</td>
+      <td>0.739672</td>
+      <td>0.809097</td>
+      <td>0.868534</td>
+      <td>0.923386</td>
       <td>...</td>
-      <td>0.733848</td>
-      <td>0.199443</td>
-      <td>0.398981</td>
-      <td>0.498559</td>
-      <td>0.536528</td>
-      <td>0.62365</td>
-      <td>0.618616</td>
-      <td>0.624268</td>
-      <td>0.601493</td>
-      <td>0.630623</td>
+      <td>0.693274</td>
+      <td>0.712199</td>
+      <td>0.733563</td>
+      <td>0.711596</td>
+      <td>0.720586</td>
+      <td>0.738412</td>
+      <td>0.717238</td>
+      <td>0.724051</td>
+      <td>0.724144</td>
+      <td>0.723293</td>
     </tr>
     <tr>
-      <th>parent_Birch_18</th>
-      <td>0.381787</td>
-      <td>0.382899</td>
-      <td>0.381787</td>
-      <td>0.17488</td>
-      <td>0.237912</td>
-      <td>0.466649</td>
-      <td>0.61225</td>
-      <td>0.710755</td>
-      <td>0.787627</td>
-      <td>0.853267</td>
+      <th>parent_GaussianMixture_3</th>
+      <td>0.491595</td>
+      <td>0.499757</td>
+      <td>0.491595</td>
+      <td>0.376803</td>
+      <td>0.427384</td>
+      <td>0.409299</td>
+      <td>0.36674</td>
+      <td>0.352211</td>
+      <td>0.338986</td>
+      <td>0.318962</td>
       <td>...</td>
-      <td>0.747679</td>
-      <td>0.193644</td>
-      <td>0.397183</td>
-      <td>0.494645</td>
-      <td>0.518654</td>
-      <td>0.611513</td>
-      <td>0.606637</td>
-      <td>0.604953</td>
-      <td>0.590918</td>
-      <td>0.609396</td>
+      <td>0.338588</td>
+      <td>0.335342</td>
+      <td>0.319242</td>
+      <td>0.335484</td>
+      <td>0.326423</td>
+      <td>0.299767</td>
+      <td>0.328127</td>
+      <td>0.311226</td>
+      <td>0.312871</td>
+      <td>0.308678</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_euclidean_average_2</th>
-      <td>0.343643</td>
-      <td>0.338745</td>
-      <td>0.343643</td>
-      <td>0.066765</td>
-      <td>0.0108438</td>
-      <td>0.227489</td>
-      <td>0.242171</td>
-      <td>0.263745</td>
-      <td>0.245721</td>
-      <td>0.22683</td>
+      <th>parent_GaussianMixture_5</th>
+      <td>0.625357</td>
+      <td>0.632403</td>
+      <td>0.625357</td>
+      <td>0.409874</td>
+      <td>0.580182</td>
+      <td>0.528853</td>
+      <td>0.503244</td>
+      <td>0.46033</td>
+      <td>0.461255</td>
+      <td>0.445039</td>
       <td>...</td>
-      <td>0.206717</td>
-      <td>0.628865</td>
-      <td>0.330543</td>
-      <td>0.211525</td>
-      <td>0.240168</td>
-      <td>0.202114</td>
-      <td>0.201456</td>
-      <td>0.212692</td>
-      <td>0.219833</td>
-      <td>0.215635</td>
+      <td>0.470461</td>
+      <td>0.450929</td>
+      <td>0.458477</td>
+      <td>0.451644</td>
+      <td>0.44811</td>
+      <td>0.437881</td>
+      <td>0.442986</td>
+      <td>0.414601</td>
+      <td>0.446266</td>
+      <td>0.416592</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l1_average_2</th>
-      <td>0.368787</td>
-      <td>0.375526</td>
-      <td>0.368787</td>
-      <td>0.0928533</td>
-      <td>0.00276252</td>
-      <td>0.247124</td>
-      <td>0.247635</td>
-      <td>0.268459</td>
-      <td>0.244716</td>
-      <td>0.225901</td>
+      <th>parent_GaussianMixture_7</th>
+      <td>0.464368</td>
+      <td>0.464958</td>
+      <td>0.464368</td>
+      <td>0.356254</td>
+      <td>0.519618</td>
+      <td>0.649037</td>
+      <td>0.639994</td>
+      <td>0.604625</td>
+      <td>0.581099</td>
+      <td>0.550556</td>
       <td>...</td>
-      <td>0.215369</td>
-      <td>0.569525</td>
-      <td>0.370778</td>
-      <td>0.201076</td>
-      <td>0.23169</td>
-      <td>0.197841</td>
-      <td>0.197613</td>
-      <td>0.212314</td>
-      <td>0.209901</td>
-      <td>0.211804</td>
+      <td>0.553389</td>
+      <td>0.557106</td>
+      <td>0.539279</td>
+      <td>0.556639</td>
+      <td>0.561709</td>
+      <td>0.520792</td>
+      <td>0.560374</td>
+      <td>0.528144</td>
+      <td>0.528483</td>
+      <td>0.540561</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l2_average_2</th>
-      <td>0.343643</td>
-      <td>0.338745</td>
-      <td>0.343643</td>
-      <td>0.066765</td>
-      <td>0.0108438</td>
-      <td>0.227489</td>
-      <td>0.242171</td>
-      <td>0.263745</td>
-      <td>0.245721</td>
-      <td>0.22683</td>
+      <th>parent_GaussianMixture_9</th>
+      <td>0.379559</td>
+      <td>0.379532</td>
+      <td>0.379559</td>
+      <td>0.357252</td>
+      <td>0.494436</td>
+      <td>0.594575</td>
+      <td>0.61581</td>
+      <td>0.591439</td>
+      <td>0.584176</td>
+      <td>0.571439</td>
       <td>...</td>
-      <td>0.206717</td>
-      <td>0.628865</td>
-      <td>0.330543</td>
-      <td>0.211525</td>
-      <td>0.240168</td>
-      <td>0.202114</td>
-      <td>0.201456</td>
-      <td>0.212692</td>
-      <td>0.219833</td>
-      <td>0.215635</td>
+      <td>0.565084</td>
+      <td>0.566758</td>
+      <td>0.598223</td>
+      <td>0.56637</td>
+      <td>0.570017</td>
+      <td>0.572604</td>
+      <td>0.567997</td>
+      <td>0.552163</td>
+      <td>0.542871</td>
+      <td>0.565181</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_cosine_average_2</th>
-      <td>0.225842</td>
-      <td>0.230461</td>
-      <td>0.225842</td>
-      <td>0.422298</td>
-      <td>0.0897859</td>
-      <td>0.191577</td>
-      <td>0.167913</td>
-      <td>0.177371</td>
-      <td>0.159983</td>
-      <td>0.148795</td>
+      <th>parent_GaussianMixture_11</th>
+      <td>0.373241</td>
+      <td>0.370956</td>
+      <td>0.373241</td>
+      <td>0.310686</td>
+      <td>0.473861</td>
+      <td>0.568562</td>
+      <td>0.643831</td>
+      <td>0.66791</td>
+      <td>0.641404</td>
+      <td>0.625874</td>
       <td>...</td>
-      <td>0.172441</td>
-      <td>0.0967384</td>
-      <td>0.232202</td>
-      <td>0.152929</td>
-      <td>0.186682</td>
-      <td>0.157084</td>
-      <td>0.156475</td>
-      <td>0.182078</td>
-      <td>0.153696</td>
-      <td>0.174593</td>
+      <td>0.646543</td>
+      <td>0.641193</td>
+      <td>0.663627</td>
+      <td>0.639277</td>
+      <td>0.638928</td>
+      <td>0.62816</td>
+      <td>0.636104</td>
+      <td>0.605981</td>
+      <td>0.606077</td>
+      <td>0.601932</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_euclidean_complete_2</th>
-      <td>0.317159</td>
-      <td>0.320283</td>
-      <td>0.317159</td>
-      <td>0.194373</td>
-      <td>0.00387307</td>
-      <td>0.315126</td>
-      <td>0.272157</td>
-      <td>0.244551</td>
-      <td>0.221258</td>
-      <td>0.204197</td>
+      <th>parent_GaussianMixture_13</th>
+      <td>0.399287</td>
+      <td>0.399824</td>
+      <td>0.399287</td>
+      <td>0.318035</td>
+      <td>0.466653</td>
+      <td>0.554099</td>
+      <td>0.626396</td>
+      <td>0.660843</td>
+      <td>0.674713</td>
+      <td>0.663794</td>
       <td>...</td>
-      <td>0.20222</td>
-      <td>0.31119</td>
-      <td>0.343634</td>
-      <td>0.215008</td>
-      <td>0.21637</td>
-      <td>0.197096</td>
-      <td>0.195301</td>
-      <td>0.191723</td>
-      <td>0.211516</td>
-      <td>0.193564</td>
+      <td>0.709852</td>
+      <td>0.703604</td>
+      <td>0.692881</td>
+      <td>0.706984</td>
+      <td>0.696317</td>
+      <td>0.656026</td>
+      <td>0.695963</td>
+      <td>0.679099</td>
+      <td>0.664882</td>
+      <td>0.675276</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l1_complete_2</th>
-      <td>0.280634</td>
-      <td>0.277189</td>
-      <td>0.280634</td>
-      <td>0.0178184</td>
-      <td>0.0592064</td>
-      <td>0.203288</td>
-      <td>0.264392</td>
-      <td>0.253682</td>
-      <td>0.229724</td>
-      <td>0.212029</td>
+      <th>parent_GaussianMixture_15</th>
+      <td>0.398547</td>
+      <td>0.398714</td>
+      <td>0.398547</td>
+      <td>0.307431</td>
+      <td>0.444546</td>
+      <td>0.536538</td>
+      <td>0.606048</td>
+      <td>0.651592</td>
+      <td>0.685968</td>
+      <td>0.710123</td>
       <td>...</td>
-      <td>0.199497</td>
-      <td>0.560707</td>
-      <td>0.290779</td>
-      <td>0.250633</td>
-      <td>0.251161</td>
-      <td>0.217013</td>
-      <td>0.217734</td>
-      <td>0.207321</td>
-      <td>0.23222</td>
-      <td>0.199951</td>
+      <td>0.748829</td>
+      <td>0.778362</td>
+      <td>0.735559</td>
+      <td>0.774902</td>
+      <td>0.744204</td>
+      <td>0.730885</td>
+      <td>0.740447</td>
+      <td>0.693122</td>
+      <td>0.671811</td>
+      <td>0.684968</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l2_complete_2</th>
-      <td>0.317159</td>
-      <td>0.320283</td>
-      <td>0.317159</td>
-      <td>0.194373</td>
-      <td>0.00387307</td>
-      <td>0.315126</td>
-      <td>0.272157</td>
-      <td>0.244551</td>
-      <td>0.221258</td>
-      <td>0.204197</td>
+      <th>parent_GaussianMixture_17</th>
+      <td>0.364989</td>
+      <td>0.364704</td>
+      <td>0.364989</td>
+      <td>0.288004</td>
+      <td>0.430594</td>
+      <td>0.526012</td>
+      <td>0.589397</td>
+      <td>0.629549</td>
+      <td>0.657248</td>
+      <td>0.6961</td>
       <td>...</td>
-      <td>0.20222</td>
-      <td>0.31119</td>
-      <td>0.343634</td>
-      <td>0.215008</td>
-      <td>0.21637</td>
-      <td>0.197096</td>
-      <td>0.195301</td>
-      <td>0.191723</td>
-      <td>0.211516</td>
-      <td>0.193564</td>
+      <td>0.721545</td>
+      <td>0.73644</td>
+      <td>0.733151</td>
+      <td>0.739853</td>
+      <td>0.78721</td>
+      <td>0.736502</td>
+      <td>0.786564</td>
+      <td>0.772925</td>
+      <td>0.739776</td>
+      <td>0.731283</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_cosine_complete_2</th>
-      <td>0.225842</td>
-      <td>0.230461</td>
-      <td>0.225842</td>
-      <td>0.422298</td>
-      <td>0.0897859</td>
-      <td>0.191577</td>
-      <td>0.167913</td>
-      <td>0.177371</td>
-      <td>0.159983</td>
-      <td>0.148795</td>
+      <th>parent_GaussianMixture_19</th>
+      <td>0.346846</td>
+      <td>0.347013</td>
+      <td>0.346846</td>
+      <td>0.293521</td>
+      <td>0.414892</td>
+      <td>0.497263</td>
+      <td>0.551663</td>
+      <td>0.590396</td>
+      <td>0.624579</td>
+      <td>0.659462</td>
       <td>...</td>
-      <td>0.172441</td>
-      <td>0.0967384</td>
-      <td>0.232202</td>
-      <td>0.152929</td>
-      <td>0.186682</td>
-      <td>0.157084</td>
-      <td>0.156475</td>
-      <td>0.182078</td>
-      <td>0.153696</td>
-      <td>0.174593</td>
+      <td>0.649745</td>
+      <td>0.655257</td>
+      <td>0.701795</td>
+      <td>0.654675</td>
+      <td>0.729222</td>
+      <td>0.706584</td>
+      <td>0.728252</td>
+      <td>0.726658</td>
+      <td>0.705793</td>
+      <td>0.73214</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_ward_2</th>
-      <td>0.251302</td>
-      <td>0.24618</td>
-      <td>0.251302</td>
-      <td>0.0424698</td>
-      <td>0.354837</td>
-      <td>0.237606</td>
-      <td>0.221009</td>
-      <td>0.245491</td>
-      <td>0.230387</td>
-      <td>0.212987</td>
+      <th>parent_MeanShift</th>
+      <td>-6.59181e-16</td>
+      <td>-5.58949e-16</td>
+      <td>-6.59181e-16</td>
+      <td>-8.59172e-16</td>
+      <td>-5.15298e-16</td>
+      <td>5.81832e-17</td>
+      <td>1.02507e-16</td>
+      <td>-5.06908e-17</td>
+      <td>-2.15151e-16</td>
+      <td>-1.71929e-16</td>
       <td>...</td>
-      <td>0.195</td>
-      <td>0.207823</td>
-      <td>0.247492</td>
-      <td>0.188337</td>
-      <td>0.207098</td>
-      <td>0.207344</td>
-      <td>0.204933</td>
-      <td>0.223889</td>
-      <td>0.216431</td>
-      <td>0.219625</td>
+      <td>-1.0896e-16</td>
+      <td>-6.92843e-17</td>
+      <td>-7.75696e-17</td>
+      <td>-6.92731e-17</td>
+      <td>-6.0719e-17</td>
+      <td>2.43932e-17</td>
+      <td>-4.59056e-17</td>
+      <td>-4.74278e-18</td>
+      <td>-7.7665e-17</td>
+      <td>-1.91793e-16</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_euclidean_average_4</th>
-      <td>0.594034</td>
-      <td>0.594233</td>
-      <td>0.594034</td>
-      <td>0.16729</td>
-      <td>0.316407</td>
-      <td>0.557806</td>
-      <td>0.504757</td>
-      <td>0.497709</td>
-      <td>0.476142</td>
-      <td>0.445257</td>
+      <th>parent_agglomerative_euclidean_average_3</th>
+      <td>0.484124</td>
+      <td>0.482645</td>
+      <td>0.484124</td>
+      <td>0.341926</td>
+      <td>0.363089</td>
+      <td>0.38382</td>
+      <td>0.353056</td>
+      <td>0.322453</td>
+      <td>0.331442</td>
+      <td>0.31184</td>
       <td>...</td>
-      <td>0.395785</td>
-      <td>0.347765</td>
-      <td>0.607982</td>
-      <td>0.477857</td>
-      <td>0.42329</td>
-      <td>0.397148</td>
-      <td>0.396079</td>
-      <td>0.385248</td>
-      <td>0.395152</td>
-      <td>0.388131</td>
+      <td>0.330045</td>
+      <td>0.292672</td>
+      <td>0.30903</td>
+      <td>0.292624</td>
+      <td>0.287761</td>
+      <td>0.303011</td>
+      <td>0.28889</td>
+      <td>0.285827</td>
+      <td>0.283431</td>
+      <td>0.277953</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l1_average_4</th>
-      <td>0.608301</td>
-      <td>0.619274</td>
-      <td>0.608301</td>
-      <td>0.201869</td>
-      <td>0.283967</td>
-      <td>0.546995</td>
-      <td>0.484072</td>
-      <td>0.486864</td>
-      <td>0.455802</td>
-      <td>0.428936</td>
+      <th>parent_agglomerative_l1_average_3</th>
+      <td>0.497627</td>
+      <td>0.507491</td>
+      <td>0.497627</td>
+      <td>0.314346</td>
+      <td>0.364984</td>
+      <td>0.376568</td>
+      <td>0.347591</td>
+      <td>0.317445</td>
+      <td>0.3372</td>
+      <td>0.317274</td>
       <td>...</td>
-      <td>0.400987</td>
-      <td>0.324388</td>
-      <td>0.637036</td>
-      <td>0.442945</td>
-      <td>0.434991</td>
-      <td>0.393539</td>
-      <td>0.39283</td>
-      <td>0.384645</td>
-      <td>0.39312</td>
-      <td>0.382954</td>
+      <td>0.329333</td>
+      <td>0.298182</td>
+      <td>0.309831</td>
+      <td>0.298133</td>
+      <td>0.291934</td>
+      <td>0.297212</td>
+      <td>0.291948</td>
+      <td>0.278671</td>
+      <td>0.283653</td>
+      <td>0.275488</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l2_average_4</th>
-      <td>0.594034</td>
-      <td>0.594233</td>
-      <td>0.594034</td>
-      <td>0.16729</td>
-      <td>0.316407</td>
-      <td>0.557806</td>
-      <td>0.504757</td>
-      <td>0.497709</td>
-      <td>0.476142</td>
-      <td>0.445257</td>
+      <th>parent_agglomerative_l2_average_3</th>
+      <td>0.484124</td>
+      <td>0.482645</td>
+      <td>0.484124</td>
+      <td>0.341926</td>
+      <td>0.363089</td>
+      <td>0.38382</td>
+      <td>0.353056</td>
+      <td>0.322453</td>
+      <td>0.331442</td>
+      <td>0.31184</td>
       <td>...</td>
-      <td>0.395785</td>
-      <td>0.347765</td>
-      <td>0.607982</td>
-      <td>0.477857</td>
-      <td>0.42329</td>
-      <td>0.397148</td>
-      <td>0.396079</td>
-      <td>0.385248</td>
-      <td>0.395152</td>
-      <td>0.388131</td>
+      <td>0.330045</td>
+      <td>0.292672</td>
+      <td>0.30903</td>
+      <td>0.292624</td>
+      <td>0.287761</td>
+      <td>0.303011</td>
+      <td>0.28889</td>
+      <td>0.285827</td>
+      <td>0.283431</td>
+      <td>0.277953</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_cosine_average_4</th>
-      <td>0.385037</td>
-      <td>0.38642</td>
-      <td>0.385037</td>
-      <td>0.319253</td>
-      <td>0.164541</td>
-      <td>0.315581</td>
-      <td>0.370351</td>
-      <td>0.372736</td>
-      <td>0.337754</td>
-      <td>0.315034</td>
+      <th>parent_agglomerative_euclidean_complete_3</th>
+      <td>0.496248</td>
+      <td>0.498918</td>
+      <td>0.496248</td>
+      <td>0.391211</td>
+      <td>0.447078</td>
+      <td>0.390698</td>
+      <td>0.358241</td>
+      <td>0.327205</td>
+      <td>0.341885</td>
+      <td>0.321696</td>
       <td>...</td>
-      <td>0.34126</td>
-      <td>0.0798244</td>
-      <td>0.388</td>
-      <td>0.354786</td>
-      <td>0.319163</td>
-      <td>0.30959</td>
-      <td>0.306684</td>
-      <td>0.329311</td>
-      <td>0.289965</td>
-      <td>0.319618</td>
+      <td>0.317334</td>
+      <td>0.307444</td>
+      <td>0.314595</td>
+      <td>0.307642</td>
+      <td>0.3173</td>
+      <td>0.292784</td>
+      <td>0.316463</td>
+      <td>0.300647</td>
+      <td>0.311321</td>
+      <td>0.304386</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_euclidean_complete_4</th>
-      <td>0.692997</td>
-      <td>0.698395</td>
-      <td>0.692997</td>
-      <td>0.230402</td>
-      <td>0.310502</td>
-      <td>0.620108</td>
-      <td>0.528282</td>
-      <td>0.479408</td>
-      <td>0.444728</td>
-      <td>0.414076</td>
+      <th>parent_agglomerative_l1_complete_3</th>
+      <td>0.473226</td>
+      <td>0.474033</td>
+      <td>0.473226</td>
+      <td>0.374806</td>
+      <td>0.359418</td>
+      <td>0.393353</td>
+      <td>0.346552</td>
+      <td>0.322487</td>
+      <td>0.307054</td>
+      <td>0.288821</td>
       <td>...</td>
-      <td>0.404547</td>
-      <td>0.241839</td>
-      <td>0.739724</td>
-      <td>0.463227</td>
-      <td>0.43798</td>
-      <td>0.401152</td>
-      <td>0.395185</td>
-      <td>0.369979</td>
-      <td>0.422236</td>
-      <td>0.36885</td>
+      <td>0.29383</td>
+      <td>0.28375</td>
+      <td>0.275929</td>
+      <td>0.284641</td>
+      <td>0.273021</td>
+      <td>0.276348</td>
+      <td>0.275044</td>
+      <td>0.286391</td>
+      <td>0.283634</td>
+      <td>0.28204</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l1_complete_4</th>
-      <td>0.587185</td>
-      <td>0.5868</td>
-      <td>0.587185</td>
-      <td>0.160826</td>
-      <td>0.284605</td>
-      <td>0.457383</td>
-      <td>0.488441</td>
-      <td>0.461058</td>
-      <td>0.430286</td>
-      <td>0.402003</td>
+      <th>parent_agglomerative_l2_complete_3</th>
+      <td>0.496248</td>
+      <td>0.498918</td>
+      <td>0.496248</td>
+      <td>0.391211</td>
+      <td>0.447078</td>
+      <td>0.390698</td>
+      <td>0.358241</td>
+      <td>0.327205</td>
+      <td>0.341885</td>
+      <td>0.321696</td>
       <td>...</td>
-      <td>0.375393</td>
-      <td>0.301846</td>
-      <td>0.595724</td>
-      <td>0.528077</td>
-      <td>0.450518</td>
-      <td>0.419452</td>
-      <td>0.419246</td>
-      <td>0.380351</td>
-      <td>0.419515</td>
-      <td>0.369417</td>
+      <td>0.317334</td>
+      <td>0.307444</td>
+      <td>0.314595</td>
+      <td>0.307642</td>
+      <td>0.3173</td>
+      <td>0.292784</td>
+      <td>0.316463</td>
+      <td>0.300647</td>
+      <td>0.311321</td>
+      <td>0.304386</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l2_complete_4</th>
-      <td>0.692997</td>
-      <td>0.698395</td>
-      <td>0.692997</td>
-      <td>0.230402</td>
-      <td>0.310502</td>
-      <td>0.620108</td>
-      <td>0.528282</td>
-      <td>0.479408</td>
-      <td>0.444728</td>
-      <td>0.414076</td>
+      <th>parent_agglomerative_ward_3</th>
+      <td>0.395781</td>
+      <td>0.390465</td>
+      <td>0.395781</td>
+      <td>0.397594</td>
+      <td>0.437303</td>
+      <td>0.426709</td>
+      <td>0.384411</td>
+      <td>0.35154</td>
+      <td>0.329568</td>
+      <td>0.324764</td>
       <td>...</td>
-      <td>0.404547</td>
-      <td>0.241839</td>
-      <td>0.739724</td>
-      <td>0.463227</td>
-      <td>0.43798</td>
-      <td>0.401152</td>
-      <td>0.395185</td>
-      <td>0.369979</td>
-      <td>0.422236</td>
-      <td>0.36885</td>
+      <td>0.306745</td>
+      <td>0.291573</td>
+      <td>0.299644</td>
+      <td>0.289534</td>
+      <td>0.310278</td>
+      <td>0.288305</td>
+      <td>0.307468</td>
+      <td>0.295109</td>
+      <td>0.275555</td>
+      <td>0.28247</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_cosine_complete_4</th>
-      <td>0.382231</td>
-      <td>0.38401</td>
-      <td>0.382231</td>
-      <td>0.319895</td>
-      <td>0.164655</td>
-      <td>0.313887</td>
-      <td>0.373201</td>
-      <td>0.375196</td>
-      <td>0.33866</td>
-      <td>0.315928</td>
+      <th>parent_agglomerative_euclidean_average_5</th>
+      <td>0.555307</td>
+      <td>0.555174</td>
+      <td>0.555307</td>
+      <td>0.408765</td>
+      <td>0.560105</td>
+      <td>0.547018</td>
+      <td>0.516742</td>
+      <td>0.500903</td>
+      <td>0.497583</td>
+      <td>0.468676</td>
       <td>...</td>
-      <td>0.343554</td>
-      <td>0.0924</td>
-      <td>0.385924</td>
-      <td>0.348113</td>
-      <td>0.332058</td>
-      <td>0.320507</td>
-      <td>0.319785</td>
-      <td>0.343723</td>
-      <td>0.285832</td>
-      <td>0.333932</td>
+      <td>0.453865</td>
+      <td>0.4268</td>
+      <td>0.458549</td>
+      <td>0.426772</td>
+      <td>0.421302</td>
+      <td>0.446142</td>
+      <td>0.419657</td>
+      <td>0.418274</td>
+      <td>0.418961</td>
+      <td>0.411544</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1355,728 +1346,728 @@ div.nboutput div.output_area.stderr {
       <td>...</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l2_complete_16</th>
-      <td>0.394851</td>
-      <td>0.398582</td>
-      <td>0.394851</td>
-      <td>0.19417</td>
-      <td>0.189828</td>
-      <td>0.386912</td>
-      <td>0.488131</td>
-      <td>0.5606</td>
-      <td>0.611843</td>
-      <td>0.652102</td>
+      <th>parent_kmeans_15</th>
+      <td>0.418025</td>
+      <td>0.419735</td>
+      <td>0.418025</td>
+      <td>0.326308</td>
+      <td>0.46769</td>
+      <td>0.574453</td>
+      <td>0.640097</td>
+      <td>0.67731</td>
+      <td>0.718999</td>
+      <td>0.752146</td>
       <td>...</td>
-      <td>0.735711</td>
-      <td>0.205056</td>
-      <td>0.416281</td>
-      <td>0.472377</td>
-      <td>0.57614</td>
-      <td>0.613504</td>
-      <td>0.611348</td>
-      <td>0.616617</td>
-      <td>0.578278</td>
-      <td>0.614868</td>
+      <td>0.778527</td>
+      <td>0.839448</td>
+      <td>0.764194</td>
+      <td>0.841979</td>
+      <td>0.764634</td>
+      <td>0.740969</td>
+      <td>0.767202</td>
+      <td>0.680437</td>
+      <td>0.701905</td>
+      <td>0.699909</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_cosine_complete_16</th>
-      <td>0.222771</td>
-      <td>0.224027</td>
-      <td>0.222771</td>
-      <td>0.229583</td>
-      <td>0.0908826</td>
-      <td>0.188712</td>
-      <td>0.289414</td>
-      <td>0.341832</td>
-      <td>0.374805</td>
-      <td>0.376874</td>
+      <th>parent_kmeans_17</th>
+      <td>0.4147</td>
+      <td>0.41922</td>
+      <td>0.4147</td>
+      <td>0.306316</td>
+      <td>0.440751</td>
+      <td>0.534829</td>
+      <td>0.601402</td>
+      <td>0.644232</td>
+      <td>0.682215</td>
+      <td>0.711828</td>
       <td>...</td>
-      <td>0.459733</td>
-      <td>0.046742</td>
-      <td>0.226045</td>
-      <td>0.294389</td>
-      <td>0.345007</td>
-      <td>0.369374</td>
-      <td>0.371447</td>
-      <td>0.388067</td>
-      <td>0.344944</td>
-      <td>0.38678</td>
+      <td>0.740715</td>
+      <td>0.797526</td>
+      <td>0.717737</td>
+      <td>0.800142</td>
+      <td>0.783447</td>
+      <td>0.753964</td>
+      <td>0.784365</td>
+      <td>0.72275</td>
+      <td>0.708458</td>
+      <td>0.733076</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_ward_16</th>
-      <td>0.390134</td>
-      <td>0.3909</td>
-      <td>0.390134</td>
-      <td>0.182096</td>
-      <td>0.183844</td>
-      <td>0.406225</td>
-      <td>0.540985</td>
-      <td>0.62604</td>
-      <td>0.68469</td>
-      <td>0.715556</td>
+      <th>parent_kmeans_19</th>
+      <td>0.382241</td>
+      <td>0.383054</td>
+      <td>0.382241</td>
+      <td>0.300765</td>
+      <td>0.437271</td>
+      <td>0.529889</td>
+      <td>0.591024</td>
+      <td>0.626969</td>
+      <td>0.654736</td>
+      <td>0.690157</td>
       <td>...</td>
-      <td>0.714182</td>
-      <td>0.199169</td>
-      <td>0.400592</td>
-      <td>0.499654</td>
-      <td>0.540491</td>
-      <td>0.598002</td>
-      <td>0.597286</td>
-      <td>0.622923</td>
-      <td>0.598337</td>
-      <td>0.632852</td>
+      <td>0.706554</td>
+      <td>0.755458</td>
+      <td>0.722024</td>
+      <td>0.75826</td>
+      <td>0.828208</td>
+      <td>0.726479</td>
+      <td>0.830806</td>
+      <td>0.777178</td>
+      <td>0.75917</td>
+      <td>0.821596</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_euclidean_average_18</th>
-      <td>0.368825</td>
-      <td>0.36789</td>
-      <td>0.368825</td>
-      <td>0.176228</td>
-      <td>0.188044</td>
-      <td>0.394874</td>
-      <td>0.523779</td>
-      <td>0.601646</td>
-      <td>0.659531</td>
-      <td>0.675871</td>
+      <th>parent_spectral_euclidean_3</th>
+      <td>0.519826</td>
+      <td>0.530227</td>
+      <td>0.519826</td>
+      <td>0.4373</td>
+      <td>0.466959</td>
+      <td>0.457537</td>
+      <td>0.408181</td>
+      <td>0.381463</td>
+      <td>0.361443</td>
+      <td>0.342208</td>
       <td>...</td>
-      <td>0.732313</td>
-      <td>0.200647</td>
-      <td>0.373077</td>
-      <td>0.503665</td>
-      <td>0.529899</td>
-      <td>0.570055</td>
-      <td>0.568357</td>
-      <td>0.586202</td>
-      <td>0.585556</td>
-      <td>0.596052</td>
+      <td>0.360182</td>
+      <td>0.353962</td>
+      <td>0.323203</td>
+      <td>0.353975</td>
+      <td>0.320365</td>
+      <td>0.320417</td>
+      <td>0.319173</td>
+      <td>0.325855</td>
+      <td>0.291035</td>
+      <td>0.317642</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l1_average_18</th>
-      <td>0.38566</td>
-      <td>0.386777</td>
-      <td>0.38566</td>
-      <td>0.178449</td>
-      <td>0.198933</td>
-      <td>0.396621</td>
-      <td>0.529049</td>
-      <td>0.60416</td>
-      <td>0.662409</td>
-      <td>0.687953</td>
+      <th>parent_spectral_l1_3</th>
+      <td>0.520333</td>
+      <td>0.53074</td>
+      <td>0.520333</td>
+      <td>0.437666</td>
+      <td>0.468319</td>
+      <td>0.458669</td>
+      <td>0.409179</td>
+      <td>0.381873</td>
+      <td>0.361826</td>
+      <td>0.34257</td>
       <td>...</td>
-      <td>0.754575</td>
-      <td>0.201332</td>
-      <td>0.389646</td>
-      <td>0.500188</td>
-      <td>0.525928</td>
-      <td>0.568955</td>
-      <td>0.571041</td>
-      <td>0.592082</td>
-      <td>0.593383</td>
-      <td>0.591005</td>
+      <td>0.359395</td>
+      <td>0.353159</td>
+      <td>0.322327</td>
+      <td>0.353173</td>
+      <td>0.31959</td>
+      <td>0.318968</td>
+      <td>0.318397</td>
+      <td>0.324437</td>
+      <td>0.291511</td>
+      <td>0.316205</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l2_average_18</th>
-      <td>0.368825</td>
-      <td>0.36789</td>
-      <td>0.368825</td>
-      <td>0.176228</td>
-      <td>0.188044</td>
-      <td>0.394874</td>
-      <td>0.523779</td>
-      <td>0.601646</td>
-      <td>0.659531</td>
-      <td>0.675871</td>
+      <th>parent_spectral_l2_3</th>
+      <td>0.519826</td>
+      <td>0.530227</td>
+      <td>0.519826</td>
+      <td>0.4373</td>
+      <td>0.466959</td>
+      <td>0.457537</td>
+      <td>0.408181</td>
+      <td>0.381463</td>
+      <td>0.361443</td>
+      <td>0.342208</td>
       <td>...</td>
-      <td>0.732313</td>
-      <td>0.200647</td>
-      <td>0.373077</td>
-      <td>0.503665</td>
-      <td>0.529899</td>
-      <td>0.570055</td>
-      <td>0.568357</td>
-      <td>0.586202</td>
-      <td>0.585556</td>
-      <td>0.596052</td>
+      <td>0.360182</td>
+      <td>0.353962</td>
+      <td>0.323203</td>
+      <td>0.353975</td>
+      <td>0.320365</td>
+      <td>0.320417</td>
+      <td>0.319173</td>
+      <td>0.325855</td>
+      <td>0.291035</td>
+      <td>0.317642</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_cosine_average_18</th>
-      <td>0.212844</td>
-      <td>0.215692</td>
-      <td>0.212844</td>
-      <td>0.219959</td>
-      <td>0.0877443</td>
-      <td>0.184612</td>
-      <td>0.281918</td>
-      <td>0.33405</td>
-      <td>0.366375</td>
-      <td>0.36797</td>
+      <th>parent_spectral_euclidean_5</th>
+      <td>0.627664</td>
+      <td>0.636214</td>
+      <td>0.627664</td>
+      <td>0.394777</td>
+      <td>0.567896</td>
+      <td>0.5648</td>
+      <td>0.507323</td>
+      <td>0.46943</td>
+      <td>0.461334</td>
+      <td>0.438439</td>
       <td>...</td>
-      <td>0.454298</td>
-      <td>0.0417167</td>
-      <td>0.217353</td>
-      <td>0.283071</td>
-      <td>0.324353</td>
-      <td>0.346918</td>
-      <td>0.348601</td>
-      <td>0.370317</td>
-      <td>0.328184</td>
-      <td>0.36702</td>
+      <td>0.50628</td>
+      <td>0.457121</td>
+      <td>0.465574</td>
+      <td>0.458043</td>
+      <td>0.448745</td>
+      <td>0.463751</td>
+      <td>0.454043</td>
+      <td>0.429169</td>
+      <td>0.437458</td>
+      <td>0.420863</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_euclidean_complete_18</th>
-      <td>0.382682</td>
-      <td>0.385893</td>
-      <td>0.382682</td>
-      <td>0.185227</td>
-      <td>0.181075</td>
-      <td>0.370071</td>
-      <td>0.494306</td>
-      <td>0.563251</td>
-      <td>0.611913</td>
-      <td>0.650096</td>
+      <th>parent_spectral_l1_5</th>
+      <td>0.610574</td>
+      <td>0.61809</td>
+      <td>0.610574</td>
+      <td>0.404844</td>
+      <td>0.583855</td>
+      <td>0.575314</td>
+      <td>0.518721</td>
+      <td>0.47805</td>
+      <td>0.471063</td>
+      <td>0.446584</td>
       <td>...</td>
-      <td>0.759957</td>
-      <td>0.197094</td>
-      <td>0.402961</td>
-      <td>0.483343</td>
-      <td>0.555423</td>
-      <td>0.59885</td>
-      <td>0.596698</td>
-      <td>0.610357</td>
-      <td>0.565773</td>
-      <td>0.607585</td>
+      <td>0.513065</td>
+      <td>0.459136</td>
+      <td>0.473179</td>
+      <td>0.459952</td>
+      <td>0.444541</td>
+      <td>0.461689</td>
+      <td>0.450446</td>
+      <td>0.432566</td>
+      <td>0.44361</td>
+      <td>0.421603</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l1_complete_18</th>
-      <td>0.367262</td>
-      <td>0.369746</td>
-      <td>0.367262</td>
-      <td>0.161783</td>
-      <td>0.174364</td>
-      <td>0.368793</td>
-      <td>0.474887</td>
-      <td>0.54301</td>
-      <td>0.595656</td>
-      <td>0.641612</td>
+      <th>parent_spectral_l2_5</th>
+      <td>0.625604</td>
+      <td>0.63404</td>
+      <td>0.625604</td>
+      <td>0.396181</td>
+      <td>0.568511</td>
+      <td>0.565132</td>
+      <td>0.507616</td>
+      <td>0.469699</td>
+      <td>0.461586</td>
+      <td>0.438676</td>
       <td>...</td>
-      <td>0.734182</td>
-      <td>0.195104</td>
-      <td>0.378829</td>
-      <td>0.478596</td>
-      <td>0.553068</td>
-      <td>0.646123</td>
-      <td>0.646091</td>
-      <td>0.622235</td>
-      <td>0.584444</td>
-      <td>0.614029</td>
+      <td>0.505613</td>
+      <td>0.456993</td>
+      <td>0.466191</td>
+      <td>0.457873</td>
+      <td>0.448773</td>
+      <td>0.462876</td>
+      <td>0.454072</td>
+      <td>0.428915</td>
+      <td>0.438572</td>
+      <td>0.420763</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_l2_complete_18</th>
-      <td>0.382682</td>
-      <td>0.385893</td>
-      <td>0.382682</td>
-      <td>0.185227</td>
-      <td>0.181075</td>
-      <td>0.370071</td>
-      <td>0.494306</td>
-      <td>0.563251</td>
-      <td>0.611913</td>
-      <td>0.650096</td>
+      <th>parent_spectral_euclidean_7</th>
+      <td>0.403297</td>
+      <td>0.400556</td>
+      <td>0.403297</td>
+      <td>0.312456</td>
+      <td>0.469974</td>
+      <td>0.589357</td>
+      <td>0.606791</td>
+      <td>0.57347</td>
+      <td>0.550647</td>
+      <td>0.549046</td>
       <td>...</td>
-      <td>0.759957</td>
-      <td>0.197094</td>
-      <td>0.402961</td>
-      <td>0.483343</td>
-      <td>0.555423</td>
-      <td>0.59885</td>
-      <td>0.596698</td>
-      <td>0.610357</td>
-      <td>0.565773</td>
-      <td>0.607585</td>
+      <td>0.551949</td>
+      <td>0.556804</td>
+      <td>0.536399</td>
+      <td>0.557025</td>
+      <td>0.536419</td>
+      <td>0.525111</td>
+      <td>0.53773</td>
+      <td>0.498079</td>
+      <td>0.525449</td>
+      <td>0.51092</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_cosine_complete_18</th>
-      <td>0.212433</td>
-      <td>0.213619</td>
-      <td>0.212433</td>
-      <td>0.21922</td>
-      <td>0.0866514</td>
-      <td>0.183012</td>
-      <td>0.278526</td>
-      <td>0.327866</td>
-      <td>0.361862</td>
-      <td>0.363496</td>
+      <th>parent_spectral_l1_7</th>
+      <td>0.45155</td>
+      <td>0.457857</td>
+      <td>0.45155</td>
+      <td>0.368037</td>
+      <td>0.485989</td>
+      <td>0.591534</td>
+      <td>0.603329</td>
+      <td>0.588505</td>
+      <td>0.568584</td>
+      <td>0.546961</td>
       <td>...</td>
-      <td>0.457031</td>
-      <td>0.0443411</td>
-      <td>0.215279</td>
-      <td>0.279587</td>
-      <td>0.330202</td>
-      <td>0.350894</td>
-      <td>0.352759</td>
-      <td>0.368799</td>
-      <td>0.32759</td>
-      <td>0.367656</td>
+      <td>0.564399</td>
+      <td>0.557542</td>
+      <td>0.53948</td>
+      <td>0.557671</td>
+      <td>0.518908</td>
+      <td>0.502261</td>
+      <td>0.521743</td>
+      <td>0.492522</td>
+      <td>0.511539</td>
+      <td>0.508959</td>
     </tr>
     <tr>
-      <th>parent_agglomerative_ward_18</th>
-      <td>0.379929</td>
-      <td>0.380668</td>
-      <td>0.379929</td>
-      <td>0.174855</td>
-      <td>0.177314</td>
-      <td>0.390718</td>
-      <td>0.532856</td>
-      <td>0.614351</td>
-      <td>0.672514</td>
-      <td>0.701873</td>
+      <th>parent_spectral_l2_7</th>
+      <td>0.4078</td>
+      <td>0.405078</td>
+      <td>0.4078</td>
+      <td>0.314818</td>
+      <td>0.464454</td>
+      <td>0.582466</td>
+      <td>0.600077</td>
+      <td>0.567309</td>
+      <td>0.545508</td>
+      <td>0.544191</td>
       <td>...</td>
-      <td>0.730849</td>
-      <td>0.202712</td>
-      <td>0.387888</td>
-      <td>0.503641</td>
-      <td>0.527997</td>
-      <td>0.584902</td>
-      <td>0.584136</td>
-      <td>0.608909</td>
-      <td>0.582217</td>
-      <td>0.618041</td>
+      <td>0.552708</td>
+      <td>0.559082</td>
+      <td>0.537231</td>
+      <td>0.559303</td>
+      <td>0.538618</td>
+      <td>0.525188</td>
+      <td>0.539974</td>
+      <td>0.502417</td>
+      <td>0.525549</td>
+      <td>0.515253</td>
     </tr>
     <tr>
-      <th>parent_kmeans_2</th>
-      <td>0.41765</td>
-      <td>0.411604</td>
-      <td>0.41765</td>
-      <td>0.10898</td>
-      <td>0.000770259</td>
-      <td>0.257639</td>
-      <td>0.246594</td>
-      <td>0.244538</td>
-      <td>0.227707</td>
-      <td>0.210163</td>
+      <th>parent_spectral_euclidean_9</th>
+      <td>0.415411</td>
+      <td>0.418631</td>
+      <td>0.415411</td>
+      <td>0.350733</td>
+      <td>0.519749</td>
+      <td>0.595488</td>
+      <td>0.671264</td>
+      <td>0.642453</td>
+      <td>0.611383</td>
+      <td>0.600179</td>
       <td>...</td>
-      <td>0.204452</td>
-      <td>0.516446</td>
-      <td>0.412737</td>
-      <td>0.235491</td>
-      <td>0.220582</td>
-      <td>0.204949</td>
-      <td>0.204682</td>
-      <td>0.216492</td>
-      <td>0.23535</td>
-      <td>0.208289</td>
+      <td>0.611176</td>
+      <td>0.597888</td>
+      <td>0.597529</td>
+      <td>0.59817</td>
+      <td>0.584416</td>
+      <td>0.574476</td>
+      <td>0.583007</td>
+      <td>0.568593</td>
+      <td>0.571808</td>
+      <td>0.559767</td>
     </tr>
     <tr>
-      <th>parent_kmeans_4</th>
-      <td>0.836423</td>
-      <td>0.853882</td>
-      <td>0.836423</td>
-      <td>0.232474</td>
-      <td>0.365326</td>
-      <td>0.6487</td>
-      <td>0.552976</td>
-      <td>0.516072</td>
-      <td>0.470815</td>
-      <td>0.438589</td>
+      <th>parent_spectral_l1_9</th>
+      <td>0.424035</td>
+      <td>0.426794</td>
+      <td>0.424035</td>
+      <td>0.339465</td>
+      <td>0.503009</td>
+      <td>0.587693</td>
+      <td>0.675815</td>
+      <td>0.642036</td>
+      <td>0.619733</td>
+      <td>0.609617</td>
       <td>...</td>
-      <td>0.419687</td>
-      <td>0.290069</td>
-      <td>0.953074</td>
-      <td>0.464069</td>
-      <td>0.449151</td>
-      <td>0.428696</td>
-      <td>0.427496</td>
-      <td>0.41781</td>
-      <td>0.423071</td>
-      <td>0.406361</td>
+      <td>0.64783</td>
+      <td>0.628374</td>
+      <td>0.586749</td>
+      <td>0.627013</td>
+      <td>0.57221</td>
+      <td>0.586623</td>
+      <td>0.573891</td>
+      <td>0.556572</td>
+      <td>0.546617</td>
+      <td>0.560743</td>
     </tr>
     <tr>
-      <th>parent_kmeans_6</th>
-      <td>0.542831</td>
-      <td>0.542253</td>
-      <td>0.542831</td>
-      <td>0.21987</td>
-      <td>0.235191</td>
-      <td>0.492535</td>
-      <td>0.586553</td>
-      <td>0.546045</td>
-      <td>0.539786</td>
-      <td>0.503041</td>
+      <th>parent_spectral_l2_9</th>
+      <td>0.416085</td>
+      <td>0.417115</td>
+      <td>0.416085</td>
+      <td>0.349521</td>
+      <td>0.518561</td>
+      <td>0.594817</td>
+      <td>0.670603</td>
+      <td>0.641736</td>
+      <td>0.610711</td>
+      <td>0.599544</td>
       <td>...</td>
-      <td>0.479727</td>
-      <td>0.241196</td>
-      <td>0.553979</td>
-      <td>0.611946</td>
-      <td>0.51624</td>
-      <td>0.475188</td>
-      <td>0.471764</td>
-      <td>0.477545</td>
-      <td>0.517478</td>
-      <td>0.474124</td>
+      <td>0.610332</td>
+      <td>0.597038</td>
+      <td>0.598039</td>
+      <td>0.59732</td>
+      <td>0.584468</td>
+      <td>0.572925</td>
+      <td>0.583059</td>
+      <td>0.568546</td>
+      <td>0.571567</td>
+      <td>0.559699</td>
     </tr>
     <tr>
-      <th>parent_kmeans_8</th>
-      <td>0.459927</td>
-      <td>0.460579</td>
-      <td>0.459927</td>
-      <td>0.203574</td>
-      <td>0.251436</td>
-      <td>0.497669</td>
-      <td>0.607268</td>
-      <td>0.663596</td>
-      <td>0.637751</td>
-      <td>0.60059</td>
+      <th>parent_spectral_euclidean_11</th>
+      <td>0.426311</td>
+      <td>0.430548</td>
+      <td>0.426311</td>
+      <td>0.347833</td>
+      <td>0.495037</td>
+      <td>0.610978</td>
+      <td>0.678481</td>
+      <td>0.716362</td>
+      <td>0.697921</td>
+      <td>0.68672</td>
       <td>...</td>
-      <td>0.557144</td>
-      <td>0.232093</td>
-      <td>0.481088</td>
-      <td>0.561763</td>
-      <td>0.701614</td>
-      <td>0.56111</td>
-      <td>0.556385</td>
-      <td>0.575734</td>
-      <td>0.575501</td>
-      <td>0.571642</td>
+      <td>0.750297</td>
+      <td>0.721631</td>
+      <td>0.68768</td>
+      <td>0.724563</td>
+      <td>0.65613</td>
+      <td>0.645092</td>
+      <td>0.654237</td>
+      <td>0.635847</td>
+      <td>0.616443</td>
+      <td>0.640551</td>
     </tr>
     <tr>
-      <th>parent_kmeans_10</th>
-      <td>0.428594</td>
-      <td>0.430081</td>
-      <td>0.428594</td>
-      <td>0.200724</td>
-      <td>0.222845</td>
-      <td>0.453448</td>
-      <td>0.547374</td>
-      <td>0.634412</td>
-      <td>0.676793</td>
-      <td>0.640267</td>
+      <th>parent_spectral_l1_11</th>
+      <td>0.406278</td>
+      <td>0.405887</td>
+      <td>0.406278</td>
+      <td>0.351067</td>
+      <td>0.492709</td>
+      <td>0.593273</td>
+      <td>0.669266</td>
+      <td>0.700479</td>
+      <td>0.679691</td>
+      <td>0.676794</td>
       <td>...</td>
-      <td>0.614377</td>
-      <td>0.231213</td>
-      <td>0.442045</td>
-      <td>0.507026</td>
-      <td>0.612149</td>
-      <td>0.608461</td>
-      <td>0.608605</td>
-      <td>0.600329</td>
-      <td>0.566861</td>
-      <td>0.602642</td>
+      <td>0.660162</td>
+      <td>0.655272</td>
+      <td>0.646476</td>
+      <td>0.654947</td>
+      <td>0.670392</td>
+      <td>0.618723</td>
+      <td>0.669174</td>
+      <td>0.637554</td>
+      <td>0.619275</td>
+      <td>0.641215</td>
     </tr>
     <tr>
-      <th>parent_kmeans_12</th>
-      <td>0.435599</td>
-      <td>0.438798</td>
-      <td>0.435599</td>
-      <td>0.18303</td>
-      <td>0.225738</td>
-      <td>0.443957</td>
-      <td>0.564682</td>
-      <td>0.653345</td>
-      <td>0.716065</td>
-      <td>0.734389</td>
+      <th>parent_spectral_l2_11</th>
+      <td>0.427764</td>
+      <td>0.424271</td>
+      <td>0.427764</td>
+      <td>0.341706</td>
+      <td>0.492396</td>
+      <td>0.587038</td>
+      <td>0.656161</td>
+      <td>0.691805</td>
+      <td>0.681986</td>
+      <td>0.671635</td>
       <td>...</td>
-      <td>0.689006</td>
-      <td>0.217509</td>
-      <td>0.450793</td>
-      <td>0.537996</td>
-      <td>0.570821</td>
-      <td>0.642384</td>
-      <td>0.643451</td>
-      <td>0.631511</td>
-      <td>0.611739</td>
-      <td>0.64305</td>
+      <td>0.736597</td>
+      <td>0.711089</td>
+      <td>0.689592</td>
+      <td>0.714441</td>
+      <td>0.663382</td>
+      <td>0.642409</td>
+      <td>0.661414</td>
+      <td>0.621595</td>
+      <td>0.615013</td>
+      <td>0.6265</td>
     </tr>
     <tr>
-      <th>parent_kmeans_14</th>
-      <td>0.422654</td>
-      <td>0.425813</td>
-      <td>0.422654</td>
-      <td>0.194801</td>
-      <td>0.213052</td>
-      <td>0.41874</td>
-      <td>0.537736</td>
-      <td>0.615153</td>
-      <td>0.681046</td>
-      <td>0.703903</td>
+      <th>parent_spectral_euclidean_13</th>
+      <td>0.433302</td>
+      <td>0.432977</td>
+      <td>0.433302</td>
+      <td>0.317581</td>
+      <td>0.462278</td>
+      <td>0.557081</td>
+      <td>0.629159</td>
+      <td>0.681285</td>
+      <td>0.731814</td>
+      <td>0.733464</td>
       <td>...</td>
-      <td>0.778378</td>
-      <td>0.21134</td>
-      <td>0.449978</td>
-      <td>0.51724</td>
-      <td>0.582136</td>
-      <td>0.615418</td>
-      <td>0.616376</td>
-      <td>0.610624</td>
-      <td>0.58455</td>
-      <td>0.615805</td>
+      <td>0.961493</td>
+      <td>0.773755</td>
+      <td>0.79658</td>
+      <td>0.776396</td>
+      <td>0.720039</td>
+      <td>0.751187</td>
+      <td>0.726745</td>
+      <td>0.700836</td>
+      <td>0.673473</td>
+      <td>0.669745</td>
     </tr>
     <tr>
-      <th>parent_kmeans_16</th>
-      <td>0.427911</td>
-      <td>0.430295</td>
-      <td>0.427911</td>
-      <td>0.195244</td>
-      <td>0.209575</td>
-      <td>0.400755</td>
-      <td>0.516055</td>
-      <td>0.589995</td>
-      <td>0.63919</td>
-      <td>0.667812</td>
+      <th>parent_spectral_l1_13</th>
+      <td>0.39967</td>
+      <td>0.398636</td>
+      <td>0.39967</td>
+      <td>0.323434</td>
+      <td>0.4928</td>
+      <td>0.579213</td>
+      <td>0.646464</td>
+      <td>0.699808</td>
+      <td>0.732805</td>
+      <td>0.72547</td>
       <td>...</td>
-      <td>0.87779</td>
-      <td>0.203722</td>
-      <td>0.433287</td>
-      <td>0.499243</td>
-      <td>0.600434</td>
-      <td>0.619983</td>
-      <td>0.617951</td>
-      <td>0.619046</td>
-      <td>0.586385</td>
-      <td>0.615632</td>
+      <td>0.733991</td>
+      <td>0.711796</td>
+      <td>0.713211</td>
+      <td>0.709194</td>
+      <td>0.71171</td>
+      <td>0.674692</td>
+      <td>0.710954</td>
+      <td>0.700202</td>
+      <td>0.673986</td>
+      <td>0.660686</td>
     </tr>
     <tr>
-      <th>parent_kmeans_18</th>
-      <td>0.408465</td>
-      <td>0.41119</td>
-      <td>0.408465</td>
-      <td>0.188379</td>
-      <td>0.209868</td>
-      <td>0.392312</td>
-      <td>0.502456</td>
-      <td>0.578111</td>
-      <td>0.632064</td>
-      <td>0.656606</td>
+      <th>parent_spectral_l2_13</th>
+      <td>0.435873</td>
+      <td>0.435468</td>
+      <td>0.435873</td>
+      <td>0.316598</td>
+      <td>0.460372</td>
+      <td>0.552846</td>
+      <td>0.622663</td>
+      <td>0.670469</td>
+      <td>0.721066</td>
+      <td>0.723527</td>
       <td>...</td>
       <td>1</td>
-      <td>0.206683</td>
-      <td>0.416667</td>
-      <td>0.499646</td>
-      <td>0.560896</td>
-      <td>0.612068</td>
-      <td>0.610248</td>
-      <td>0.595219</td>
-      <td>0.576204</td>
-      <td>0.588664</td>
+      <td>0.773236</td>
+      <td>0.807224</td>
+      <td>0.775877</td>
+      <td>0.724981</td>
+      <td>0.754707</td>
+      <td>0.731369</td>
+      <td>0.701548</td>
+      <td>0.673217</td>
+      <td>0.67261</td>
     </tr>
     <tr>
-      <th>parent_spectral_2</th>
-      <td>0.294497</td>
-      <td>0.290525</td>
-      <td>0.294497</td>
-      <td>0.0216086</td>
-      <td>0.0467874</td>
-      <td>0.198955</td>
-      <td>0.210214</td>
-      <td>0.242268</td>
-      <td>0.241825</td>
-      <td>0.223226</td>
+      <th>parent_spectral_euclidean_15</th>
+      <td>0.414618</td>
+      <td>0.420074</td>
+      <td>0.414618</td>
+      <td>0.315282</td>
+      <td>0.462782</td>
+      <td>0.560904</td>
+      <td>0.630586</td>
+      <td>0.664053</td>
+      <td>0.696608</td>
+      <td>0.737951</td>
       <td>...</td>
-      <td>0.206683</td>
+      <td>0.773236</td>
       <td>1</td>
-      <td>0.290548</td>
-      <td>0.218369</td>
-      <td>0.255537</td>
-      <td>0.24631</td>
-      <td>0.246584</td>
-      <td>0.215657</td>
-      <td>0.186491</td>
-      <td>0.214579</td>
+      <td>0.772125</td>
+      <td>0.995535</td>
+      <td>0.827192</td>
+      <td>0.749297</td>
+      <td>0.826437</td>
+      <td>0.701904</td>
+      <td>0.705166</td>
+      <td>0.747121</td>
     </tr>
     <tr>
-      <th>parent_spectral_4</th>
-      <td>0.862462</td>
-      <td>0.884902</td>
-      <td>0.862462</td>
-      <td>0.23508</td>
-      <td>0.369432</td>
-      <td>0.642191</td>
-      <td>0.548609</td>
-      <td>0.512285</td>
-      <td>0.467227</td>
-      <td>0.434206</td>
+      <th>parent_spectral_l1_15</th>
+      <td>0.390257</td>
+      <td>0.388147</td>
+      <td>0.390257</td>
+      <td>0.315271</td>
+      <td>0.460737</td>
+      <td>0.547815</td>
+      <td>0.618948</td>
+      <td>0.659505</td>
+      <td>0.710368</td>
+      <td>0.760141</td>
       <td>...</td>
-      <td>0.416667</td>
-      <td>0.290548</td>
+      <td>0.807224</td>
+      <td>0.772125</td>
       <td>1</td>
-      <td>0.450408</td>
-      <td>0.447311</td>
-      <td>0.426401</td>
-      <td>0.425161</td>
-      <td>0.413519</td>
-      <td>0.419899</td>
-      <td>0.399312</td>
+      <td>0.770232</td>
+      <td>0.772969</td>
+      <td>0.809908</td>
+      <td>0.768177</td>
+      <td>0.706049</td>
+      <td>0.736309</td>
+      <td>0.702273</td>
     </tr>
     <tr>
-      <th>parent_spectral_6</th>
-      <td>0.440445</td>
-      <td>0.441567</td>
-      <td>0.440445</td>
-      <td>0.168258</td>
-      <td>0.207698</td>
-      <td>0.483194</td>
-      <td>0.661448</td>
-      <td>0.582165</td>
-      <td>0.566899</td>
-      <td>0.537632</td>
+      <th>parent_spectral_l2_15</th>
+      <td>0.415368</td>
+      <td>0.420788</td>
+      <td>0.415368</td>
+      <td>0.315378</td>
+      <td>0.460849</td>
+      <td>0.558991</td>
+      <td>0.628647</td>
+      <td>0.662095</td>
+      <td>0.694629</td>
+      <td>0.736082</td>
       <td>...</td>
-      <td>0.499646</td>
-      <td>0.218369</td>
-      <td>0.450408</td>
+      <td>0.775877</td>
+      <td>0.995535</td>
+      <td>0.770232</td>
       <td>1</td>
-      <td>0.485842</td>
-      <td>0.529144</td>
-      <td>0.524207</td>
-      <td>0.518144</td>
-      <td>0.507416</td>
-      <td>0.512271</td>
+      <td>0.824794</td>
+      <td>0.749841</td>
+      <td>0.824037</td>
+      <td>0.702628</td>
+      <td>0.705074</td>
+      <td>0.746187</td>
     </tr>
     <tr>
-      <th>parent_spectral_8</th>
-      <td>0.424347</td>
-      <td>0.425006</td>
-      <td>0.424347</td>
-      <td>0.259891</td>
-      <td>0.233777</td>
-      <td>0.417515</td>
-      <td>0.520614</td>
-      <td>0.577697</td>
-      <td>0.569175</td>
-      <td>0.557722</td>
+      <th>parent_spectral_euclidean_17</th>
+      <td>0.385858</td>
+      <td>0.386825</td>
+      <td>0.385858</td>
+      <td>0.305555</td>
+      <td>0.449125</td>
+      <td>0.539924</td>
+      <td>0.597772</td>
+      <td>0.628322</td>
+      <td>0.661231</td>
+      <td>0.707519</td>
       <td>...</td>
-      <td>0.560896</td>
-      <td>0.255537</td>
-      <td>0.447311</td>
-      <td>0.485842</td>
+      <td>0.724981</td>
+      <td>0.827192</td>
+      <td>0.772969</td>
+      <td>0.824794</td>
       <td>1</td>
-      <td>0.630516</td>
-      <td>0.62591</td>
-      <td>0.609227</td>
-      <td>0.591038</td>
-      <td>0.602762</td>
+      <td>0.761901</td>
+      <td>0.987949</td>
+      <td>0.794851</td>
+      <td>0.787314</td>
+      <td>0.828907</td>
     </tr>
     <tr>
-      <th>parent_spectral_10</th>
-      <td>0.402987</td>
-      <td>0.408257</td>
-      <td>0.402987</td>
-      <td>0.186782</td>
-      <td>0.23128</td>
-      <td>0.420269</td>
-      <td>0.533831</td>
-      <td>0.614991</td>
-      <td>0.647343</td>
-      <td>0.655527</td>
+      <th>parent_spectral_l1_17</th>
+      <td>0.396539</td>
+      <td>0.39792</td>
+      <td>0.396539</td>
+      <td>0.292182</td>
+      <td>0.422942</td>
+      <td>0.514103</td>
+      <td>0.589919</td>
+      <td>0.646462</td>
+      <td>0.686351</td>
+      <td>0.727009</td>
       <td>...</td>
-      <td>0.612068</td>
-      <td>0.24631</td>
-      <td>0.426401</td>
-      <td>0.529144</td>
-      <td>0.630516</td>
+      <td>0.754707</td>
+      <td>0.749297</td>
+      <td>0.809908</td>
+      <td>0.749841</td>
+      <td>0.761901</td>
       <td>1</td>
-      <td>0.984628</td>
-      <td>0.727715</td>
-      <td>0.630576</td>
-      <td>0.723252</td>
+      <td>0.761437</td>
+      <td>0.768048</td>
+      <td>0.726761</td>
+      <td>0.742357</td>
     </tr>
     <tr>
-      <th>parent_spectral_12</th>
-      <td>0.401602</td>
-      <td>0.406893</td>
-      <td>0.401602</td>
-      <td>0.182965</td>
-      <td>0.226265</td>
-      <td>0.410429</td>
-      <td>0.523745</td>
-      <td>0.604489</td>
-      <td>0.640963</td>
-      <td>0.649619</td>
+      <th>parent_spectral_l2_17</th>
+      <td>0.388509</td>
+      <td>0.38942</td>
+      <td>0.388509</td>
+      <td>0.301978</td>
+      <td>0.445373</td>
+      <td>0.536182</td>
+      <td>0.59426</td>
+      <td>0.624923</td>
+      <td>0.657149</td>
+      <td>0.703423</td>
       <td>...</td>
-      <td>0.610248</td>
-      <td>0.246584</td>
-      <td>0.425161</td>
-      <td>0.524207</td>
-      <td>0.62591</td>
-      <td>0.984628</td>
+      <td>0.731369</td>
+      <td>0.826437</td>
+      <td>0.768177</td>
+      <td>0.824037</td>
+      <td>0.987949</td>
+      <td>0.761437</td>
       <td>1</td>
-      <td>0.737776</td>
-      <td>0.627967</td>
-      <td>0.73414</td>
+      <td>0.794387</td>
+      <td>0.785477</td>
+      <td>0.828684</td>
     </tr>
     <tr>
-      <th>parent_spectral_14</th>
-      <td>0.394069</td>
-      <td>0.396504</td>
-      <td>0.394069</td>
-      <td>0.193135</td>
-      <td>0.196106</td>
-      <td>0.402403</td>
-      <td>0.533287</td>
-      <td>0.602341</td>
-      <td>0.652209</td>
-      <td>0.65647</td>
+      <th>parent_spectral_euclidean_19</th>
+      <td>0.363028</td>
+      <td>0.363668</td>
+      <td>0.363028</td>
+      <td>0.283765</td>
+      <td>0.423259</td>
+      <td>0.507555</td>
+      <td>0.56635</td>
+      <td>0.620017</td>
+      <td>0.646025</td>
+      <td>0.689421</td>
       <td>...</td>
-      <td>0.595219</td>
-      <td>0.215657</td>
-      <td>0.413519</td>
-      <td>0.518144</td>
-      <td>0.609227</td>
-      <td>0.727715</td>
-      <td>0.737776</td>
+      <td>0.701548</td>
+      <td>0.701904</td>
+      <td>0.706049</td>
+      <td>0.702628</td>
+      <td>0.794851</td>
+      <td>0.768048</td>
+      <td>0.794387</td>
       <td>1</td>
-      <td>0.665488</td>
-      <td>0.946752</td>
+      <td>0.774385</td>
+      <td>0.840652</td>
     </tr>
     <tr>
-      <th>parent_spectral_16</th>
-      <td>0.410029</td>
-      <td>0.407576</td>
-      <td>0.410029</td>
-      <td>0.19965</td>
-      <td>0.200548</td>
-      <td>0.405292</td>
-      <td>0.520753</td>
-      <td>0.565292</td>
-      <td>0.608745</td>
-      <td>0.604525</td>
+      <th>parent_spectral_l1_19</th>
+      <td>0.373439</td>
+      <td>0.37529</td>
+      <td>0.373439</td>
+      <td>0.285804</td>
+      <td>0.41632</td>
+      <td>0.494372</td>
+      <td>0.552682</td>
+      <td>0.594294</td>
+      <td>0.633005</td>
+      <td>0.681628</td>
       <td>...</td>
-      <td>0.576204</td>
-      <td>0.186491</td>
-      <td>0.419899</td>
-      <td>0.507416</td>
-      <td>0.591038</td>
-      <td>0.630576</td>
-      <td>0.627967</td>
-      <td>0.665488</td>
+      <td>0.673217</td>
+      <td>0.705166</td>
+      <td>0.736309</td>
+      <td>0.705074</td>
+      <td>0.787314</td>
+      <td>0.726761</td>
+      <td>0.785477</td>
+      <td>0.774385</td>
       <td>1</td>
-      <td>0.665409</td>
+      <td>0.756606</td>
     </tr>
     <tr>
-      <th>parent_spectral_18</th>
-      <td>0.38081</td>
-      <td>0.383026</td>
-      <td>0.38081</td>
-      <td>0.196216</td>
-      <td>0.193935</td>
-      <td>0.401369</td>
-      <td>0.534332</td>
-      <td>0.60368</td>
-      <td>0.654803</td>
-      <td>0.664299</td>
+      <th>parent_spectral_l2_19</th>
+      <td>0.365509</td>
+      <td>0.365794</td>
+      <td>0.365509</td>
+      <td>0.296302</td>
+      <td>0.428678</td>
+      <td>0.523523</td>
+      <td>0.581835</td>
+      <td>0.623674</td>
+      <td>0.64669</td>
+      <td>0.682925</td>
       <td>...</td>
-      <td>0.588664</td>
-      <td>0.214579</td>
-      <td>0.399312</td>
-      <td>0.512271</td>
-      <td>0.602762</td>
-      <td>0.723252</td>
-      <td>0.73414</td>
-      <td>0.946752</td>
-      <td>0.665409</td>
+      <td>0.67261</td>
+      <td>0.747121</td>
+      <td>0.702273</td>
+      <td>0.746187</td>
+      <td>0.828907</td>
+      <td>0.742357</td>
+      <td>0.828684</td>
+      <td>0.840652</td>
+      <td>0.756606</td>
       <td>1</td>
     </tr>
   </tbody>
 </table>
-<p>112 rows × 112 columns</p>
+<p>121 rows × 121 columns</p>
 </div></div>
 </div>
 <div class="nbinput docutils container">
@@ -2167,17 +2158,20 @@ div.nboutput div.output_area.stderr {
 <li class="toctree-l3"><a class="reference internal" href="#Use-mutual-information-to-compare-solutions">Use mutual information to compare solutions</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="Demonstrate_RandomSeed.html">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Demonstrate_Distance_Affinity_effects.html">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="Example_Kmeans_MajorityVote.html"
                         title="previous chapter">Use Majority Vote to stabilize k-means clustering</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../Dependencies.html"
-                        title="next chapter">Dependencies</a></p>
+  <p class="topless"><a href="Demonstrate_RandomSeed.html"
+                        title="next chapter">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -2209,7 +2203,7 @@ div.nboutput div.output_area.stderr {
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../Dependencies.html" title="Dependencies"
+          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
              >next</a> |</li>
         <li class="right" >
           <a href="Example_Kmeans_MajorityVote.html" title="Use Majority Vote to stabilize k-means clustering"

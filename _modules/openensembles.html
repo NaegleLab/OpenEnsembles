@@ -200,6 +200,7 @@
         <span class="n">color</span><span class="o">=</span><span class="nb">iter</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">clusters</span><span class="p">))))</span>
         
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig_num</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
         <span class="c1">#plt.hold(True)</span>
 
         <span class="c1">#SETUP axes, as either 2D or 3D</span>
@@ -365,6 +366,10 @@
 <span class="sd">    random_state: dict of objects</span>
 <span class="sd">        A listing of the random state objects that can be used to reset the state and </span>
 
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    clustering_algorithms</span>
+<span class="sd">    </span>
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4</span>
@@ -395,6 +400,29 @@
         <span class="n">algorithms</span> <span class="o">=</span> <span class="n">ca</span><span class="o">.</span><span class="n">clustering_algorithms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="p">{})</span>
         <span class="n">ALG_FCN_DICT</span> <span class="o">=</span> <span class="n">algorithms</span><span class="o">.</span><span class="n">clustering_algorithms_available</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ALG_FCN_DICT</span></div>
+
+<div class="viewcode-block" id="cluster.clustering_algorithm_parameters"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.clustering_algorithm_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">clustering_algorithm_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function returns a dictionary with keys equal to parameters of interest {K, linkage, affinity} whose entries</span>
+<span class="sd">        indicate algorithms that take those as free parameters. For example K-means takes K as an argument, but Affinity</span>
+<span class="sd">        Propagation does not, so you will find kmeans is listed in dict[&#39;K&#39;], but not AffinityPropagation. This is not inclusive of all</span>
+<span class="sd">        paramaters of every algorithm, but the common parameters one might want to vary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        a: dictionary</span>
+<span class="sd">            Keys equal to parameters {K, linkages, distances} and values as lists of algorithms that use that key as a variable</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">        -------</span>
+<span class="sd">        This must be updated if clustering_algorithms is expanded.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">a</span><span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">,</span> <span class="s1">&#39;Birch&#39;</span><span class="p">,</span> <span class="s1">&#39;GaussianMixture&#39;</span><span class="p">]</span>
+        <span class="n">a</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span>
+        <span class="n">a</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;DBSCAN&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">,</span> <span class="s1">&#39;AffinityPropagation&#39;</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">a</span></div>
 
 <div class="viewcode-block" id="cluster.cluster"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.cluster">[docs]</a>    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -509,6 +537,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">uniqueClusters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">algorithm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span></div>
+
+
 
 <div class="viewcode-block" id="cluster.co_occurrence_matrix"><a class="viewcode-back" href="../OpenEnsembles.html#openensembles.cluster.co_occurrence_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">co_occurrence_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source_name</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -966,6 +996,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
