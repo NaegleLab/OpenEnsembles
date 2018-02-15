@@ -372,7 +372,7 @@ class cluster:
 
         """
         a = {}
-        a['K'] = ['kmeans', 'agglomerative', 'spectral', 'Birch']
+        a['K'] = ['kmeans', 'agglomerative', 'spectral', 'Birch', 'GaussianMixture']
         a['linkage'] = ['agglomerative']
         a['distance'] = ['DBSCAN', 'spectral', 'AffinityPropagation', 'agglomerative']
         return a

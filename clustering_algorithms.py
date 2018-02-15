@@ -97,7 +97,7 @@ class clustering_algorithms:
         """
         kmeans clustering see `skc.KMeans <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html>`_
 
-        **Defaults and var_params:** skc.KMeans(init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1)
+        **Defaults and var_params:** skc.KMeans(n_clusters=2, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1)
 
     
         Other Parameters
@@ -141,7 +141,7 @@ class clustering_algorithms:
         """ 
         Spectral clustering, see `skc.SpectralClustering <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html>`_
 
-        **Defaults and var_params:** skc.SpectralClustering(n_clusters=8, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)
+        **Defaults and var_params:** skc.SpectralClustering(n_clusters=2, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)
         Other Parameters
         ----------------
         var_params: dict
@@ -422,7 +422,7 @@ class clustering_algorithms:
         """
         Uses `sklearn's GuassianMixture <http://scikit-learn.org/stable/modules/mixture.html>`_
 
-         **Defaults and var_params:** (n_components=k, covariance_type=’full’, tol=0.001, reg_covar=1e-06, max_iter=100, n_init=1, init_params=’kmeans’, weights_init=None, means_init=None, precisions_init=None, random_state=None, warm_start=False, verbose=0, verbose_interval=10)
+         **Defaults and var_params:** (n_components=2, covariance_type=’full’, tol=0.001, reg_covar=1e-06, max_iter=100, n_init=1, init_params=’kmeans’, weights_init=None, means_init=None, precisions_init=None, random_state=None, warm_start=False, verbose=0, verbose_interval=10)
 
         Other Parameters
         ----------------
