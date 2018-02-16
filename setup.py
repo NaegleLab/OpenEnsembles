@@ -23,7 +23,7 @@ for f in PACKAGE_FILES:
 # Run setup
 setup(
     name='OpenEnsembles',
-    version='0.9',
+    version='1.0.0',
     author='Naegle Lab',
     author_email='see github',
     url='https://github.com/NaegleLab/OpenEnsembles',
