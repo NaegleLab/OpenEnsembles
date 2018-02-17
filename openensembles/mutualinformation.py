@@ -30,7 +30,7 @@ import numpy as np
 import pylab
 import pandas as pd
 import scipy.cluster.hierarchy as sch
-import cooccurrence as co
+import openensembles.cooccurrence as co
 
 from scipy.spatial import distance as ssd
 

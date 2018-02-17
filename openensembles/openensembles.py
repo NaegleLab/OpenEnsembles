@@ -22,12 +22,12 @@ import sklearn.cluster as skc
 import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as sch
 from sklearn import preprocessing
-import transforms as tx
-import clustering_algorithms as ca 
-import finishing as finish
-import cooccurrence as co
-import mutualinformation as mi
-import validation as val
+import openensembles.transforms as tx
+import openensembles.clustering_algorithms as ca 
+import openensembles.finishing as finish
+import openensembles.cooccurrence as co
+import openensembles.mutualinformation as mi
+import openensembles.validation as val
 import warnings
 from random import randint
 import numpy.random as random

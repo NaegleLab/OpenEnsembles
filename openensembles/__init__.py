@@ -1,1 +1,1 @@
-from openensembles import *
+from openensembles.openensembles import *
