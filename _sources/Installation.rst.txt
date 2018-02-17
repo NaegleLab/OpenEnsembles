@@ -1,6 +1,6 @@
 Installation
 =============
-OpenEnsembles can be installed via `pip`, `conda`, tarball, and directly from the Git repository.
+OpenEnsembles can be installed via `pip`, `conda`, tarball, and directly from the Git repository. We recommend using conda to install the scientific packages `conda install anaconda` before installing openensembles. 
 
 Pip
 ----
@@ -8,7 +8,7 @@ To install via pip, execute `pip install openensembles`.
 
 Conda
 ---------
-To install via conda, execute `conda install openensembles`.
+To install via conda, execute `conda install -c naeglelab openensembles`.
 
 Tarball
 ---------

@@ -53,23 +53,11 @@
             
   <div class="section" id="module-openensembles">
 <span id="openensembles"></span><h1>OpenEnsembles<a class="headerlink" href="#module-openensembles" title="Permalink to this headline">¶</a></h1>
-<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering</p>
-<p>Copyright (C) 2017 Naegle Lab</p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.</p>
-<p>You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
 <div class="section" id="the-data-class">
 <h2>The “data” class<a class="headerlink" href="#the-data-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openensembles.data">
-<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">data</code><span class="sig-paren">(</span><em>df</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">data</code><span class="sig-paren">(</span><em>df</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>df is a dataframe and x is the x_axis values (or numbers indicating the
 number entry)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -115,7 +103,7 @@ number entry)</p>
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="openensembles.data.plot_data">
-<code class="descname">plot_data</code><span class="sig-paren">(</span><em>source_name</em>, <em>fig_num=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data.plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.plot_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">plot_data</code><span class="sig-paren">(</span><em>source_name</em>, <em>fig_num=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data.plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.plot_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the data matrix that belongs to source_name</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -155,7 +143,7 @@ number entry)</p>
 
 <dl class="method">
 <dt id="openensembles.data.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>source_name</em>, <em>txfm_fcn</em>, <em>txfm_name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>source_name</em>, <em>txfm_fcn</em>, <em>txfm_name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>This runs transform (txfm_fcn) on the data matrix defined by
 source_name with parameters that are variable for each transform. 
 For example, oe.data.transform(‘parent’, ‘zscore’,’zscore_parent’, axis=0) will run the
@@ -220,7 +208,7 @@ Default: Keep_Inf = True (this will add transformed data even if infinite values
 
 <dl class="method">
 <dt id="openensembles.data.transforms_available">
-<code class="descname">transforms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#data.transforms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.transforms_available" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transforms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data.transforms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.transforms_available" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of all transformations available</p>
 </dd></dl>
 
@@ -231,7 +219,7 @@ Default: Keep_Inf = True (this will add transformed data even if infinite values
 <h2>The “cluster” class<a class="headerlink" href="#the-cluster-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openensembles.cluster">
-<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">cluster</code><span class="sig-paren">(</span><em>dataObj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">cluster</code><span class="sig-paren">(</span><em>dataObj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a clustering object, which is instantiated with a data object class from OpenEnsembles
 When clustering is performed, the dictionaries of all attributes are extended using the key given as output_name</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -254,7 +242,7 @@ When clustering is performed, the dictionaries of all attributes are extended us
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="clustering_algorithms.html#module-clustering_algorithms" title="clustering_algorithms"><code class="xref py py-obj docutils literal"><span class="pre">clustering_algorithms</span></code></a></p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">clustering_algorithms</span></code></p>
 </div>
 <p class="rubric">Examples</p>
 <p>Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4</p>
@@ -298,7 +286,7 @@ When clustering is performed, the dictionaries of all attributes are extended us
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="openensembles.cluster.MI">
-<code class="descname">MI</code><span class="sig-paren">(</span><em>MI_type='standard'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.MI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.MI" title="Permalink to this definition">¶</a></dt>
+<code class="descname">MI</code><span class="sig-paren">(</span><em>MI_type='standard'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.MI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.MI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the mutual information between all pairs of clustering solutions</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -327,13 +315,13 @@ When clustering is performed, the dictionaries of all attributes are extended us
 
 <dl class="method">
 <dt id="openensembles.cluster.algorithms_available">
-<code class="descname">algorithms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.algorithms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.algorithms_available" title="Permalink to this definition">¶</a></dt>
+<code class="descname">algorithms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.algorithms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.algorithms_available" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call this to list all algorithms currently available in algorithms.py</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="openensembles.cluster.cluster">
-<code class="descname">cluster</code><span class="sig-paren">(</span><em>source_name</em>, <em>algorithm</em>, <em>output_name</em>, <em>K=None</em>, <em>Require_Unique=False</em>, <em>random_seed=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.cluster" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cluster</code><span class="sig-paren">(</span><em>source_name</em>, <em>algorithm</em>, <em>output_name</em>, <em>K=None</em>, <em>Require_Unique=False</em>, <em>random_seed=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>This runs clustering algorithms on the data matrix defined by
 source_name with parameters that are variable for each algorithm. Note that K is 
 required for most algorithms.</p>
@@ -398,7 +386,7 @@ Default is None</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.clustering_algorithm_parameters">
-<code class="descname">clustering_algorithm_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.clustering_algorithm_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.clustering_algorithm_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clustering_algorithm_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.clustering_algorithm_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.clustering_algorithm_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function returns a dictionary with keys equal to parameters of interest {K, linkage, affinity} whose entries
 indicate algorithms that take those as free parameters. For example K-means takes K as an argument, but Affinity
 Propagation does not, so you will find kmeans is listed in dict[‘K’], but not AffinityPropagation. This is not inclusive of all
@@ -419,7 +407,7 @@ paramaters of every algorithm, but the common parameters one might want to vary.
 
 <dl class="method">
 <dt id="openensembles.cluster.co_occurrence_matrix">
-<code class="descname">co_occurrence_matrix</code><span class="sig-paren">(</span><em>data_source_name='parent'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.co_occurrence_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.co_occurrence_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="descname">co_occurrence_matrix</code><span class="sig-paren">(</span><em>data_source_name='parent'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.co_occurrence_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.co_occurrence_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the co-occurrence of all pairs of objects across the ensemble</p>
 <p>Parameters:
 data_source_name: string</p>
@@ -447,7 +435,7 @@ of clustering solutions available in clustering object.</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.finish_co_occ_linkage">
-<code class="descname">finish_co_occ_linkage</code><span class="sig-paren">(</span><em>threshold</em>, <em>linkage='average'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.finish_co_occ_linkage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_co_occ_linkage" title="Permalink to this definition">¶</a></dt>
+<code class="descname">finish_co_occ_linkage</code><span class="sig-paren">(</span><em>threshold</em>, <em>linkage='average'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.finish_co_occ_linkage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_co_occ_linkage" title="Permalink to this definition">¶</a></dt>
 <dd><p>The finishing technique that calculates a co-occurrence matrix on all cluster solutions in the ensemble and 
 then hierarchically clusters the co-occurrence, treating it as a similarity matrix. The clusters are defined by 
 the threshold of the distance used to cut.</p>
@@ -488,7 +476,7 @@ the threshold of the distance used to cut.</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.finish_graph_closure">
-<code class="descname">finish_graph_closure</code><span class="sig-paren">(</span><em>threshold</em>, <em>clique_size=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.finish_graph_closure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_graph_closure" title="Permalink to this definition">¶</a></dt>
+<code class="descname">finish_graph_closure</code><span class="sig-paren">(</span><em>threshold</em>, <em>clique_size=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.finish_graph_closure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_graph_closure" title="Permalink to this definition">¶</a></dt>
 <dd><p>The finishing technique that treats the co-occurrence matrix as a graph, that is binarized by the threshold (&gt;=threshold 
 becomes an unweighted, undirected edge in an adjacency matrix). This graph object is then subjected to clique formation
 according to clique_size (such as triangles if clique_size=3). The cliques are then combined in the graph to create unique
@@ -518,7 +506,7 @@ cluster formations.</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.finish_majority_vote">
-<code class="descname">finish_majority_vote</code><span class="sig-paren">(</span><em>threshold=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.finish_majority_vote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_majority_vote" title="Permalink to this definition">¶</a></dt>
+<code class="descname">finish_majority_vote</code><span class="sig-paren">(</span><em>threshold=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.finish_majority_vote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.finish_majority_vote" title="Permalink to this definition">¶</a></dt>
 <dd><p>Based on Ana Fred’s 2001 paper: Fred, Ana. Finding Consistent Clusters in Data Partitions. In Multiple Classifier Systems, 
 edited by Josef Kittler and Fabio Roli, LNCS 2096, 309-18. Springer, 2001. 
 This algorithm assingns clusters to the same class if they co-cluster at least 50 of the time. It 
@@ -551,7 +539,7 @@ a majority of the time. Outliers will get their own cluster.</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.get_cluster_members">
-<code class="descname">get_cluster_members</code><span class="sig-paren">(</span><em>solution_name</em>, <em>clusterNum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.get_cluster_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.get_cluster_members" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_cluster_members</code><span class="sig-paren">(</span><em>solution_name</em>, <em>clusterNum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.get_cluster_members"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.get_cluster_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the dataframe row indexes of a cluster number in solution named by solution_name</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -588,7 +576,7 @@ a majority of the time. Outliers will get their own cluster.</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.mixture_model">
-<code class="descname">mixture_model</code><span class="sig-paren">(</span><em>K=2</em>, <em>iterations=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.mixture_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.mixture_model" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mixture_model</code><span class="sig-paren">(</span><em>K=2</em>, <em>iterations=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.mixture_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.mixture_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finishing Technique to assemble a final, hard parition of the data according to maximizing the likelihood according to the
 observed clustering solutions across the ensemble. This will operate on all clustering solutions contained in the container cluster class.
 Operates on entire ensemble of clustering solutions in self, to create a mixture model
@@ -632,7 +620,7 @@ See finishing.mixture_model for more details.</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.search_field">
-<code class="descname">search_field</code><span class="sig-paren">(</span><em>field</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.search_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.search_field" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_field</code><span class="sig-paren">(</span><em>field</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.search_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.search_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find solutions that were made with</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -675,7 +663,7 @@ See finishing.mixture_model for more details.</p>
 
 <dl class="method">
 <dt id="openensembles.cluster.slice">
-<code class="descname">slice</code><span class="sig-paren">(</span><em>names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#cluster.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.slice" title="Permalink to this definition">¶</a></dt>
+<code class="descname">slice</code><span class="sig-paren">(</span><em>names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.slice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a new cluster object containing a slice indicated by the list of names given (dictionary keys shared amongst labels, params, etc.)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -721,14 +709,14 @@ See finishing.mixture_model for more details.</p>
 <h2>The “validation” class<a class="headerlink" href="#the-validation-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="openensembles.validation">
-<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">validation</code><span class="sig-paren">(</span><em>dataObj</em>, <em>cObj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#validation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">validation</code><span class="sig-paren">(</span><em>dataObj</em>, <em>cObj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#validation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation" title="Permalink to this definition">¶</a></dt>
 <dd><p>validation is a class to calculate any number of validation metrics on clustering solutions in data. 
 An individual validation metric must be called on a particular instantiation of the data matrix (like ‘parent’ or ‘zscore’)
 and a specific solution in cObj.</p>
 <p class="rubric">Methods</p>
 <dl class="method">
 <dt id="openensembles.validation.calculate">
-<code class="descname">calculate</code><span class="sig-paren">(</span><em>validation_name</em>, <em>cluster_name</em>, <em>source_name='parent'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#validation.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation.calculate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">calculate</code><span class="sig-paren">(</span><em>validation_name</em>, <em>cluster_name</em>, <em>source_name='parent'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#validation.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation.calculate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls the function titled by validation_name on the data matrix set by source_name (default ‘parent’) and clustering solution by cluster_name
 Appends to validation with key value equal to the validation_name+source_name+cluster_name</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -747,7 +735,7 @@ Appends to validation with key value equal to the validation_name+source_name+cl
 
 <dl class="method">
 <dt id="openensembles.validation.validation_metrics_available">
-<code class="descname">validation_metrics_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles.html#validation.validation_metrics_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation.validation_metrics_available" title="Permalink to this definition">¶</a></dt>
+<code class="descname">validation_metrics_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#validation.validation_metrics_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation.validation_metrics_available" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all available validation metrics</p>
 </dd></dl>
 
