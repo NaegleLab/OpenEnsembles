@@ -25,7 +25,7 @@ import random
 import pandas as pd
 
 import openensembles as oe
-import clustering_algorithms as ca
+import openensembles.clustering_algorithms as ca
 
 class TestFunctions(unittest.TestCase):
 
