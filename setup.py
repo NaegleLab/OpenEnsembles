@@ -1,13 +1,11 @@
 from distutils.core import setup
-import os
-import shutil
 
 DESC = 'An open source Python package for performing, finishing, and analyzing ensemble clustering.'
 
 # Run setup
 setup(
     name='OpenEnsembles',
-    version='1.0.1',
+    version='v1.0.1',
     author='Naegle Lab',
     url='https://github.com/NaegleLab/OpenEnsembles',
     packages=['openensembles'],
