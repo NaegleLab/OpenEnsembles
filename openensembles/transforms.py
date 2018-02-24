@@ -234,6 +234,56 @@ class transforms:
             
         return pca
 
+    def add_offset(self):
+        """
+        This adds an offset (positive or negative) to all values in the matrix. This can be used
+        to add floating point noise (i.e. create nono-zero values for log transform) or subtract the mean
+        without requiring standard deviation scaling as in the zscore.
+        
+        Other Parameters
+        -----------------
+        offset: list of floats
+            The value to add (use negative value for subtraction). If a single float is passed, it removes 
+            the same value from the entire matrix. Otherwise, a list of values the same size as the feature 
+            dimensions or the number of objects should be passed. 
+
+        axis: int {0 for rows, 1 for columns}
+            The dimension on which to subtract if offset is a list
+
+        """
+        if 'offset' not in self.args:
+            raise ValueError("Expect an offset value")
+        else: 
+            offset = self.args['offset']
+
+        shape = self.data.shape
+        if 'axis' in self.args:
+            dimension = self.args['axis']
+            if dimension != 0 and dimension != 1:
+                raise ValueError('Dimension to operate in must be 0 (rows) or 1 (columns), you passed %d'%(dimension))
+            if shape[int(not dimension)] != len(offset):
+                raise ValueError("Length of offset, %d, is not the same as dimensionality %d"%(len(offset), shape[int(not dimension)]))
+
+        if len(offset) == 1:
+            self.data_out = self.data + offset[0]
+        else:
+            if 'axis' not in self.args:
+                raise ValueError('argument axis required, 0 for row, 1 for column')
+            #replicate the offset vector in either dimension and do matrix addition
+            if dimension == 0: #operate on rows (meaning the offset better be length of columns)
+                offset_array = np.tile(offset, [shape[0], 1])
+                self.data_out = self.data + offset_array
+
+            elif dimension == 1:
+                array = np.asmatrix(offset)
+                offset_array = np.tile(array.transpose(),[1,shape[1]])
+                self.data_out = self.data + offset_array
+
+
+
+
+
+
     def internal_normalization(self):
         """
         This normalizes all data (in rows) to one point in that row, based on either
