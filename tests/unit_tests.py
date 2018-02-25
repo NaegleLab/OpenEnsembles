@@ -107,7 +107,7 @@ class TestFunctions(unittest.TestCase):
         #check to see that a new entry in D, x and params are added for every
         #transform available that has a default behavior
         TXFM_FCN_DICT = self.data.transforms_available()
-        special_transforms = ['internal_normalization']
+        special_transforms = ['internal_normalization', 'add_offset', 'boxcox']
         for txfm in special_transforms:
             if txfm in TXFM_FCN_DICT:
                 del TXFM_FCN_DICT[txfm]
