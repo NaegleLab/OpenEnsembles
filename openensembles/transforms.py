@@ -291,9 +291,7 @@ class transforms:
                 vecOut, l = stats.boxcox(vec, lmbda = lbda, alpha=alpha)
                 D[:,i] = vecOut
                 lambdas.append(l)
-                print(l)
         self.data_out = D
-        print("DEBUG: length of lamdas is %d"%(len(lambdas)))
         return(lambdas)
 
 

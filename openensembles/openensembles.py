@@ -265,7 +265,7 @@ class data:
 
         txfm = tx.transforms(self.x[source_name], self.D[source_name], kwargs)
         func = getattr(txfm,txfm_fcn)
-        func()
+        outputs = func()
  
         #### FINAL staging, X, D and var_params have been set in transform block, now add each
         #check and print a warning if NaN values were created in the transformation
@@ -288,6 +288,7 @@ class data:
         self.x[txfm_name] = txfm.x_out 
         self.params[txfm_name] = txfm.var_params
         self.D[txfm_name] = txfm.data_out
+        return outputs
 
 class cluster:
     """
