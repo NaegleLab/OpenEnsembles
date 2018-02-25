@@ -234,6 +234,71 @@ class transforms:
             
         return pca
 
+    def boxcox(self):
+        """
+        This applies the boxcox transform to the data 
+
+
+        Other Parameters
+        ----------------
+        lambda: {None, scalar}
+            The lambda value to use in the exponential, if 0, this is equivalent to taking the log. If None, 
+            this fits the best lambda and returns the value. Default is None
+
+        alpha: {None, float}, optional
+            If alpha is not None, return the 100 * (1-alpha)% confidence interval for lmbda. Must be between 0.0 and 1.0.
+        
+        axis: {0, 1}
+            Axis to boxcox on. 0 for rows, 1 for columns. Default is rows
+
+        Returns
+        -------
+        lambdas: list of scalars
+            The lambda values that maximized the log-likelihood function, one entry for each vector that was normalized
+
+        """
+
+        if 'axis' not in self.args:
+            axis = 0
+        else:
+            axis = self.args['axis']
+
+        if 'lambda' not in self.args:
+            lbda = None
+        else:
+            lbda = self.args['lambda']
+
+
+        if 'alpha' not in self.args:
+            alpha = None
+        else:
+            alpha = self.args['alpha']
+            
+        shape = self.data.shape
+
+        D = np.zeros((shape[0], shape[1]))
+        lambdas = []
+
+        if axis == 0:
+            for i in range(0, shape[0]):
+                vec = self.data[i,:]
+                vecOut, l = stats.boxcox(vec, lmbda = lbda, alpha=alpha)
+                D[i,:] = vecOut
+                lambdas.append(l)
+        else:
+            for i in range(0, shape[1]):
+                vec = self.data[:,i]
+                vecOut, l = stats.boxcox(vec, lmbda = lbda, alpha=alpha)
+                D[:,i] = vecOut
+                lambdas.append(l)
+                print(l)
+        self.data_out = D
+        print("DEBUG: length of lamdas is %d"%(len(lambdas)))
+        return(lambdas)
+
+
+
+
     def add_offset(self):
         """
         This adds an offset (positive or negative) to all values in the matrix. This can be used
