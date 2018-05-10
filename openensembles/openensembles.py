@@ -375,7 +375,7 @@ class cluster:
         a = {}
         a['K'] = ['kmeans', 'agglomerative', 'spectral', 'Birch', 'GaussianMixture']
         a['linkage'] = ['agglomerative']
-        a['distance'] = ['DBSCAN', 'spectral', 'AffinityPropagation', 'agglomerative']
+        a['distance'] = ['HDBSCAN', 'DBSCAN', 'spectral', 'AffinityPropagation', 'agglomerative']
         return a
 
     def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, random_seed=None, **kwargs):
