@@ -325,6 +325,7 @@ class clustering_algorithms:
 		"""
 
 		params = {}
+		params['min_cluster_size'] = 5
 		params['distance'] = 'euclidean'
 		params['alpha']=1.0
 		params['min_samples']=None
@@ -350,13 +351,13 @@ class clustering_algorithms:
 		else:
 			d = returnDistanceMatrix(self.data, params['distance'])        
 
-		solution = hdbscan.HDBSCAN(min_cluster_size=5, min_samples=params['min_samples'], metric=params['metric'], 
+		solution = hdbscan.HDBSCAN(min_cluster_size=params['min_cluster_size'], min_samples=params['min_samples'], metric=params['metric'], 
 			alpha=params['alpha'], p=params['p'], algorithm=params['algorithm'], 
 			leaf_size=params['leaf_size'], approx_min_span_tree=params['approx_min_span_tree'], 
 			gen_min_span_tree=params['gen_min_span_tree'], core_dist_n_jobs=params['core_dist_n_jobs'], 
 			cluster_selection_method=params['cluster_selection_method'], allow_single_cluster=params['allow_single_cluster'], 
 			prediction_data=params['prediction_data'], match_reference_implementation=params['match_reference_implementation'])
-		self.out = solution.fit(d)
+		self.out = solution.fit_predict(d)
 		self.var_params = params #update dictionary of parameters to match that used.
 
 
