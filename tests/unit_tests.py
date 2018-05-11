@@ -23,7 +23,7 @@ import time
 import unittest
 import random
 import pandas as pd
-
+import numpy as np
 import openensembles as oe
 import openensembles.clustering_algorithms as ca
 
@@ -101,13 +101,22 @@ class TestFunctions(unittest.TestCase):
 
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'zscore', 'zscore', axis=3))
 
+    def test_random_subsample(self):
+        self.assertRaises(ValueError, lambda: self.data.transform('parent', 'random_subsample', 'random_subsample_noNum'))
+        self.assertRaises(ValueError, lambda: self.data.transform('parent', 'random_subsample', 'random_subsample_numTooSmall', num_to_sample=0))
+        self.assertRaises(ValueError, lambda: self.data.transform('parent', 'random_subsample', 'random_subsample_numTooBig', num_to_sample=4))
+
+        self.data.transform('parent', 'random_subsample', 'random_subsample_2', num_to_sample=2)
+        self.assertEqual(2, len(self.data.D))
+        self.assertEqual(2, len(self.data.x['random_subsample_2']))
+        self.assertEqual(2, self.data.D['random_subsample_2'].shape[1])
 
 
     def test_all_transform(self):
         #check to see that a new entry in D, x and params are added for every
         #transform available that has a default behavior
         TXFM_FCN_DICT = self.data.transforms_available()
-        special_transforms = ['internal_normalization', 'add_offset', 'boxcox']
+        special_transforms = ['internal_normalization', 'add_offset', 'boxcox', 'random_subsample']
         for txfm in special_transforms:
             if txfm in TXFM_FCN_DICT:
                 del TXFM_FCN_DICT[txfm]

@@ -272,14 +272,14 @@ class data:
         
         boolCheck = np.isnan(txfm.data_out)
         numNaNs = sum(sum(boolCheck))
-        if numNaNs:
+        if numNaNs.any():
             warnings.warn("WARNING: transformation %s resulted in %d NaN values"%(txfm_fcn, numNaNs), UserWarning) 
             if not Keep_NaN_txfm:
                 print("Transformation %s resulted in %d NaN values, and you requested not to keep a transformation with NaNs"%(txfm_fcn, numNaNs)) 
                 return
         infCheck = np.isinf(txfm.data_out)
         numInf = sum(sum(infCheck))
-        if numInf > 0:
+        if numInf.any() > 0:
             warnings.warn("WARNING: transformation %s resulted in %d Inf values"%(txfm_fcn, numInf), UserWarning) 
             if not Keep_Inf_txfm:
                 #print("Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values"%(txfm_fcn, numInf)) 
