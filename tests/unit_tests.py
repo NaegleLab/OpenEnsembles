@@ -202,6 +202,33 @@ class TestFunctions(unittest.TestCase):
         names = ['kmeans_2', 'gooblygook']
         self.assertRaises(ValueError, lambda: c.slice(names))
 
+    def test_cluster_merge(self):
+        c = oe.cluster(self.data)
+        c2 = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans', K=2)
+        c2.cluster('parent', 'kmeans', 'kmeans', K=2)
+
+        self.assertRaises(ValueError, lambda: c.merge(['string']))
+
+        self.assertEqual(1, len(c.labels))
+
+        dictTrans = c.merge([c2])
+        self.assertEqual(1, len(c2.labels))
+        self.assertEqual(2, len(c.labels))
+
+        #start again, to send in a list
+        c = oe.cluster(self.data)
+        c2 = oe.cluster(self.data)
+        c3 = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans', K=2)
+        c2.cluster('parent', 'kmeans', 'kmeans', K=2)
+        c2.cluster('parent', 'kmeans', 'kmeans_another', K=2)
+        c3.cluster('parent', 'kmeans', 'kmeans', K=2)
+        dictTrans = c.merge([c2,c3])
+        self.assertEqual(4, len(c.labels))
+
+
+
     def test_cluster_search_field(self):
         self.data.transform('parent', 'zscore', 'zscore', axis=0)
         c = oe.cluster(self.data)

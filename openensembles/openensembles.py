@@ -869,6 +869,73 @@ class cluster:
             c.algorithms[name] = self.algorithms[name]
         return c
 
+    def merge(self, c_list):
+        """
+        Returns an appended object -- a merge of the cluster object (self) and all cluster objects inside a passed list. 
+        This will keep the parent dataobject of the self cluster object. This assumes that the ojbects were instantiated 
+        and clustered on the same data source (at least the same mxn features)
+
+        Parameters
+        ----------
+        c_list: list
+            A list of cluster objects
+
+        Returns
+        --------
+        transDictArr: list of dicts
+            A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in
+
+        Examples
+        --------
+        Merge two sets of clustering objects
+
+        FINISH EXAMPLES here
+
+        Raises
+        ------
+        ValueError
+            If objects in c_list are not well formed cluster objects
+
+        """
+        existing = list(self.labels.keys())
+        transDictArr = []
+        i = 1
+        for c in c_list:
+            transDict = {}
+
+            if not isinstance(c, oe.openensembles.cluster):
+                raise ValueError("Object in list for merge is not type openensmbles.cluster")
+
+            for l in c.labels.keys():
+                label = l
+                if label in existing:
+                    #test if label with number appended also exists 
+                    label += '_'+str(i)
+                    if label in existing: #even after adding number
+                        while label in existing: #keep appending random numbers if needed. 
+                            label = "%s_%d"%(label, randint(0,10000))
+
+                #nowt that there is a new label can append all data types
+                existing.append(label)
+                transDict[l] = label
+                self.labels[label] = c.labels[l]
+                self.data_source[label] = c.data_source[l]
+                self.params[label] = c.params[l]
+                self.clusterNumbers[label] = c.clusterNumbers[l]
+                self.algorithms[label] = c.algorithms[l]
+
+                i+=1 
+            transDictArr.append(transDict)
+        return transDictArr
+
+
+
+
+            
+
+
+
+
 
 
 class validation:
