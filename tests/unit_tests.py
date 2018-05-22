@@ -101,6 +101,36 @@ class TestFunctions(unittest.TestCase):
 
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'zscore', 'zscore', axis=3))
 
+    def test_data_slice(self):
+        self.data.transform('parent', 'zscore', 'zscore_1', axis=0)
+        self.data.transform('parent', 'zscore', 'zscore_2', axis=0)
+        self.assertEqual(3, len(self.data.D.keys()))
+
+        dNew = self.data.slice(['zscore_1'])
+        self.assertEqual(2, len(dNew.D.keys()))
+
+        self.assertRaises(ValueError, lambda: self.data.slice(['tx_not_there']))
+
+    def test_dataObj_merge(self):
+        fileName = 'data_test.csv'
+        df = pd.DataFrame.from_csv(fileName)
+        x = [0, 5, 30]
+        data2 = oe.data(df, x)
+
+
+        self.assertRaises(ValueError, lambda: self.data.merge([x]))
+
+        #add some transforms, so we can make sure merge pulls everything along
+        self.data.transform('parent', 'log', 'log10', base=10)
+        self.assertEqual(2, len(self.data.D.keys()))
+        data2.transform('parent', 'log', 'log10', base=10)
+        data2.transform('parent', 'log', 'log2', base=2)
+
+        self.data.merge([data2])
+        self.assertEqual(5, len(self.data.D.keys()))
+
+
+
     def test_random_subsample(self):
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'random_subsample', 'random_subsample_noNum'))
         self.assertRaises(ValueError, lambda: self.data.transform('parent', 'random_subsample', 'random_subsample_numTooSmall', num_to_sample=0))
