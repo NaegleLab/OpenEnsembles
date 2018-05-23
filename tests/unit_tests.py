@@ -39,6 +39,13 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual((3,3), self.data.D['parent'].shape)
         self.assertEqual(3, len(self.data.x['parent']))
 
+
+    def test_remove_metaData(self):
+        fileName = 'data_test_meta.csv'
+        df = pd.DataFrame.from_csv(fileName)
+        x = [0, 5, 30]
+        self.data = oe.data(df, x)
+
     def test_incorrect_setup(self):
         fileName = 'data_test.csv'
         df = pd.DataFrame.from_csv(fileName)
