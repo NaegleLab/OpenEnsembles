@@ -312,10 +312,10 @@ class data:
 
 		Examples
 		--------
-		Remove all 'zscore' from the list 
+		Remove 'zscore' from the list, keeping everything else
 
 		>>> names = d.D.keys() #get all the keys
-		>>> names = names.remove('zscore')
+		>>> names = names.remove(['zscore'])
 		>>> dNew = d.slice(names)
 
 		Raises
@@ -1103,6 +1103,65 @@ class validation:
 		self.cluster_name[output_name] = cluster_name
 
 		return output_name
+
+	def merge(self, v_list):
+		"""
+		Returns an appended object -- a merge of the validation object (self) and all validation objects inside a passed list. 
+		This will keep the dataobject and clusterObjects of the self validation object. 
+
+		Parameters
+		----------
+		v_list: list
+			A list of validation objects
+
+		Returns
+		--------
+		transDictArr: list of dicts
+			A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in
+
+		Examples
+		--------
+		Merge two sets of validation objects
+
+		FINISH EXAMPLES here
+
+		Raises
+		------
+		ValueError
+			If objects in v_list are not well formed value objects
+
+		"""
+		existing = list(self.validation.keys())
+		transDictArr = []
+		i = 1
+		for v in v_list:
+			transDict = {}
+
+			if not isinstance(v, oe.openensembles.validation):
+				raise ValueError("Object in list for merge is not type openensmbles.validation")
+
+			for l in v.validation.keys():
+				label = l
+				if label in existing:
+					#test if label with number appended also exists 
+					label += '_'+str(i)
+					if label in existing: #even after adding number
+						while label in existing: #keep appending random numbers if needed. 
+							label = "%s_%d"%(label, randint(0,10000))
+
+				#nowt that there is a new label can append all data types
+				existing.append(label)
+				transDict[l] = label
+				self.validation[label] = v.validation[l]
+				self.description[label] = v.description[l]
+				self.source_name[label] = v.source_name[l]
+				self.cluster_name[label] = v.cluster_name[l]
+				i+=1 
+			transDictArr.append(transDict)
+		return transDictArr
+
+
+
 
 
 

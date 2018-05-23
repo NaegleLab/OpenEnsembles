@@ -324,6 +324,25 @@ class TestFunctions(unittest.TestCase):
         v.calculate('Ball_Hall', 'kmeans', 'parent')
         self.assertEqual(len_expected, len(v.validation))
 
+    def test_validation_merge(self):
+        c = oe.cluster(self.data)
+        c.cluster('parent', 'kmeans', 'kmeans_1', K=2, random_seed=0, init = 'random', n_init = 1)
+        c.cluster('parent', 'kmeans', 'kmeans_2', K=2, random_seed=0, init = 'random', n_init = 1)
+        c.cluster('parent', 'kmeans', 'kmeans_3', K=2, random_seed=0, init = 'random', n_init = 1)
+
+        v = oe.validation(self.data, c)
+        v2 = oe.validation(self.data, c)
+        v3 = oe.validation(self.data, c)
+
+        v.calculate('silhouette', 'kmeans_1', 'parent')
+        v2.calculate('silhouette', 'kmeans_2', 'parent')
+        v3.calculate('silhouette', 'kmeans_3', 'parent')
+
+        self.assertEqual(1, len(v.validation.keys()))
+        self.assertRaises(ValueError, lambda: v.merge(['string']))
+        v.merge([v2,v3])
+        self.assertEqual(3, len(v.validation.keys()))
+
 
 
     def test_allValidationMetrics(self):
