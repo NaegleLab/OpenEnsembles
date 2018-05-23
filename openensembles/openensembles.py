@@ -75,7 +75,11 @@ class data:
 		self.x = {}
 		self.params = {}
 
-		self.D['parent'] = np.asarray(df)
+		#drop any non-numerical data from the dataframe before forming the D array
+		numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+		newdf = df.select_dtypes(include=numerics)
+
+		self.D['parent'] = np.asarray(newdf)
 
 		 #check that the number of x-values matches the array
 		if(len(x) != self.D['parent'].shape[1]):
@@ -1030,15 +1034,6 @@ class cluster:
 				i+=1 
 			transDictArr.append(transDict)
 		return transDictArr
-
-
-
-
-			
-
-
-
-
 
 
 class validation:
