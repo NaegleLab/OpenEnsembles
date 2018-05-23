@@ -37,7 +37,7 @@ from mpl_toolkits.mplot3d import Axes3D
 class data:
 	"""
 	df is a dataframe and x is the x_axis values (or numbers indicating the
-	number entry)
+	number entry). Behavior: Only numerical data in df will be carried into a numpy array
 
 	Parameters
 	-----------
@@ -53,7 +53,7 @@ class data:
 		the original dataframe
 
 	D : dictionary 
-		A dictionary of data matrices, callable by 'source_name'
+		A dictionary of numpy data matrices, callable by 'source_name'. 
 
 	x : list 
 		a list of integer or float values
