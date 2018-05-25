@@ -52,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-transforms">
-<span id="transformations"></span><h1>Transformations<a class="headerlink" href="#module-transforms" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-openensembles.transforms">
+<span id="transformations"></span><h1>Transformations<a class="headerlink" href="#module-openensembles.transforms" title="Permalink to this headline">¶</a></h1>
 <p>OpenEnsembles is a resource for performing and analyzing ensemble clustering
 This file contains all transform functions. Each transform takes a data matrix
 an x-vector and variable arguments. It also returns a data matrix, an x-vector
@@ -70,8 +70,8 @@ GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
 <dl class="class">
-<dt id="transforms.transforms">
-<em class="property">class </em><code class="descclassname">transforms.</code><code class="descname">transforms</code><span class="sig-paren">(</span><em>x</em>, <em>data</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms" title="Permalink to this definition">¶</a></dt>
+<dt id="openensembles.transforms.transforms">
+<em class="property">class </em><code class="descclassname">openensembles.transforms.</code><code class="descname">transforms</code><span class="sig-paren">(</span><em>x</em>, <em>data</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform the data matrix according to the transformation procedure used and the optional arguments passed</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -117,8 +117,8 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 </table>
 <p class="rubric">Methods</p>
 <dl class="method">
-<dt id="transforms.transforms.PCA">
-<code class="descname">PCA</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.PCA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.PCA" title="Permalink to this definition">¶</a></dt>
+<dt id="openensembles.transforms.transforms.PCA">
+<code class="descname">PCA</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.PCA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.PCA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">sklearn’s decomposition by principal components (PCA)</a></p>
 <p>Applies PCA to data matrix. If variable argument n_components is set, it will keep the first n_components of the 
 post-transformed data.
@@ -147,8 +147,69 @@ This also appends explained_variance to an attribute of class</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="transforms.transforms.internal_normalization">
-<code class="descname">internal_normalization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.internal_normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.internal_normalization" title="Permalink to this definition">¶</a></dt>
+<dt id="openensembles.transforms.transforms.add_offset">
+<code class="descname">add_offset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.add_offset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.add_offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>This adds an offset (positive or negative) to all values in the matrix. This can be used
+to add floating point noise (i.e. create nono-zero values for log transform) or subtract the mean
+without requiring standard deviation scaling as in the zscore.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><p class="first"><strong>offset: list of floats</strong></p>
+<blockquote>
+<div><p>The value to add (use negative value for subtraction). If a single float is passed, it removes 
+the same value from the entire matrix. Otherwise, a list of values the same size as the feature 
+dimensions or the number of objects should be passed.</p>
+</div></blockquote>
+<p><strong>axis: int {0 for rows, 1 for columns}</strong></p>
+<blockquote class="last">
+<div><p>The dimension on which to subtract if offset is a list</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.transforms.transforms.boxcox">
+<code class="descname">boxcox</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.boxcox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.boxcox" title="Permalink to this definition">¶</a></dt>
+<dd><p>This applies the boxcox transform to the data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">lambdas: list of scalars</p>
+<blockquote>
+<div><p>The lambda values that maximized the log-likelihood function, one entry for each vector that was normalized</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>lambda: {None, scalar}</strong></p>
+<blockquote>
+<div><p>The lambda value to use in the exponential, if 0, this is equivalent to taking the log. If None, 
+this fits the best lambda and returns the value. Default is None</p>
+</div></blockquote>
+<p><strong>alpha: {None, float}, optional</strong></p>
+<blockquote>
+<div><p>If alpha is not None, return the 100 * (1-alpha)% confidence interval for lmbda. Must be between 0.0 and 1.0.</p>
+</div></blockquote>
+<p><strong>axis: {0, 1}</strong></p>
+<blockquote class="last">
+<div><p>Axis to boxcox on. 0 for rows, 1 for columns. Default is rows</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.transforms.transforms.internal_normalization">
+<code class="descname">internal_normalization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.internal_normalization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.internal_normalization" title="Permalink to this definition">¶</a></dt>
 <dd><p>This normalizes all data (in rows) to one point in that row, based on either
 col_index or value in the x vector (x_val) (if both are passed, uses col_index)</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -175,8 +236,8 @@ col_index or value in the x vector (x_val) (if both are passed, uses col_index)<
 </dd></dl>
 
 <dl class="method">
-<dt id="transforms.transforms.log">
-<code class="descname">log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.log" title="Permalink to this definition">¶</a></dt>
+<dt id="openensembles.transforms.transforms.log">
+<code class="descname">log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log transformation will default to taking the log2 of all elements in the matrix.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -200,8 +261,8 @@ col_index or value in the x vector (x_val) (if both are passed, uses col_index)<
 </dd></dl>
 
 <dl class="method">
-<dt id="transforms.transforms.minmax">
-<code class="descname">minmax</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.minmax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.minmax" title="Permalink to this definition">¶</a></dt>
+<dt id="openensembles.transforms.transforms.minmax">
+<code class="descname">minmax</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.minmax"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.minmax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses MinMaxScaler from <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html">sklearn.preprocessing</a> to scale data between a minimum value and 
 a maximum value. Defaults range from 0 to 1. Updates data_out accordingly.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -224,8 +285,32 @@ a maximum value. Defaults range from 0 to 1. Updates data_out accordingly.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="transforms.transforms.transforms_available">
-<code class="descname">transforms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.transforms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.transforms_available" title="Permalink to this definition">¶</a></dt>
+<dt id="openensembles.transforms.transforms.random_subsample">
+<code class="descname">random_subsample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.random_subsample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.random_subsample" title="Permalink to this definition">¶</a></dt>
+<dd><p>This returns a new data matrix that is a random subsampling of available features (columns)
+If it is the same length as original, then this will randomly reshuffle dimensions if sorted=True</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><p class="first"><strong>num_to_sample: int</strong></p>
+<blockquote>
+<div><p>Number of random features to keep in output matrix</p>
+</div></blockquote>
+<p><strong>sorted: {True, False} default=True</strong></p>
+<blockquote class="last">
+<div><p>Whether to sort the random indexes in ascending order (keeping semblence of order of original features)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.transforms.transforms.transforms_available">
+<code class="descname">transforms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.transforms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.transforms_available" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get available transformations</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -242,8 +327,8 @@ a maximum value. Defaults range from 0 to 1. Updates data_out accordingly.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="transforms.transforms.zscore">
-<code class="descname">zscore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/transforms.html#transforms.zscore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transforms.transforms.zscore" title="Permalink to this definition">¶</a></dt>
+<dt id="openensembles.transforms.transforms.zscore">
+<code class="descname">zscore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/transforms.html#transforms.zscore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.transforms.transforms.zscore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses stats.zscore to zscore along the axis given. By default, OpenEnsembles assumes that the
 feature dimensions are on axis=0 (column entries). Updates x_out accordingly</p>
 <table class="docutils field-list" frame="void" rules="none">

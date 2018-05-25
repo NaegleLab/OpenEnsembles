@@ -1,6 +1,6 @@
 Clustering Algorithms
 =======================================
-.. automodule:: clustering_algorithms 
+.. automodule:: openensembles.clustering_algorithms 
 	:members: 
 	:undoc-members:
 

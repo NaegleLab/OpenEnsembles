@@ -1,0 +1,1261 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>openensembles.openensembles &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../openensembles.html" accesskey="U">openensembles</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for openensembles.openensembles</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">OpenEnsembles is a resource for performing and analyzing ensemble clustering</span>
+
+<span class="sd">Copyright (C) 2017 Naegle Lab</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> 
+<span class="kn">import</span> <span class="nn">sklearn.cluster</span> <span class="k">as</span> <span class="nn">skc</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">as</span> <span class="nn">sch</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">preprocessing</span>
+<span class="kn">import</span> <span class="nn">openensembles.transforms</span> <span class="k">as</span> <span class="nn">tx</span>
+<span class="kn">import</span> <span class="nn">openensembles.clustering_algorithms</span> <span class="k">as</span> <span class="nn">ca</span> 
+<span class="kn">import</span> <span class="nn">openensembles.finishing</span> <span class="k">as</span> <span class="nn">finish</span>
+<span class="kn">import</span> <span class="nn">openensembles.cooccurrence</span> <span class="k">as</span> <span class="nn">co</span>
+<span class="kn">import</span> <span class="nn">openensembles.mutualinformation</span> <span class="k">as</span> <span class="nn">mi</span>
+<span class="kn">import</span> <span class="nn">openensembles.validation</span> <span class="k">as</span> <span class="nn">val</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">randint</span>
+<span class="kn">import</span> <span class="nn">numpy.random</span> <span class="k">as</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">openensembles</span> <span class="k">as</span> <span class="nn">oe</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
+
+<div class="viewcode-block" id="data"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.data">[docs]</a><span class="k">class</span> <span class="nc">data</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	df is a dataframe and x is the x_axis values (or numbers indicating the</span>
+<span class="sd">	number entry). Behavior: Only numerical data in df will be carried into a numpy array</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	-----------</span>
+<span class="sd">	df : a pandas dataframe </span>
+<span class="sd">		Dataframe with objects in rows and columns representing the feature dimensions</span>
+
+<span class="sd">	x : list</span>
+<span class="sd">		The x-axis elements. If x is a list of strings, it will be converted here to a list of ints (range 0 to len(x))</span>
+<span class="sd">	</span>
+<span class="sd">	Attributes</span>
+<span class="sd">	-----------</span>
+<span class="sd">	df : pandas dataframe </span>
+<span class="sd">		the original dataframe</span>
+
+<span class="sd">	D : dictionary </span>
+<span class="sd">		A dictionary of numpy data matrices, callable by &#39;source_name&#39;. </span>
+
+<span class="sd">	x : list </span>
+<span class="sd">		a list of integer or float values</span>
+
+<span class="sd">	x_labels : list</span>
+<span class="sd">		a list of strings (if that was passed in) or the int and float. So that xticklabels could be updated or referenced</span>
+
+<span class="sd">	params: dict</span>
+<span class="sd">		A dictionary of parameter labels and their values that were used during transformations</span>
+
+<span class="sd">	Raises</span>
+<span class="sd">	--------</span>
+<span class="sd">	ValueError of the size of x and dimensionality of df do not match</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+
+		<span class="c1">#drop any non-numerical data from the dataframe before forming the D array</span>
+		<span class="n">numerics</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;int16&#39;</span><span class="p">,</span> <span class="s1">&#39;int32&#39;</span><span class="p">,</span> <span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;float16&#39;</span><span class="p">,</span> <span class="s1">&#39;float32&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">]</span>
+		<span class="n">newdf</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="n">numerics</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">newdf</span><span class="p">)</span>
+
+		 <span class="c1">#check that the number of x-values matches the array</span>
+		<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: Size of x-values (</span><span class="si">%d</span><span class="s2">) does not match that of of the dataframe dimensions (</span><span class="si">%d</span><span class="s2">), replacing with an vector of integers of correct size&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+		<span class="n">errors</span> <span class="o">=</span> <span class="kc">False</span>
+		<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+				<span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+		<span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+			<span class="c1">#warnings.warn(&quot;Changing string list of x into an integer in the same order as string list, starting with 0&quot;)</span>
+			<span class="n">xVals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">x_labels</span> <span class="o">=</span> <span class="n">x</span>
+
+		<span class="k">else</span><span class="p">:</span> 
+			<span class="n">xVals</span> <span class="o">=</span> <span class="n">x</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">x_labels</span> <span class="o">=</span> <span class="n">x</span>
+
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xVals</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+	   
+<div class="viewcode-block" id="data.transforms_available"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.data.transforms_available">[docs]</a>	<span class="k">def</span> <span class="nf">transforms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns a list of all transformations available</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">txfm</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">transforms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="p">{})</span>
+		<span class="n">TXFM_FCN_DICT</span> <span class="o">=</span> <span class="n">txfm</span><span class="o">.</span><span class="n">transforms_available</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">TXFM_FCN_DICT</span></div>
+
+<div class="viewcode-block" id="data.plot_data"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.data.plot_data">[docs]</a>	<span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">fig_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Plot the data matrix that belongs to source_name</span>
+<span class="sd">			</span>
+<span class="sd">			Parameters</span>
+<span class="sd">			-----------</span>
+<span class="sd">			</span>
+<span class="sd">			source_name : string</span>
+<span class="sd">				name of data source to plot, e.g. &#39;parent&#39;</span>
+<span class="sd">			fig_num: int</span>
+<span class="sd">				Set to a different figure number to plot on existing figure. Default fig_num=1</span>
+<span class="sd">			**class_labels : list of ints</span>
+<span class="sd">				this is a vector that assigns points to classes, and will be used to color the points according to assigned class type</span>
+<span class="sd">			**clusters_to_plot: list of ints</span>
+<span class="sd">				If you wish to plot a subset of cluster types (classes), pass that as a list of ints</span>
+<span class="sd">			**title : string</span>
+<span class="sd">				Title for plot</span>
+
+<span class="sd">			Raises</span>
+<span class="sd">			------</span>
+<span class="sd">			ValueError: </span>
+<span class="sd">				If clusters_to_plot not a set in cluster labels</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+		<span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;title&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+			<span class="n">title</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">if</span> <span class="s1">&#39;class_labels&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+			<span class="n">class_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">class_labels</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;class_labels&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;clusters_to_plot&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+			<span class="n">clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">class_labels</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c1">#check, this argument should be a list with a direct set match</span>
+			<span class="n">clustersPossible</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">class_labels</span><span class="p">)</span>
+			<span class="n">clusters</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;clusters_to_plot&#39;</span><span class="p">]</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">clusters</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">set</span><span class="p">(</span><span class="n">clustersPossible</span><span class="p">):</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the clusters to plot are not a direct match to possible clusters in plot_data&quot;</span><span class="p">)</span>
+
+
+
+		<span class="c1">#clusters = np.unique(class_labels)</span>
+
+		<span class="n">color</span><span class="o">=</span><span class="nb">iter</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">clusters</span><span class="p">))))</span>
+		
+		<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">fig_num</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+		<span class="c1">#plt.hold(True)</span>
+
+		<span class="c1">#SETUP axes, as either 2D or 3D</span>
+		<span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+			<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+		<span class="c1">#ax.hold(True)</span>
+
+		<span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span> <span class="c1">#scatter plots for less than 4-dimensions</span>
+			<span class="k">for</span> <span class="n">clusterNum</span> <span class="ow">in</span> <span class="n">clusters</span><span class="p">:</span>
+				<span class="n">indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">class_labels</span><span class="o">==</span><span class="n">clusterNum</span><span class="p">)</span>
+				<span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+					<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="n">indexes</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="n">indexes</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">color</span><span class="p">))</span>
+				<span class="k">elif</span> <span class="n">n</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+					<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="n">indexes</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="n">indexes</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="n">indexes</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">color</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+
+			<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+			<span class="k">if</span> <span class="n">n</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+				<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">hold</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">clusterNum</span> <span class="ow">in</span> <span class="n">clusters</span><span class="p">:</span>
+				<span class="n">indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">class_labels</span><span class="o">==</span><span class="n">clusterNum</span><span class="p">)</span>
+				<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">source_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="n">indexes</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">c</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">color</span><span class="p">))</span>
+
+
+		<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+		<span class="c1">#plt.show()</span>
+		<span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="data.transform"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.data.transform">[docs]</a>	<span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">txfm_fcn</span><span class="p">,</span> <span class="n">txfm_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		This runs transform (txfm_fcn) on the data matrix defined by</span>
+<span class="sd">		source_name with parameters that are variable for each transform. </span>
+<span class="sd">		For example, oe.data.transform(&#39;parent&#39;, &#39;zscore&#39;,&#39;zscore_parent&#39;, axis=0) will run the</span>
+<span class="sd">		zscore in a vector-wise manner across the matrix (column-wise) and the new data</span>
+<span class="sd">		dictionary access to the transformed data is oe.data[&#39;zscore_parent&#39;]</span>
+<span class="sd">		Successful completion results in</span>
+<span class="sd">		the addition of a new entry in the data dictionary with a key according</span>
+<span class="sd">		to txfm_name.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		source_name: string</span>
+<span class="sd">			the name of the source data, for example &#39;parent&#39;, or &#39;log2&#39;</span>
+<span class="sd">		txfm_fcn: string</span>
+<span class="sd">			the name of the transform function. See transforms.py or run oe.data.transforms_available() for list</span>
+<span class="sd">		txfm_name: string</span>
+<span class="sd">			the name you want to use in the data object dictionary oe.data.D[&#39;name&#39;] to access transformed data</span>
+
+<span class="sd">		Other Parameters</span>
+<span class="sd">		----------------</span>
+<span class="sd">		**Keep_NaN: boolean</span>
+<span class="sd">			Set to True in order to prevent transformations from being added that produce NaNs. </span>
+<span class="sd">			Default Keep_NaN=True this will add transformed data even if NaNs are produced. Set to 0 to prevent addition of data transforms containing NaNs.</span>
+<span class="sd">		**Keep_Inf: boolean</span>
+<span class="sd">			Set to True in order to prevent transformations from being added that produce infinite values</span>
+<span class="sd">			Default: Keep_Inf = True (this will add transformed data even if infinite values are produced. Set to 0 to prevent addition of data transforms conta</span>
+
+<span class="sd">		Warnings</span>
+<span class="sd">		--------</span>
+<span class="sd">		NaNs or infinite values are produced</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			if the transform function does not exist OR if the data source does not exist by source_name</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">		&gt;&gt;&gt; import openensembles as oe</span>
+<span class="sd">		&gt;&gt;&gt; df = pd.read_csv(file)</span>
+<span class="sd">		&gt;&gt;&gt; d = oe.data(df, df.columns</span>
+<span class="sd">		&gt;&gt;&gt; d.transform(&#39;parent&#39;, &#39;zscore&#39;, &#39;zscore&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; d.transform(&#39;zscore&#39;, &#39;PCA&#39;, &#39;pca&#39;, n_components=3)</span>
+
+<span class="sd">		</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1">#CHECK that the source exists</span>
+		<span class="k">if</span> <span class="n">source_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the source you requested for transformation does not exist by that name </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">source_name</span><span class="p">))</span>
+		<span class="n">TXFM_FCN_DICT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms_available</span><span class="p">()</span>
+		<span class="n">Keep_NaN_txfm</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#default value is to keep a transform, even if NaN values are created</span>
+		<span class="n">Keep_Inf_txfm</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#default value is to keep a transform, even if NaN values are created</span>
+		<span class="n">paramDict</span> <span class="o">=</span> <span class="p">{}</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+			<span class="n">var_params</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">var_params</span> <span class="o">=</span> <span class="n">kwargs</span>
+			<span class="k">if</span> <span class="s1">&#39;Keep_NaN&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+				<span class="n">Keep_NaN_txfm</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;Keep_NaN&#39;</span><span class="p">]</span>
+			<span class="k">if</span> <span class="s1">&#39;Keep_Inf&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+				<span class="n">Keep_Inf_txfm</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;Keep_Inf&#39;</span><span class="p">]</span>
+
+		<span class="c1">######BEGIN TXFM BLOCK  ######</span>
+		<span class="k">if</span> <span class="n">txfm_fcn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TXFM_FCN_DICT</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s2">&quot;The transform function you requested does not exist, currently the following are supported </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">TXFM_FCN_DICT</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+		<span class="n">txfm</span> <span class="o">=</span> <span class="n">tx</span><span class="o">.</span><span class="n">transforms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">source_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">)</span>
+		<span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">txfm</span><span class="p">,</span><span class="n">txfm_fcn</span><span class="p">)</span>
+		<span class="n">outputs</span> <span class="o">=</span> <span class="n">func</span><span class="p">()</span>
+ 
+		<span class="c1">#### FINAL staging, X, D and var_params have been set in transform block, now add each</span>
+		<span class="c1">#check and print a warning if NaN values were created in the transformation</span>
+		
+		<span class="n">boolCheck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">txfm</span><span class="o">.</span><span class="n">data_out</span><span class="p">)</span>
+		<span class="n">numNaNs</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">boolCheck</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">numNaNs</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;WARNING: transformation </span><span class="si">%s</span><span class="s2"> resulted in </span><span class="si">%d</span><span class="s2"> NaN values&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">txfm_fcn</span><span class="p">,</span> <span class="n">numNaNs</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span> 
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">Keep_NaN_txfm</span><span class="p">:</span>
+				<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Transformation </span><span class="si">%s</span><span class="s2"> resulted in </span><span class="si">%d</span><span class="s2"> NaN values, and you requested not to keep a transformation with NaNs&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">txfm_fcn</span><span class="p">,</span> <span class="n">numNaNs</span><span class="p">))</span> 
+				<span class="k">return</span>
+		<span class="n">infCheck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">txfm</span><span class="o">.</span><span class="n">data_out</span><span class="p">)</span>
+		<span class="n">numInf</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">infCheck</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">numInf</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;WARNING: transformation </span><span class="si">%s</span><span class="s2"> resulted in </span><span class="si">%d</span><span class="s2"> Inf values&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">txfm_fcn</span><span class="p">,</span> <span class="n">numInf</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span> 
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">Keep_Inf_txfm</span><span class="p">:</span>
+				<span class="c1">#print(&quot;Transformation %s resulted in %d Inf values, and you requested not to keep a transformation with infinite values&quot;%(txfm_fcn, numInf)) </span>
+				<span class="k">return</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">txfm_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">txfm</span><span class="o">.</span><span class="n">x_out</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">txfm_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">txfm</span><span class="o">.</span><span class="n">var_params</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">txfm_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">txfm</span><span class="o">.</span><span class="n">data_out</span>
+		<span class="k">return</span> <span class="n">outputs</span></div>
+
+
+<div class="viewcode-block" id="data.slice"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.data.slice">[docs]</a>	<span class="k">def</span> <span class="nf">slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns a new data object containing a slice indicated by the list of names given (dictionary keys shared amongst D, params, etc.).</span>
+<span class="sd">		Cannot remove &#39;parent&#39; as that is the default dataframe matrix that established data object. To replace parent, instead </span>
+<span class="sd">		instantiate a new object on a dataframe created from transformation of interest. </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		names: list</span>
+<span class="sd">			A list of strings matching the names to keep in the new slice</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		--------</span>
+<span class="sd">		d: an openensembles data object</span>
+<span class="sd">			A oe.data object that contains only those names passed in</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Remove &#39;zscore&#39; from the list, keeping everything else</span>
+
+<span class="sd">		&gt;&gt;&gt; names = d.D.keys() #get all the keys</span>
+<span class="sd">		&gt;&gt;&gt; names = names.remove([&#39;zscore&#39;])</span>
+<span class="sd">		&gt;&gt;&gt; dNew = d.slice(names)</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If a name in the list of names does not exist in data object</span>
+
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+		<span class="n">names_existing</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+		<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_existing</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the source you requested for slicing does not exist in data object </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+			
+			<span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+			<span class="n">d</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+			<span class="n">d</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+		<span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="data.merge"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.data.merge">[docs]</a>	<span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_list</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns an appended object -- a merge of the data object (self) and all data objects inside a passed list. </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		d_list: list</span>
+<span class="sd">			A list of data objects</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		--------</span>
+<span class="sd">		transDictArr: list of dicts</span>
+<span class="sd">			A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Merge two sets of data objects. Keeps the same dataframe (self.df), i.e. use this when it makes sense</span>
+<span class="sd">		to always use that reference dataframe</span>
+
+<span class="sd">		FINISH EXAMPLES here</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If objects in d_list are not well formed openenembles data objects</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">existing</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+		<span class="n">transDictArr</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+		<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">d_list</span><span class="p">:</span>
+			<span class="n">transDict</span> <span class="o">=</span> <span class="p">{}</span>
+
+			<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">oe</span><span class="o">.</span><span class="n">openensembles</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Object in list for merge is not type openensmbles.data&quot;</span><span class="p">)</span>
+
+			<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="n">l</span>
+				<span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+					<span class="c1">#test if label with number appended also exists </span>
+					<span class="n">label</span> <span class="o">+=</span> <span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span> <span class="c1">#even after adding number</span>
+						<span class="k">while</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span> <span class="c1">#keep appending random numbers if needed. </span>
+							<span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+
+				<span class="c1">#nowt that there is a new label can append all data types</span>
+				<span class="n">existing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+				<span class="n">transDict</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="n">i</span><span class="o">+=</span><span class="mi">1</span> 
+			<span class="n">transDictArr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transDict</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">transDictArr</span></div></div>
+
+
+<div class="viewcode-block" id="cluster"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster">[docs]</a><span class="k">class</span> <span class="nc">cluster</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Initialize a clustering object, which is instantiated with a data object class from OpenEnsembles</span>
+<span class="sd">	When clustering is performed, the dictionaries of all attributes are extended using the key given as output_name</span>
+<span class="sd">	</span>
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	dataObj</span>
+<span class="sd">		openensembles.data class -- consists at least of one data matrix called &#39;parent&#39;</span>
+<span class="sd">	</span>
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	clusterObject</span>
+<span class="sd">		empty openensembles.cluster object </span>
+
+<span class="sd">	Attributes</span>
+<span class="sd">	----------</span>
+<span class="sd">	dataObj: openensembles.data class</span>
+<span class="sd">		openensembles.data class that was used to instantiate cluster object</span>
+<span class="sd">	labels: dict of lists</span>
+<span class="sd">		A dictionary of lists of clustering solutions (ints). Referred to as output_name in .cluster method</span>
+<span class="sd">	data_source: dict of strings</span>
+<span class="sd">		Name of data source in dataObj</span>
+<span class="sd">	params: dict of dicts</span>
+<span class="sd">		A dictionary of all parameters passed during clustering</span>
+<span class="sd">	clusterNumbers: dict of lists</span>
+<span class="sd">		A listing of the unique set of cluster numbers produced in a clustering </span>
+<span class="sd">	random_state: dict of objects</span>
+<span class="sd">		A listing of the random state objects that can be used to reset the state and </span>
+
+<span class="sd">	See also</span>
+<span class="sd">	--------</span>
+<span class="sd">	clustering_algorithms</span>
+<span class="sd">	</span>
+<span class="sd">	Examples</span>
+<span class="sd">	--------</span>
+<span class="sd">	Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4</span>
+
+<span class="sd">	&gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">	&gt;&gt;&gt; import openensembles as oe</span>
+<span class="sd">	&gt;&gt;&gt; df = pd.read_csv(file)</span>
+<span class="sd">	&gt;&gt;&gt; d = oe.data(df, df.columns</span>
+<span class="sd">	&gt;&gt;&gt; d.transform(&#39;parent&#39;, &#39;zscore&#39;, &#39;zscore&#39;)</span>
+<span class="sd">	&gt;&gt;&gt; d.transform(&#39;zscore&#39;, &#39;PCA&#39;, &#39;pca&#39;, n_components=3)</span>
+<span class="sd">	&gt;&gt;&gt; c = oe.cluster(d)</span>
+<span class="sd">	&gt;&gt;&gt; c.cluster(&#39;pca&#39;, &#39;kmeans&#39;, &#39;kmeans_pca&#39;, 4)</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataObj</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span> <span class="o">=</span> <span class="n">dataObj</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">=</span> <span class="p">{}</span> <span class="c1">#key here is the name like HC_parent for hierarchically clustered parent</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">data_source</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># keep track of the key to the data source in object used</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># keep track of the parameters used (includes random seed)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#keep track of the algorithm used</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="cluster.algorithms_available"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.algorithms_available">[docs]</a>	<span class="k">def</span> <span class="nf">algorithms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">		Call this to list all algorithms currently available in algorithms.py</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">algorithms</span> <span class="o">=</span> <span class="n">ca</span><span class="o">.</span><span class="n">clustering_algorithms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="p">{})</span>
+		<span class="n">ALG_FCN_DICT</span> <span class="o">=</span> <span class="n">algorithms</span><span class="o">.</span><span class="n">clustering_algorithms_available</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">ALG_FCN_DICT</span></div>
+
+<div class="viewcode-block" id="cluster.clustering_algorithm_parameters"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.clustering_algorithm_parameters">[docs]</a>	<span class="k">def</span> <span class="nf">clustering_algorithm_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		This function returns a dictionary with keys equal to parameters of interest {K, linkage, affinity} whose entries</span>
+<span class="sd">		indicate algorithms that take those as free parameters. For example K-means takes K as an argument, but Affinity</span>
+<span class="sd">		Propagation does not, so you will find kmeans is listed in dict[&#39;K&#39;], but not AffinityPropagation. This is not inclusive of all</span>
+<span class="sd">		paramaters of every algorithm, but the common parameters one might want to vary.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		a: dictionary</span>
+<span class="sd">			Keys equal to parameters {K, linkages, distances} and values as lists of algorithms that use that key as a variable</span>
+
+<span class="sd">		Warning</span>
+<span class="sd">		-------</span>
+<span class="sd">		This must be updated if clustering_algorithms is expanded.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">a</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">a</span><span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">,</span> <span class="s1">&#39;Birch&#39;</span><span class="p">,</span> <span class="s1">&#39;GaussianMixture&#39;</span><span class="p">]</span>
+		<span class="n">a</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span>
+		<span class="n">a</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;HDBSCAN&#39;</span><span class="p">,</span> <span class="s1">&#39;DBSCAN&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">,</span> <span class="s1">&#39;AffinityPropagation&#39;</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="cluster.cluster"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.cluster">[docs]</a>	<span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		This runs clustering algorithms on the data matrix defined by</span>
+<span class="sd">		source_name with parameters that are variable for each algorithm. Note that K is </span>
+<span class="sd">		required for most algorithms. </span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		source_name: string</span>
+<span class="sd">			the source data matrix name to operate on in clusterclass dataObj</span>
+<span class="sd">		algorithm: string</span>
+<span class="sd">			name of the algorithm to use, see clustering.py or call oe.cluster.algorithms_available()</span>
+<span class="sd">		output_name: string</span>
+<span class="sd">			this is the dict key for interacting with the results of this clustering solution in any of the cluster class dictionary attributes</span>
+<span class="sd">		K: int</span>
+<span class="sd">			number of clusters to create (ignored for algorithms that define K during clustering). The var_params gets K after, either the parameter passed, or the number of clusters produced</span>
+<span class="sd">			if the K was not passed.</span>
+<span class="sd">		Require_Unique: bool</span>
+<span class="sd">			If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a </span>
+<span class="sd">			solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False</span>
+<span class="sd">		random_seed: int or random.getstate()</span>
+<span class="sd">			Pass a random seed or random seed state (random.getstate()) in order to force the starting point of a clustering algorithm to that state. </span>
+<span class="sd">			Default is None</span>
+
+<span class="sd">		Warnings</span>
+<span class="sd">		--------</span>
+<span class="sd">		This will warn if the number of clusters is differen than what was requested, typically when an algorithm does not accept K as an argument.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">			ValueError</span>
+<span class="sd">				if data source is not available by source_name </span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Cluster using KMeans on parent data</span>
+
+<span class="sd">		&gt;&gt;&gt; c = oe.cluster</span>
+<span class="sd">		&gt;&gt;&gt; c.cluster(&#39;parent&#39;, &#39;kmeans&#39;,&#39;kmeans_parent&#39;, K=5) </span>
+
+<span class="sd">		Form an iteration to build an ensemble using different values for K</span>
+
+<span class="sd">		&gt;&gt;&gt; for k in range(2,12):</span>
+<span class="sd">		&gt;&gt;&gt;     name=&#39;kmeans_&#39;+k</span>
+<span class="sd">		&gt;&gt;&gt;     c.cluster(&#39;parent&#39;, &#39;kmeans&#39;, name, k)</span>
+
+<span class="sd">		</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1">#CHECK that the source exists</span>
+		<span class="k">if</span> <span class="n">source_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the source you requested for clustering does not exist by that name </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">source_name</span><span class="p">))</span>
+		<span class="n">ALG_FCN_DICT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithms_available</span><span class="p">()</span>
+		<span class="n">paramDict</span> <span class="o">=</span> <span class="p">{}</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
+			<span class="n">var_params</span> <span class="o">=</span> <span class="p">{}</span> 
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">var_params</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+		<span class="c1">#Here if handle if random seed was passed, set it. Else, store the random seed.</span>
+		<span class="k">if</span> <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+				<span class="n">state</span> <span class="o">=</span> <span class="n">random_seed</span>
+
+
+			<span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+				<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+				<span class="n">state</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+
+		<span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;random_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+
+		<span class="c1">##### Check to see if the same name exists for clustering solution name and decide what to do according to Require_Unique</span>
+		<span class="k">if</span> <span class="n">output_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+			<span class="k">if</span> <span class="n">Require_Unique</span><span class="p">:</span>
+				<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;The name of the clustering solution is redundant and you required unique, solution will not be added&#39;</span><span class="p">)</span>
+				<span class="k">return</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">test_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+				<span class="k">while</span> <span class="n">test_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">:</span>
+					<span class="n">test_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+				<span class="n">output_name</span> <span class="o">=</span> <span class="n">test_name</span>
+				<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;For uniqueness, altered output_name to be </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">output_name</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span>
+
+		<span class="c1">######BEGIN CLUSTERING BLOCK  ######</span>
+		<span class="k">if</span> <span class="n">algorithm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALG_FCN_DICT</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s2">&quot;The algorithm you requested does not exist, currently the following are supported </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">ALG_FCN_DICT</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+
+
+		<span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="n">ca</span><span class="o">.</span><span class="n">clustering_algorithms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">],</span> <span class="n">var_params</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+		<span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">algorithm</span><span class="p">)</span>
+		<span class="n">func</span><span class="p">()</span>
+ 
+		<span class="c1">#### FINAL staging, c now contains a finished assignment and c.params has final parameters used.</span>
+
+		<span class="c1"># CHECK that K is as requested </span>
+		<span class="n">uniqueClusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">K</span><span class="p">:</span> <span class="c1">#check if K was overwritten</span>
+			<span class="n">c</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">K</span>
+			<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniqueClusters</span><span class="p">)</span> <span class="o">!=</span> <span class="n">K</span><span class="p">:</span>
+				<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Number of unique clusters </span><span class="si">%d</span><span class="s2"> returned does not match number requested </span><span class="si">%d</span><span class="s2"> for solution: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">uniqueClusters</span><span class="p">),</span> <span class="n">K</span><span class="p">,</span> <span class="n">output_name</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">c</span><span class="o">.</span><span class="n">var_params</span><span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniqueClusters</span><span class="p">)</span>
+
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">out</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_name</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">var_params</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">uniqueClusters</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">algorithm</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span></div>
+
+
+
+<div class="viewcode-block" id="cluster.co_occurrence_matrix"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.co_occurrence_matrix">[docs]</a>	<span class="k">def</span> <span class="nf">co_occurrence_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source_name</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calculate the co-occurrence of all pairs of objects across the ensemble </span>
+
+<span class="sd">		Parameters:</span>
+<span class="sd">		data_source_name: string</span>
+<span class="sd">			Name of the data source to link to co-occurrence object. Default is &#39;parent&#39;</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		coMat class</span>
+<span class="sd">			coMat.co_matrix is the NxN matrix, whose entries indicate the number of times the pair of objects in positon (i,j) cluster across the ensemble</span>
+<span class="sd">			of clustering solutions available in clustering object. </span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; coMat = c.co_occurrence_matrix()</span>
+<span class="sd">		&gt;&gt;&gt; coMat.plot()</span>
+
+<span class="sd">	  &quot;&quot;&quot;</span>
+		<span class="n">coMat</span> <span class="o">=</span> <span class="n">co</span><span class="o">.</span><span class="n">coMat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_source_name</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">coMat</span></div>
+
+<div class="viewcode-block" id="cluster.MI"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.MI">[docs]</a>	<span class="k">def</span> <span class="nf">MI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;standard&#39;</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calculate the mutual information between all pairs of clustering solutions</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		MI_type: string {&#39;standard&#39;, &#39;adjusted&#39;, &#39;normalized&#39;}</span>
+<span class="sd">			The sklearn.metric mutual information to use, either mutual_info, adjusted_mutual_info, or normalized_mutual_info</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		MI class</span>
+<span class="sd">			mutualinformation.MI class, where MI.matrix is the claculated matrix of pairwise mutual information. The diagonal is not guaranteed to be 1 (it depends on the type of MI calculated)</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; MI = c.MI(MI_type=&#39;adjusted&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; MI.plot(sorted=True)</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">MI</span> <span class="o">=</span> <span class="n">mi</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MI_type</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">MI</span></div>
+
+
+<div class="viewcode-block" id="cluster.mixture_model"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.mixture_model">[docs]</a>	<span class="k">def</span> <span class="nf">mixture_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Finishing Technique to assemble a final, hard parition of the data according to maximizing the likelihood according to the</span>
+<span class="sd">		observed clustering solutions across the ensemble. This will operate on all clustering solutions contained in the container cluster class.</span>
+<span class="sd">		Operates on entire ensemble of clustering solutions in self, to create a mixture model</span>
+<span class="sd">		See finishing.mixture_model for more details. </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		K: int</span>
+<span class="sd">			number of clusters to create. Default K=2</span>
+<span class="sd">		iterations: int</span>
+<span class="sd">			number of iterations of EM algorithm to perform. Default iterations=10</span>
+<span class="sd">	   </span>
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		c: openensembles clustering object</span>
+<span class="sd">			a new clustering object with c.labels[&#39;mixture_model&#39;] set to the final solution. </span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">			ValueError:</span>
+<span class="sd">				If there are not at least two clustering solutions</span>
+
+<span class="sd">		References</span>
+<span class="sd">		----------</span>
+<span class="sd">		Topchy, Jain, and Punch, &quot;A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)&quot;</span>
+<span class="sd">		</span>
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cMM = c.mixture_model(4, 10)</span>
+<span class="sd">		&gt;&gt;&gt; d.plot_data(&#39;parent&#39;, cluster_labels=cMM.labels[&#39;mixture_model&#39;])</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;iterations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">iterations</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">K</span>
+
+		<span class="c1">#check to make sure more than one solution exists in ensemble</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mixture Model is a finsihing technique for an ensemble, the cluster object must contain more than one solution&quot;</span><span class="p">)</span>
+		<span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">parg</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">solution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">:</span>
+			<span class="n">parg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">solution</span><span class="p">])</span>
+
+		<span class="n">mixtureObj</span> <span class="o">=</span> <span class="n">finish</span><span class="o">.</span><span class="n">mixture_model</span><span class="p">(</span><span class="n">parg</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">nEnsCluster</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">)</span>
+		<span class="n">mixtureObj</span><span class="o">.</span><span class="n">emProcess</span><span class="p">()</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="p">)</span>
+		<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;mixture_model&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mixtureObj</span><span class="o">.</span><span class="n">labels</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;parent&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mixture_model&#39;</span>
+		<span class="k">return</span> <span class="n">c</span></div>
+
+<div class="viewcode-block" id="cluster.finish_co_occ_linkage"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.finish_co_occ_linkage">[docs]</a>	<span class="k">def</span> <span class="nf">finish_co_occ_linkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The finishing technique that calculates a co-occurrence matrix on all cluster solutions in the ensemble and </span>
+<span class="sd">		then hierarchically clusters the co-occurrence, treating it as a similarity matrix. The clusters are defined by </span>
+<span class="sd">		the threshold of the distance used to cut. </span>
+
+
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		threshold: float</span>
+<span class="sd">			Linkage distance to use as a cutoff to create partitions</span>
+<span class="sd">		linkage: string</span>
+<span class="sd">			Linkage type. See `scipy.cluster.hierarchy &lt;https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage&gt;`_</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		c: openensembles clustering object</span>
+<span class="sd">			a new clustering object with c.labels[&#39;co_occ_linkage&#39;] set to the final solution. </span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		To determine where the cut is visually, at threshold=0.5:</span>
+
+<span class="sd">		&gt;&gt;&gt; coMat = c.co_occurrence()</span>
+<span class="sd">		&gt;&gt;&gt; coMat.plot(threshold=0.5, linkage=&#39;ward&#39;)</span>
+
+<span class="sd">		To create the cut at threshold=0.5 </span>
+
+<span class="sd">		&gt;&gt;&gt; cWard = c.co_occ_linkage(0.5, &#39;ward&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; d.plot_data(&#39;parent&#39;, cluster_labels=cWard.labels[&#39;co_occ_linkage&#39;])</span>
+
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">params</span><span class="o">=</span><span class="p">{}</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">linkage</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">threshold</span>
+		<span class="n">coMatObj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+		<span class="n">coL</span> <span class="o">=</span> <span class="n">finish</span><span class="o">.</span><span class="n">co_occurrence_linkage</span><span class="p">(</span><span class="n">coMatObj</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">)</span>
+		<span class="n">coL</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="p">)</span>
+		<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;co_occ_linkage&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">coL</span><span class="o">.</span><span class="n">labels</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;parent&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;co_occ_linkage&#39;</span>
+		<span class="k">return</span> <span class="n">c</span></div>
+
+<div class="viewcode-block" id="cluster.finish_graph_closure"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.finish_graph_closure">[docs]</a>	<span class="k">def</span> <span class="nf">finish_graph_closure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">clique_size</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">		The finishing technique that treats the co-occurrence matrix as a graph, that is binarized by the threshold (&gt;=threshold </span>
+<span class="sd">		becomes an unweighted, undirected edge in an adjacency matrix). This graph object is then subjected to clique formation</span>
+<span class="sd">		according to clique_size (such as triangles if clique_size=3). The cliques are then combined in the graph to create unique</span>
+<span class="sd">		cluster formations. </span>
+
+<span class="sd">		See also</span>
+<span class="sd">		--------</span>
+<span class="sd">		finishing.py </span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		c: openenembles clustering object</span>
+<span class="sd">			New cluster object with final solution and name &#39;graph_closure&#39;</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; cGraph = c.finish_graph_closure(0.5, 3)</span>
+<span class="sd">		&gt;&gt;&gt; d.plot_data(&#39;parent&#39;, cluster_labels=cGraph.labels[&#39;graph_closure&#39;])</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">threshold</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;clique_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clique_size</span>
+		<span class="n">coMatObj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+
+		<span class="n">c_G</span> <span class="o">=</span> <span class="n">finish</span><span class="o">.</span><span class="n">graph_closure</span><span class="p">(</span><span class="n">coMatObj</span><span class="o">.</span><span class="n">co_matrix</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">clique_size</span><span class="o">=</span><span class="n">clique_size</span><span class="p">)</span>
+		<span class="n">c_G</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="p">)</span>
+		<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;graph_closure&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_G</span><span class="o">.</span><span class="n">labels</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;parent&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;graph_closure&#39;</span>
+		<span class="k">return</span> <span class="n">c</span></div>
+
+<div class="viewcode-block" id="cluster.finish_majority_vote"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.finish_majority_vote">[docs]</a>	<span class="k">def</span> <span class="nf">finish_majority_vote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">		Based on Ana Fred&#39;s 2001 paper: Fred, Ana. Finding Consistent Clusters in Data Partitions. In Multiple Classifier Systems, </span>
+<span class="sd">		edited by Josef Kittler and Fabio Roli, LNCS 2096, 309-18. Springer, 2001. </span>
+<span class="sd">		This algorithm assingns clusters to the same class if they co-cluster at least 50 of the time. It </span>
+<span class="sd">		greedily joins clusters with the evidence that at least one pair of items from two different clusters co-cluster </span>
+<span class="sd">		a majority of the time. Outliers will get their own cluster. </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		threshold: float</span>
+<span class="sd">			the threshold, or fraction of times objects co-cluster to consider a &#39;majority&#39;. Default is 0.5 (50% of the time)</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		c: openensembles cluster object</span>
+<span class="sd">			New cluster object with final solution and name &#39;majority_vote&#39;</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		&gt;&gt;&gt; c_MV = c.majority_vote(threshold=0.7)</span>
+<span class="sd">		&gt;&gt;&gt; labels = c_MV.labels[&#39;majority_vote&#39;]</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">coMatObj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+		<span class="n">c_MV</span> <span class="o">=</span> <span class="n">finish</span><span class="o">.</span><span class="n">majority_vote</span><span class="p">(</span><span class="n">coMatObj</span><span class="o">.</span><span class="n">co_matrix</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+		<span class="n">c_MV</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+
+		<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="p">)</span>
+		<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;majority_vote&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_MV</span><span class="o">.</span><span class="n">labels</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;parent&#39;</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;majority_vote&#39;</span>
+		<span class="k">return</span> <span class="n">c</span></div>
+
+
+<div class="viewcode-block" id="cluster.get_cluster_members"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.get_cluster_members">[docs]</a>	<span class="k">def</span> <span class="nf">get_cluster_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution_name</span><span class="p">,</span> <span class="n">clusterNum</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Return the dataframe row indexes of a cluster number in solution named by solution_name </span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		solution_name: string</span>
+<span class="sd">			the name of the clustering solution of interest</span>
+<span class="sd">		clusterNum: int</span>
+<span class="sd">			The cluster number of interest</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		indexes: list</span>
+<span class="sd">			a list of indexes of objects with clusterNum in solution_name</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Get a list of objects that belong to each cluster type in a solution</span>
+
+<span class="sd">		&gt;&gt;&gt; name = &#39;zscore_agglomerative_ward&#39;</span>
+<span class="sd">		&gt;&gt;&gt; c.cluster(&#39;zscore&#39;, &#39;agglomerative&#39;, name, K=4, linkage=&#39;ward&#39;)</span>
+<span class="sd">		&gt;&gt;&gt; labels = {}</span>
+<span class="sd">		&gt;&gt;&gt; for i in c.clusterNumbers[name]:</span>
+<span class="sd">		&gt;&gt;&gt;     labels{i} = c.get_cluster_members(name, i)</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">solution_name</span><span class="p">]</span><span class="o">==</span><span class="n">clusterNum</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">indexes</span></div>
+
+	
+<div class="viewcode-block" id="cluster.search_field"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.search_field">[docs]</a>	<span class="k">def</span> <span class="nf">search_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Find solutions that were made with </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		field: string {&#39;algorithm&#39;, &#39;data_source&#39;, &#39;K&#39;, &#39;linkage&#39;, &#39;distance&#39;, &#39;clusterNumber&#39;, etc.}</span>
+<span class="sd">			The name of field, either in algorithm used, data_source selected, or a parameter passed to search for an exact value</span>
+<span class="sd">		value: string or int</span>
+<span class="sd">			The value to search for (where ints are passed for K (desired clusters) or clusterNumber (actual returned clusters))</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		names: list of strings</span>
+<span class="sd">			The names of dictionary entries in clustering solutions matching field, value criteria. Returns empty list if nothing was found</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If the field was not recognized.</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Find all clustering solutions where K=2 was used</span>
+<span class="sd">		&gt;&gt;&gt; names = c.search_field(&#39;K&#39;, 2)</span>
+
+<span class="sd">		Find all clustering solutions where the actual cluster numbers were 2</span>
+<span class="sd">		&gt;&gt;&gt; names = c.search_field(&#39;clusterNumber&#39;, 2)</span>
+
+<span class="sd">		Find all solutions clustered using kmeans</span>
+<span class="sd">		&gt;&gt;&gt; names = c.search_field(&#39;algorithm&#39;, &#39;kmeans&#39;)</span>
+
+<span class="sd">		Find all clustering solutions where ward linkage was used</span>
+<span class="sd">		&gt;&gt;&gt; names = c.search_field(&#39;linkage&#39;, &#39;ward&#39;)</span>
+<span class="sd">		</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">if</span> <span class="n">field</span><span class="o">==</span><span class="s1">&#39;data_source&#39;</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">==</span><span class="n">value</span><span class="p">:</span>
+					<span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+
+
+		<span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s1">&#39;algorithm&#39;</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">==</span><span class="n">value</span><span class="p">:</span>
+					<span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+
+		<span class="k">elif</span> <span class="n">field</span><span class="o">==</span><span class="s1">&#39;clusterNumber&#39;</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+				<span class="n">clusterNumber</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+				<span class="k">if</span> <span class="n">clusterNumber</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+					<span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+
+		<span class="k">else</span><span class="p">:</span> <span class="c1">#otherwise, we&#39;re searching through the parameters</span>
+			<span class="n">paramFound</span> <span class="o">=</span> <span class="kc">False</span>
+			<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+				<span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+					<span class="n">paramFound</span> <span class="o">=</span> <span class="kc">True</span>
+					<span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+						<span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">paramFound</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Field </span><span class="si">%s</span><span class="s2"> was not found in parameters of an clustering solutions&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">field</span><span class="p">))</span>
+
+		<span class="k">return</span> <span class="n">names</span></div>
+
+<div class="viewcode-block" id="cluster.slice"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.slice">[docs]</a>	<span class="k">def</span> <span class="nf">slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns a new cluster object containing a slice indicated by the list of names given (dictionary keys shared amongst labels, params, etc.)</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		names: list</span>
+<span class="sd">			A list of strings matching the names to keep in the new slice</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		--------</span>
+<span class="sd">		c: an openensembles clustering object</span>
+<span class="sd">			A oe.cluster object that contains only those names passed in</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Get only the solutions made by agglomerative clustering</span>
+
+<span class="sd">		&gt;&gt;&gt; names = c.search_field(&#39;algorithm&#39;, &#39;agglomerative&#39;) #return all solutions with agglomerative</span>
+<span class="sd">		&gt;&gt;&gt; cNew = c.slice(names)</span>
+
+<span class="sd">		Get only the solutions that were made with K=2 calls</span>
+
+<span class="sd">		&gt;&gt;&gt; names = c.search_field(&#39;K&#39;, 2) #return all solution names that used K=2</span>
+<span class="sd">		&gt;&gt;&gt; cNew = c.slice(names)</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If a name in the list of names does not exist in cluster object</span>
+
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="p">)</span>
+		<span class="n">names_existing</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+		<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_existing</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the source you requested for slicing does not exist in cluster object </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+			<span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+			<span class="n">c</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+			<span class="n">c</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+			<span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+			<span class="n">c</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+		<span class="k">return</span> <span class="n">c</span></div>
+
+<div class="viewcode-block" id="cluster.merge"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.cluster.merge">[docs]</a>	<span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c_list</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns an appended object -- a merge of the cluster object (self) and all cluster objects inside a passed list. </span>
+<span class="sd">		This will keep the parent dataobject of the self cluster object. This assumes that the ojbects were instantiated </span>
+<span class="sd">		and clustered on the same data source (at least the same mxn features)</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		c_list: list</span>
+<span class="sd">			A list of cluster objects</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		--------</span>
+<span class="sd">		transDictArr: list of dicts</span>
+<span class="sd">			A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Merge two sets of clustering objects</span>
+
+<span class="sd">		FINISH EXAMPLES here</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If objects in c_list are not well formed cluster objects</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">existing</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+		<span class="n">transDictArr</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+		<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">c_list</span><span class="p">:</span>
+			<span class="n">transDict</span> <span class="o">=</span> <span class="p">{}</span>
+
+			<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">oe</span><span class="o">.</span><span class="n">openensembles</span><span class="o">.</span><span class="n">cluster</span><span class="p">):</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Object in list for merge is not type openensmbles.cluster&quot;</span><span class="p">)</span>
+
+			<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="n">l</span>
+				<span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+					<span class="c1">#test if label with number appended also exists </span>
+					<span class="n">label</span> <span class="o">+=</span> <span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span> <span class="c1">#even after adding number</span>
+						<span class="k">while</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span> <span class="c1">#keep appending random numbers if needed. </span>
+							<span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+
+				<span class="c1">#nowt that there is a new label can append all data types</span>
+				<span class="n">existing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+				<span class="n">transDict</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">data_source</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">clusterNumbers</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">algorithms</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+
+				<span class="n">i</span><span class="o">+=</span><span class="mi">1</span> 
+			<span class="n">transDictArr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transDict</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">transDictArr</span></div></div>
+
+
+<div class="viewcode-block" id="validation"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.validation">[docs]</a><span class="k">class</span> <span class="nc">validation</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	validation is a class to calculate any number of validation metrics on clustering solutions in data. </span>
+<span class="sd">	An individual validation metric must be called on a particular instantiation of the data matrix (like &#39;parent&#39; or &#39;zscore&#39;)</span>
+<span class="sd">	and a specific solution in cObj. </span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataObj</span><span class="p">,</span> <span class="n">cObj</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; instantiate the object to create a dictionary of validation measurements &quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span> <span class="o">=</span> <span class="n">dataObj</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">cObj</span> <span class="o">=</span> <span class="n">cObj</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#key here is the name like HC_parent for hierarchically clustered parent</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">source_name</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">cluster_name</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#here is a quick description of the validation metric</span>
+
+<div class="viewcode-block" id="validation.validation_metrics_available"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.validation.validation_metrics_available">[docs]</a>	<span class="k">def</span> <span class="nf">validation_metrics_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Return all available validation metrics &quot;&quot;&quot;</span> 
+		<span class="n">validation</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">validation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="p">[])</span>
+		<span class="n">FCN_DICT</span> <span class="o">=</span> <span class="n">validation</span><span class="o">.</span><span class="n">validation_metrics_available</span><span class="p">()</span>
+		<span class="k">return</span> <span class="n">FCN_DICT</span></div>
+
+
+<div class="viewcode-block" id="validation.calculate"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.validation.calculate">[docs]</a>	<span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">validation_name</span><span class="p">,</span> <span class="n">cluster_name</span><span class="p">,</span> <span class="n">source_name</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Calls the function titled by validation_name on the data matrix set by source_name (default &#39;parent&#39;) and clustering solution by cluster_name</span>
+<span class="sd">		Appends to validation with key value equal to the validation_name+source_name+cluster_name</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		output_name: str</span>
+<span class="sd">			The handle name for accessing validation results</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">output_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">validation_name</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">cluster_name</span><span class="p">)</span>
+
+		<span class="c1">#check that the validation has not already been calcluated</span>
+		<span class="k">if</span> <span class="n">output_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation</span><span class="p">:</span>
+			<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Validation of type requested already exists and will not be added to validation dictionary&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="c1">#CHECK that the source exists</span>
+		<span class="k">if</span> <span class="n">source_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the source you requested for validation does not exist by that name </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">source_name</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">cluster_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cObj</span><span class="o">.</span><span class="n">labels</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the clustering solution you requested for validation does not exist by the name </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">source_name</span><span class="p">))</span>
+		
+		<span class="n">FCN_DICT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_metrics_available</span><span class="p">()</span>
+		
+		<span class="k">if</span> <span class="n">validation_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FCN_DICT</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span> <span class="s2">&quot;The validation metric you requested does not exist, currently the following are supported </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">FCN_DICT</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
+ 
+		<span class="n">v</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">validation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">source_name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cObj</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">cluster_name</span><span class="p">])</span>
+		<span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">validation_name</span><span class="p">)</span>
+		<span class="n">func</span><span class="p">()</span>
+ 
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">validation</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">validation</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">description</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">source_name</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_name</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">cluster_name</span><span class="p">[</span><span class="n">output_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cluster_name</span>
+
+		<span class="k">return</span> <span class="n">output_name</span></div>
+
+<div class="viewcode-block" id="validation.merge"><a class="viewcode-back" href="../../OpenEnsembles.html#openensembles.validation.merge">[docs]</a>	<span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v_list</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Returns an appended object -- a merge of the validation object (self) and all validation objects inside a passed list. </span>
+<span class="sd">		This will keep the dataobject and clusterObjects of the self validation object. </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		v_list: list</span>
+<span class="sd">			A list of validation objects</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		--------</span>
+<span class="sd">		transDictArr: list of dicts</span>
+<span class="sd">			A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in</span>
+
+<span class="sd">		Examples</span>
+<span class="sd">		--------</span>
+<span class="sd">		Merge two sets of validation objects</span>
+
+<span class="sd">		FINISH EXAMPLES here</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		ValueError</span>
+<span class="sd">			If objects in v_list are not well formed value objects</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">existing</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+		<span class="n">transDictArr</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+		<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">v_list</span><span class="p">:</span>
+			<span class="n">transDict</span> <span class="o">=</span> <span class="p">{}</span>
+
+			<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">oe</span><span class="o">.</span><span class="n">openensembles</span><span class="o">.</span><span class="n">validation</span><span class="p">):</span>
+				<span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Object in list for merge is not type openensmbles.validation&quot;</span><span class="p">)</span>
+
+			<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="n">label</span> <span class="o">=</span> <span class="n">l</span>
+				<span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+					<span class="c1">#test if label with number appended also exists </span>
+					<span class="n">label</span> <span class="o">+=</span> <span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span> <span class="c1">#even after adding number</span>
+						<span class="k">while</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span> <span class="c1">#keep appending random numbers if needed. </span>
+							<span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10000</span><span class="p">))</span>
+
+				<span class="c1">#nowt that there is a new label can append all data types</span>
+				<span class="n">existing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+				<span class="n">transDict</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">validation</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">validation</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">source_name</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">source_name</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">cluster_name</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">cluster_name</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+				<span class="n">i</span><span class="o">+=</span><span class="mi">1</span> 
+			<span class="n">transDictArr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transDict</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">transDictArr</span></div></div>
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Supporting.html">Supporting Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Installation.html">Installation</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../openensembles.html" >openensembles</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

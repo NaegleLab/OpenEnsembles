@@ -3,12 +3,47 @@
 Examples
 =========================================
 
+Ensembles by changing K
+-----------------------
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
 
    Example_Kmeans_MajorityVote.ipynb
    Example_Kmeans_MajorityVote-halfMoons.ipynb
-   Ensemble_Distances_Algorithms_No_Structure.ipynb
+  
+Ensembles by changing the random seed
+-------------------------------------
+
+.. toctree::
+	:maxdepth: 2
+
    Demonstrate_RandomSeed.ipynb
+
+Ensembles by changing Distances and/or Algorithms
+-------------------------------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   Ensemble_Distances_Algorithms_No_Structure.ipynb
    Demonstrate_Distance_Affinity_effects.ipynb
+
+
+Ensembles by subsampling data features
+-------------------------------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   Subsample_features_randomly.ipynb
+
+
+Ensembles that account for experimental noise
+-------------------------------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   Ensembles_Across_Experimental_Noise.ipynb

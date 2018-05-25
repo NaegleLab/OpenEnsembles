@@ -1,0 +1,459 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Create resampling of available replicate data to explore effects of noise &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dependencies" href="../Dependencies.html" />
+    <link rel="prev" title="Demonstration of subsampling feature dimensions" href="Subsample_features_randomly.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Dependencies.html" title="Dependencies"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Subsample_features_randomly.html" title="Demonstration of subsampling feature dimensions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #303F9F;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #D84315;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 7ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+</style>
+<div class="section" id="Create-resampling-of-available-replicate-data-to-explore-effects-of-noise">
+<h1>Create resampling of available replicate data to explore effects of noise<a class="headerlink" href="#Create-resampling-of-available-replicate-data-to-explore-effects-of-noise" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">fileName</span> <span class="o">=</span> <span class="s1">&#39;../data/experiment.1381.annotated_misTrypsRemoved.txt&#39;</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1">#keep the data and the standard deviations in different dataframes and then instantiate data objects with resampling,</span>
+<span class="c1"># ultimately merging them together.</span>
+
+<span class="n">dataCols</span>  <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;average:data:time(min):0&#39;</span><span class="p">,</span> <span class="s1">&#39;average:data:time(min):1&#39;</span><span class="p">,</span> <span class="s1">&#39;average:data:time(min):2&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;average:data:time(min):4&#39;</span><span class="p">,</span> <span class="s1">&#39;average:data:time(min):8&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;average:data:time(min):16&#39;</span><span class="p">,</span> <span class="s1">&#39;average:data:time(min):32&#39;</span><span class="p">]</span>
+<span class="n">stdevCols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;average:stddev:time(min):0&#39;</span><span class="p">,</span> <span class="s1">&#39;average:stddev:time(min):1&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;average:stddev:time(min):2&#39;</span><span class="p">,</span> <span class="s1">&#39;average:stddev:time(min):4&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;average:stddev:time(min):8&#39;</span><span class="p">,</span> <span class="s1">&#39;average:stddev:time(min):16&#39;</span><span class="p">,</span>
+       <span class="s1">&#39;average:stddev:time(min):32&#39;</span><span class="p">]</span>
+<span class="n">descriptiveCols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">,</span> <span class="s1">&#39;mod_sites&#39;</span><span class="p">]</span> <span class="c1">#we don&#39;t need ALL the metadata, so we&#39;ll just start with this</span>
+
+<span class="n">colsToKeep</span> <span class="o">=</span> <span class="n">descriptiveCols</span> <span class="o">+</span> <span class="n">dataCols</span>
+<span class="n">master_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">colsToKeep</span><span class="p">]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">]</span>
+
+<span class="n">stdev_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">stdevCols</span><span class="p">]</span>
+<span class="n">stdev_df</span> <span class="o">=</span> <span class="n">stdev_df</span><span class="p">[</span><span class="n">stdevCols</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="c1">#This is the data object with data exactly as it stands with means. We&#39;ll create</span>
+<span class="c1"># a list of new data objects that have resampled data representations</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">master_df</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1">#create new data objects, resampling each time point for each object according to their mean and stdev</span>
+<span class="c1"># using a normal distribution</span>
+<span class="n">numRepeats</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">d_arr</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">numRepeats</span><span class="p">):</span>
+    <span class="n">df_temp</span> <span class="o">=</span> <span class="n">master_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1">#get a series from data and make new data column</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">dataCols</span><span class="p">:</span>
+            <span class="n">stdevCol</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;stddev&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stdev_df</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">stdevCol</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">df_temp</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">data</span><span class="p">],</span> <span class="n">stdev_df</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">stdevCol</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df_temp</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">data</span><span class="p">]</span>
+    <span class="n">d_temp</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df_temp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">d_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_temp</span><span class="p">)</span>
+
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="Cluster-all-resampled-data-for-an-ensemble-solution">
+<h2>Cluster all resampled data for an ensemble solution<a class="headerlink" href="#Cluster-all-resampled-data-for-an-ensemble-solution" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">transdict</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">d_arr</span><span class="p">)</span> <span class="c1">#merge all data matrices together (could also just iterate through )</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">K</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans_&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># how do all solutions compare?</span>
+<span class="n">MI</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;normalized&#39;</span><span class="p">)</span>
+<span class="n">MI</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise_6_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise_6_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">coMat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">labels</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">d</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;mod_sites&#39;</span><span class="p">]</span>
+<span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label_vec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise_8_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise_8_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-k">Ensembles by changing K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-the-random-seed">Ensembles by changing the random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-distances-and-or-algorithms">Ensembles by changing Distances and/or Algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-subsampling-data-features">Ensembles by subsampling data features</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="Examples.html#ensembles-that-account-for-experimental-noise">Ensembles that account for experimental noise</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Create resampling of available replicate data to explore effects of noise</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Cluster-all-resampled-data-for-an-ensemble-solution">Cluster all resampled data for an ensemble solution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Subsample_features_randomly.html"
+                        title="previous chapter">Demonstration of subsampling feature dimensions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../Dependencies.html"
+                        title="next chapter">Dependencies</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Examples/Ensembles_Across_Experimental_Noise.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Dependencies.html" title="Dependencies"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Subsample_features_randomly.html" title="Demonstration of subsampling feature dimensions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

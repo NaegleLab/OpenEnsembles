@@ -59,7 +59,7 @@
 <dt id="openensembles.data">
 <em class="property">class </em><code class="descclassname">openensembles.</code><code class="descname">data</code><span class="sig-paren">(</span><em>df</em>, <em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>df is a dataframe and x is the x_axis values (or numbers indicating the
-number entry)</p>
+number entry). Behavior: Only numerical data in df will be carried into a numpy array</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -82,15 +82,15 @@ number entry)</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="9%" />
-<col width="91%" />
+<col width="12%" />
+<col width="88%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><strong>df</strong></td>
 <td>(pandas dataframe) the original dataframe</td>
 </tr>
 <tr class="row-even"><td><strong>D</strong></td>
-<td>(dictionary) A dictionary of data matrices, callable by ‘source_name’</td>
+<td>(dictionary) A dictionary of numpy data matrices, callable by ‘source_name’.</td>
 </tr>
 <tr class="row-odd"><td><strong>x</strong></td>
 <td>(list) a list of integer or float values</td>
@@ -98,9 +98,46 @@ number entry)</p>
 <tr class="row-even"><td><strong>x_labels</strong></td>
 <td>(list) a list of strings (if that was passed in) or the int and float. So that xticklabels could be updated or referenced</td>
 </tr>
+<tr class="row-odd"><td><strong>params: dict</strong></td>
+<td>A dictionary of parameter labels and their values that were used during transformations</td>
+</tr>
 </tbody>
 </table>
 <p class="rubric">Methods</p>
+<dl class="method">
+<dt id="openensembles.data.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>d_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an appended object – a merge of the data object (self) and all data objects inside a passed list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>d_list: list</strong></p>
+<blockquote>
+<div><p>A list of data objects</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">transDictArr: list of dicts</p>
+<blockquote>
+<div><p>A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If objects in d_list are not well formed openenembles data objects</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Merge two sets of data objects. Keeps the same dataframe (self.df), i.e. use this when it makes sense
+to always use that reference dataframe</p>
+<p>FINISH EXAMPLES here</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="openensembles.data.plot_data">
 <code class="descname">plot_data</code><span class="sig-paren">(</span><em>source_name</em>, <em>fig_num=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data.plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.plot_data" title="Permalink to this definition">¶</a></dt>
@@ -139,6 +176,45 @@ number entry)</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.data.slice">
+<code class="descname">slice</code><span class="sig-paren">(</span><em>names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#data.slice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.data.slice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new data object containing a slice indicated by the list of names given (dictionary keys shared amongst D, params, etc.).
+Cannot remove ‘parent’ as that is the default dataframe matrix that established data object. To replace parent, instead 
+instantiate a new object on a dataframe created from transformation of interest.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>names: list</strong></p>
+<blockquote>
+<div><p>A list of strings matching the names to keep in the new slice</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">d: an openensembles data object</p>
+<blockquote>
+<div><p>A oe.data object that contains only those names passed in</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If a name in the list of names does not exist in data object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Remove ‘zscore’ from the list, keeping everything else</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="c1">#get all the keys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">remove</span><span class="p">([</span><span class="s1">&#39;zscore&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dNew</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -242,7 +318,7 @@ When clustering is performed, the dictionaries of all attributes are extended us
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">clustering_algorithms</span></code></p>
+<p class="last"><a class="reference internal" href="clustering_algorithms.html#module-openensembles.clustering_algorithms" title="openensembles.clustering_algorithms"><code class="xref py py-obj docutils literal"><span class="pre">clustering_algorithms</span></code></a></p>
 </div>
 <p class="rubric">Examples</p>
 <p>Load data, zscore it, transform it into the first three principal components and cluster using KMeans with K=4</p>
@@ -575,6 +651,41 @@ a majority of the time. Outliers will get their own cluster.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="openensembles.cluster.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>c_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an appended object – a merge of the cluster object (self) and all cluster objects inside a passed list. 
+This will keep the parent dataobject of the self cluster object. This assumes that the ojbects were instantiated 
+and clustered on the same data source (at least the same mxn features)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>c_list: list</strong></p>
+<blockquote>
+<div><p>A list of cluster objects</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">transDictArr: list of dicts</p>
+<blockquote>
+<div><p>A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If objects in c_list are not well formed cluster objects</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Merge two sets of clustering objects</p>
+<p>FINISH EXAMPLES here</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="openensembles.cluster.mixture_model">
 <code class="descname">mixture_model</code><span class="sig-paren">(</span><em>K=2</em>, <em>iterations=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#cluster.mixture_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cluster.mixture_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finishing Technique to assemble a final, hard parition of the data according to maximizing the likelihood according to the
@@ -731,6 +842,40 @@ Appends to validation with key value equal to the validation_name+source_name+cl
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="openensembles.validation.merge">
+<code class="descname">merge</code><span class="sig-paren">(</span><em>v_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/openensembles.html#validation.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.validation.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an appended object – a merge of the validation object (self) and all validation objects inside a passed list. 
+This will keep the dataobject and clusterObjects of the self validation object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>v_list: list</strong></p>
+<blockquote>
+<div><p>A list of validation objects</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">transDictArr: list of dicts</p>
+<blockquote>
+<div><p>A list of dictionary translation of new labels in merged object, with original labels. List order is same as those passed in</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError</strong></p>
+<blockquote class="last">
+<div><p>If objects in v_list are not well formed value objects</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>Merge two sets of validation objects</p>
+<p>FINISH EXAMPLES here</p>
 </dd></dl>
 
 <dl class="method">

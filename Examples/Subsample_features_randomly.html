@@ -1,0 +1,588 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Demonstration of subsampling feature dimensions &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Create resampling of available replicate data to explore effects of noise" href="Ensembles_Across_Experimental_Noise.html" />
+    <link rel="prev" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space." href="Demonstrate_Distance_Affinity_effects.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Ensembles_Across_Experimental_Noise.html" title="Create resampling of available replicate data to explore effects of noise"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Demonstrate_Distance_Affinity_effects.html" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space."
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #303F9F;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #D84315;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 7ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+</style>
+<div class="section" id="Demonstration-of-subsampling-feature-dimensions">
+<h1>Demonstration of subsampling feature dimensions<a class="headerlink" href="#Demonstration-of-subsampling-feature-dimensions" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="c1">## Lu (2005) mRNA</span>
+<span class="c1"># Lu, J., Getz, G., Miska, E. a, Alvarez-Saavedra, E., Lamb, J., Peck, D., … Golub, T. R. (2005). MicroRNA expression profiles classify human cancers. Nature, 435(7043), 834–838. https://doi.org/10.1038/nature03702</span>
+<span class="c1"># Originally, data was clustering 89 cell lines in 14,546 dimensions, which is fraught with</span>
+<span class="c1"># problems with dimensionality. Instead, here, we will randomly subsample a smaller number of dimensions many times</span>
+<span class="n">fileName</span> <span class="o">=</span> <span class="s1">&#39;../data/Common_Affy.txt&#39;</span>
+<span class="n">raw_mRNA89</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span><span class="n">skiprows</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">raw_mRNA89</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">raw_mRNA89</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;Description&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">raw_mRNA89_filtered</span><span class="o">=</span><span class="n">raw_mRNA89</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">raw_mRNA89</span><span class="o">&lt;</span><span class="mf">7.25</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+
+<span class="n">D</span> <span class="o">=</span> <span class="n">raw_mRNA89_filtered</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="c1">#final data frame</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1">#setup oe.data object</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+<span class="c1">#transform, take the zscore so that mean values don&#39;t dominate clustering</span>
+<span class="n">d</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="s1">&#39;zscore&#39;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># select a random susbampling of n_features to cluster num_repeats times</span>
+<span class="n">n_features</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">num_repeats</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_repeats</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zscore_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="s1">&#39;random_subsample&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">num_to_sample</span><span class="o">=</span><span class="n">n_features</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># Cluster all subsamples using agglomerative clustering</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="n">K</span><span class="o">=</span><span class="mi">15</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">comat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">(</span><span class="s1">&#39;zscore&#39;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">comat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;comat.eps&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Subsample_features_randomly_5_0.png" src="../_images/Examples_Subsample_features_randomly_5_0.png" />
+</div>
+</div>
+<div class="section" id="How-sensitive-is-feature-subsampling-to-transforming-before-or-after-sampling?">
+<h2>How sensitive is feature subsampling to transforming before or after sampling?<a class="headerlink" href="#How-sensitive-is-feature-subsampling-to-transforming-before-or-after-sampling?" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1">#setup a fresh oe.data object from D</span>
+<span class="n">dRz</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">D</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># select a random susbampling of n_features to cluster num_repeats times</span>
+<span class="c1"># apply the zscore after random sample is taken</span>
+<span class="n">n_features</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">num_repeats</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_repeats</span><span class="p">):</span>
+    <span class="n">name_base</span> <span class="o">=</span> <span class="s1">&#39;random_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="n">dRz</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;random_subsample&#39;</span><span class="p">,</span> <span class="n">name_base</span><span class="p">,</span> <span class="n">num_to_sample</span><span class="o">=</span><span class="n">n_features</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;zscore_&#39;</span> <span class="o">+</span> <span class="n">name_base</span>
+    <span class="n">dRz</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">name_base</span><span class="p">,</span> <span class="s1">&#39;zscore&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># Cluster all subsamples using agglomerative clustering</span>
+<span class="n">cRz</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">dRz</span><span class="p">)</span>
+<span class="n">K</span><span class="o">=</span><span class="mi">15</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+    <span class="n">cRz</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">comat</span> <span class="o">=</span> <span class="n">cRz</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">comat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;comat_subsampleFirst.eps&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Subsample_features_randomly_10_0.png" src="../_images/Examples_Subsample_features_randomly_10_0.png" />
+</div>
+</div>
+</div>
+<div class="section" id="Finish-the-ensembles-using-the-co-occurrence-matrix">
+<h2>Finish the ensembles using the co-occurrence matrix<a class="headerlink" href="#Finish-the-ensembles-using-the-co-occurrence-matrix" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1">#cut the co-occurrence matrices and compare across the two methods of clustering</span>
+<span class="n">c_ComatCut</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">finish_co_occ_linkage</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="n">cMV</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">finish_majority_vote</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">cRz_ComatCut</span> <span class="o">=</span> <span class="n">cRz</span><span class="o">.</span><span class="n">finish_co_occ_linkage</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="n">cRz_cMV</span> <span class="o">=</span> <span class="n">cRz</span><span class="o">.</span><span class="n">finish_majority_vote</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+
+<span></span><span class="c1">#Merge the finished ensembles so that we can simply calculate their similarity by mutual information</span>
+<span class="n">transDictList</span> <span class="o">=</span> <span class="n">c_ComatCut</span><span class="o">.</span><span class="n">merge</span><span class="p">([</span><span class="n">cMV</span><span class="p">,</span> <span class="n">cRz_ComatCut</span><span class="p">,</span> <span class="n">cRz_cMV</span><span class="p">])</span>
+<span class="n">transDictList</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[11]:
+</pre></div>
+</div>
+<div class="output_area highlight-none"><div class="highlight"><pre>
+<span></span>[{&#39;majority_vote&#39;: &#39;majority_vote&#39;},
+ {&#39;co_occ_linkage&#39;: &#39;co_occ_linkage_2&#39;},
+ {&#39;majority_vote&#39;: &#39;majority_vote_3&#39;}]
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">MI</span> <span class="o">=</span> <span class="n">c_ComatCut</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;normalized&#39;</span><span class="p">)</span>
+<span class="n">MI</span><span class="o">.</span><span class="n">matrix</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>co_occ_linkage</th>
+      <th>majority_vote</th>
+      <th>co_occ_linkage_2</th>
+      <th>majority_vote_3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>co_occ_linkage</th>
+      <td>1</td>
+      <td>0.842341</td>
+      <td>1</td>
+      <td>0.842341</td>
+    </tr>
+    <tr>
+      <th>majority_vote</th>
+      <td>0.842341</td>
+      <td>1</td>
+      <td>0.842341</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>co_occ_linkage_2</th>
+      <td>1</td>
+      <td>0.842341</td>
+      <td>1</td>
+      <td>0.842341</td>
+    </tr>
+    <tr>
+      <th>majority_vote_3</th>
+      <td>0.842341</td>
+      <td>1</td>
+      <td>0.842341</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>In the MI matrix above, the non-numbered keys are the parent, which was
+created by first applying the z-score and then subsampling. It’s clear
+that it makes no difference (or very little difference, depending on the
+specicific random starting positions) if you z-score before or after
+subsampling feature dimensions here. Also, both majority vote solutions
+are similar, although they differ from the solutions built by
+ward-linking and cutting the co-occurrence matrix.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-k">Ensembles by changing K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-the-random-seed">Ensembles by changing the random seed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-distances-and-or-algorithms">Ensembles by changing Distances and/or Algorithms</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="Examples.html#ensembles-by-subsampling-data-features">Ensembles by subsampling data features</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Demonstration of subsampling feature dimensions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#How-sensitive-is-feature-subsampling-to-transforming-before-or-after-sampling?">How sensitive is feature subsampling to transforming before or after sampling?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Finish-the-ensembles-using-the-co-occurrence-matrix">Finish the ensembles using the co-occurrence matrix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-that-account-for-experimental-noise">Ensembles that account for experimental noise</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Demonstrate_Distance_Affinity_effects.html"
+                        title="previous chapter">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Ensembles_Across_Experimental_Noise.html"
+                        title="next chapter">Create resampling of available replicate data to explore effects of noise</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Examples/Subsample_features_randomly.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Ensembles_Across_Experimental_Noise.html" title="Create resampling of available replicate data to explore effects of noise"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Demonstrate_Distance_Affinity_effects.html" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space."
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+  </body>
+</html>

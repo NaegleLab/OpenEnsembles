@@ -1,6 +1,6 @@
 Transformations
 =======================================
-.. automodule:: transforms 
+.. automodule:: openensembles.transforms 
 	:members: 
 
 
