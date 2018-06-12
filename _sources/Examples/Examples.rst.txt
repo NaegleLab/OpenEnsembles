@@ -9,7 +9,6 @@ Ensembles by changing K
 .. toctree::
    :maxdepth: 2
 
-
    Example_Kmeans_MajorityVote.ipynb
    Example_Kmeans_MajorityVote-halfMoons.ipynb
   
@@ -47,3 +46,13 @@ Ensembles that account for experimental noise
    :maxdepth: 2
 
    Ensembles_Across_Experimental_Noise.ipynb
+
+
+Ensembles that use parallelization
+-------------------------------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   Example_Kmeans_MajorityVote-halfMoons-parallel.ipynb
+   Ensembles_Across_Experimental_Noise-parallel.ipynb

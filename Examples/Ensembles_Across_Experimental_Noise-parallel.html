@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Create resampling of available replicate data to explore effects of noise &#8212; OpenEnsembles 1 documentation</title>
+    <title>Parallelization of data and cluster objects: Resampling data to explore effects of noise &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons" href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" />
-    <link rel="prev" title="Demonstration of subsampling feature dimensions" href="Subsample_features_randomly.html" /> 
+    <link rel="next" title="Dependencies" href="../Dependencies.html" />
+    <link rel="prev" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons" href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,10 +37,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons"
+          <a href="../Dependencies.html" title="Dependencies"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="Subsample_features_randomly.html" title="Demonstration of subsampling feature dimensions"
+          <a href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li> 
@@ -218,8 +218,8 @@ div.nboutput div.output_area.stderr {
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
 </style>
-<div class="section" id="Create-resampling-of-available-replicate-data-to-explore-effects-of-noise">
-<h1>Create resampling of available replicate data to explore effects of noise<a class="headerlink" href="#Create-resampling-of-available-replicate-data-to-explore-effects-of-noise" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Parallelization-of-data-and-cluster-objects:-Resampling-data-to-explore-effects-of-noise">
+<h1>Parallelization of data and cluster objects: Resampling data to explore effects of noise<a class="headerlink" href="#Parallelization-of-data-and-cluster-objects:-Resampling-data-to-explore-effects-of-noise" title="Permalink to this headline">¶</a></h1>
 <p>This is similar to the example in Sloutsky, R., Jimenez, N., Swamidass,
 S. J. &amp; Naegle, K. M. Accounting for noise when clustering biological
 data. Brief. Bioinform. 14, 423–36 (2013) – we resample each data point
@@ -234,10 +234,10 @@ published in: Wolf-Yadlin, A., Hautaniemi, S., Lauffenburger, D. A. &amp;
 White, F. M. Multiple reaction monitoring for robust quantitative
 proteomic analysis of cellular signaling networks. Proc. Natl. Acad.
 Sci. U. S. A. 104, 5860–5 (2007).</p>
-<p>Compare this to the example with parallelization</p>
+<p>Compare this to the example without parallelization</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [1]:
+<span></span>In [3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -245,6 +245,7 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
 
 <span class="n">fileName</span> <span class="o">=</span> <span class="s1">&#39;../data/experiment.1381.annotated_misTrypsRemoved.txt&#39;</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -276,17 +277,18 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<span></span>In [5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="c1">#create new data objects, resampling each time point for each object according to their mean and stdev</span>
 <span class="c1"># using a normal distribution</span>
 <span class="n">numRepeats</span> <span class="o">=</span> <span class="mi">500</span>
-<span class="n">d_arr</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">numRepeats</span><span class="p">):</span>
-    <span class="n">df_temp</span> <span class="o">=</span> <span class="n">master_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="c1">#get a series from data and make new data column</span>
+
+<span class="k">def</span> <span class="nf">resample_data</span><span class="p">(</span><span class="n">df_temp</span><span class="p">,</span> <span class="n">stdev_df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resample data under a Gaussian model defined for each data point by its mean and std deviation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">dataCols</span><span class="p">:</span>
             <span class="n">stdevCol</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;stddev&#39;</span><span class="p">)</span>
@@ -295,7 +297,16 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">df_temp</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">data</span><span class="p">]</span>
     <span class="n">d_temp</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df_temp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-    <span class="n">d_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_temp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d_temp</span>
+
+
+<span class="n">N_THREADS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">pool</span><span class="o">=</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">N_THREADS</span><span class="p">)</span>
+<span class="n">data_apply_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">resample_data</span><span class="p">,</span> <span class="p">(</span><span class="n">master_df</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">stdev_df</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">numRepeats</span><span class="p">)]</span>
+<span class="n">data_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data_apply_results</span><span class="p">]</span> <span class="c1">#merge all data matrices together</span>
+
+<span class="n">transdict</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data_results</span><span class="p">)</span>
+
 
 
 </pre></div>
@@ -305,52 +316,57 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 <h2>Cluster all resampled data for an ensemble solution<a class="headerlink" href="#Cluster-all-resampled-data-for-an-ensemble-solution" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [4]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">transdict</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">d_arr</span><span class="p">)</span> <span class="c1">#merge all data matrices together (could also just iterate through )</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="n">K</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans_&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+<span class="c1"># Cluster all objects in parallel using python&#39;s multiprocessing module</span>
+<span class="c1"># Number of threads to use, should be close to the number of physical cores on your machine</span>
+<span class="n">N_THREADS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">N_THREADS</span><span class="p">)</span>
+
+<span class="c1"># Wrapper function to cluster and return object from thread</span>
+<span class="k">def</span> <span class="nf">run_clustering</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span>
+
+<span class="c1"># Spawn a thread to cluster each source matrix in data object</span>
+<span class="n">apply_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">run_clustering</span><span class="p">,</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans_&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">apply_results</span><span class="p">]</span>
+
+<span class="c1"># Merge the results with the main cluster object</span>
+<span class="n">c_transdict</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
 <span></span><span class="c1"># how do all solutions compare?</span>
 <span class="n">MI</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;normalized&#39;</span><span class="p">)</span>
 <span class="n">MI</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[6]:
+<span></span>Out[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise_7_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise_7_0.png" />
+<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_6_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_6_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
+<span></span>In [9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -360,7 +376,7 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [8]:
+<span></span>In [10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3"><div class="highlight"><pre>
@@ -371,11 +387,21 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[8]:
+<span></span>Out[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise_9_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise_9_0.png" />
+<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_8_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_8_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span>
+</pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -407,14 +433,15 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-the-random-seed">Ensembles by changing the random seed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-distances-and-or-algorithms">Ensembles by changing Distances and/or Algorithms</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-subsampling-data-features">Ensembles by subsampling data features</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="Examples.html#ensembles-that-account-for-experimental-noise">Ensembles that account for experimental noise</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Create resampling of available replicate data to explore effects of noise</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-that-account-for-experimental-noise">Ensembles that account for experimental noise</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="Examples.html#ensembles-that-use-parallelization">Ensembles that use parallelization</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Example_Kmeans_MajorityVote-halfMoons-parallel.html">Parallelization of cluster and validation: Kmeans, Majority Vote on half moons</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Parallelization of data and cluster objects: Resampling data to explore effects of noise</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Cluster-all-resampled-data-for-an-ensemble-solution">Cluster all resampled data for an ensemble solution</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-that-use-parallelization">Ensembles that use parallelization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
@@ -422,15 +449,15 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="Subsample_features_randomly.html"
-                        title="previous chapter">Demonstration of subsampling feature dimensions</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="Example_Kmeans_MajorityVote-halfMoons-parallel.html"
-                        title="next chapter">Parallelization of cluster and validation: Kmeans, Majority Vote on half moons</a></p>
+                        title="previous chapter">Parallelization of cluster and validation: Kmeans, Majority Vote on half moons</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../Dependencies.html"
+                        title="next chapter">Dependencies</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/Examples/Ensembles_Across_Experimental_Noise.ipynb.txt"
+      <li><a href="../_sources/Examples/Ensembles_Across_Experimental_Noise-parallel.ipynb.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -458,10 +485,10 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons"
+          <a href="../Dependencies.html" title="Dependencies"
              >next</a> |</li>
         <li class="right" >
-          <a href="Subsample_features_randomly.html" title="Demonstration of subsampling feature dimensions"
+          <a href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li> 

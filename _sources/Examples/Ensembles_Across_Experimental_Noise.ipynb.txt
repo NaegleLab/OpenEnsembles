@@ -8,6 +8,17 @@
    ]
   },
   {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This is similar to the example in Sloutsky, R., Jimenez, N., Swamidass, S. J. & Naegle, K. M. Accounting for noise when clustering biological data. Brief. Bioinform. 14, 423–36 (2013) -- we resample each data point according to a Guassian distribution defined by the mean and standard deviation of the measured data. \n",
+    "\n",
+    "This example is phosphoproteomic dataset of epithelial cells stimulated with a growth factor and measured immediately afterward at seven time points in the first 32 minutes, specifically [0, 1, 2, 4, 8, 16, 32]. It was downloaded from [ProteomeScout](https://proteomescout.wustl.edu/experiments/1381) and published in: Wolf-Yadlin, A., Hautaniemi, S., Lauffenburger, D. A. & White, F. M. Multiple reaction monitoring for robust quantitative proteomic analysis of cellular signaling networks. Proc. Natl. Acad. Sci. U. S. A. 104, 5860–5 (2007). \n",
+    "\n",
+    "Compare this to the example with parallelization "
+   ]
+  },
+  {
    "cell_type": "code",
    "execution_count": 1,
    "metadata": {
