@@ -1,9 +1,9 @@
 package:
   name: openensembles 
-  version: "v1.0.1"
+  version: "1.1.1"
 
 source:
-  git_rev: OpenEnsembles-v1.0.1
+  git_rev: OpenEnsembles-v1.1.1
   git_url: https://github.com/NaegleLab/OpenEnsembles
 
 requirements:
@@ -15,6 +15,7 @@ requirements:
     - scipy
     - networkx
     - matplotlib
+    - hdbscan
 
   run:
     - python
