@@ -432,7 +432,7 @@ class validation:
 			#compute bgssj
 			for j in range(numCluster):
 				indices=[t for t, x in enumerate(self.classLabel) if x == j]
-				columnCluster=self.dataMatrix[indices,:]
+				columnCluster=self.dataMatrix[indices,i]
 				centerCluster=np.mean(columnCluster)
 				bgssj=bgssj+len(indices)*math.pow(centerCluster-columnCenter,2)
 			#iterate through the  members of the column
