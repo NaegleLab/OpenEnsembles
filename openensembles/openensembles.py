@@ -185,8 +185,6 @@ class data:
 				ax.set_zlabel(self.x[source_name][2])
 
 		else:
-			plt.hold(True)
-			ax.hold(True)
 			for clusterNum in clusters:
 				indexes = np.where(class_labels==clusterNum)
 				plt.plot(self.x[source_name], self.D[source_name][indexes].transpose(), c=next(color))
