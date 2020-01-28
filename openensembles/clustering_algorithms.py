@@ -225,7 +225,7 @@ class clustering_algorithms:
 		"""
 		Uses sklearns `AgglomerativeClustering algorithm <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html>`_ 
 
-		**Defaults and var_params:** sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', connectivity=None, compute_full_tree='auto', linkage='ward', pooling_func=<function mean>)
+		**Defaults and var_params: ** sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None)
 
 		Other Parameters
 		----------------
@@ -240,12 +240,13 @@ class clustering_algorithms:
 		params = {}
 		params['distance'] = 'euclidean'
 		params['affinity'] = params['distance']
-		#params['memory'] = 'Memory(cachedir=None)'
+		params['memory'] = None
 		params['connectivity']= None
 		#params['n_components'] = None #gone in newest version
 		params['compute_full_tree'] = 'auto'
 		params['linkage'] = 'ward'
-		params['pooling_func'] = np.mean
+		params['distance_threshold'] = None
+		#params['pooling_func'] = np.mean #Removed in sklearn 0.22.1
 
 		params = returnParams(self.var_params, params, 'agglomerative')
 		params['affinity'] = params['distance']
@@ -255,7 +256,7 @@ class clustering_algorithms:
 
 		solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
 			connectivity=params['connectivity'],
-			compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
+			compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , distance_threshold=params['distance_threshold'])
 		solution.fit(self.data)
 		self.out = solution.labels_
 		self.var_params = params #update dictionary of parameters to match that used.
