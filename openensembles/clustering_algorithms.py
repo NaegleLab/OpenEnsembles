@@ -546,11 +546,13 @@ def returnParams(paramsSent, paramsExpected, algorithm):
 
 	if 'distance' in paramsSent:
 		if paramsSent['distance'] == 'precomputed':
+			paramsExpected['M'] = []
 			if 'M' not in paramsSent:
 				raise ValueError("Precomputed distances require a distance matrix passed as 'M' ")
 
 	if 'affinity' in paramsSent:
 		if paramsSent['affinity'] == 'precomputed':
+			paramsExpected['M'] = []
 			if 'M' not in paramsSent:
 				raise ValueError("Precomputed affinity require a similarity matrix passed as 'M' ")
 
