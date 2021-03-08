@@ -89,7 +89,7 @@ class coMat:
             co_bin = self.gather_single_partition(solution)
             co_matrix += co_bin
         co_matrixF = co_matrix/self.nEnsembles
-        header = self.cObj.dataObj.df.index.get_values()
+        header = self.cObj.dataObj.df.index.values
         co_matrix_df = pd.DataFrame(index=header, data=co_matrixF,
                 columns=header)
         return co_matrix_df
@@ -292,7 +292,7 @@ def plot_matrix_sorted(matrix, label_vec, threshold, lnk1):
      # plot heatmap
     axmatrix = add_subplot_axes(panel3,[0.28,0.3,0.7,.6])
     hm = matrix
-    hm = hm.ix[idx_pp,idx_pp]
+    hm = hm.iloc[idx_pp,idx_pp]
     im = axmatrix.matshow(hm, aspect='auto', origin='upper', cmap='afmhot')
     axmatrix.axis('off')
 
