@@ -31,7 +31,7 @@ class TestFunctions(unittest.TestCase):
 
     def setUp(self):
         fileName = 'data_test.csv'
-        df = pd.DataFrame.from_csv(fileName)
+        df = pd.read_csv(fileName)
         x = [0, 5, 30]
         self.data = oe.data(df, x)
 
@@ -42,26 +42,26 @@ class TestFunctions(unittest.TestCase):
 
     def test_remove_metaData(self):
         fileName = 'data_test_meta.csv'
-        df = pd.DataFrame.from_csv(fileName)
+        df = pd.read_csv(fileName)
         x = [0, 5, 30]
         self.data = oe.data(df, x)
 
     def test_incorrect_setup(self):
         fileName = 'data_test.csv'
-        df = pd.DataFrame.from_csv(fileName)
+        df = pd.read_csv(fileName)
         x = [0, 5, 10, 30]
         self.assertRaises(ValueError, lambda: oe.data(df,x)) 
 
     def test_setup_stringX(self):
         fileName = 'data_test.csv'
-        df = pd.DataFrame.from_csv(fileName)
+        df = pd.read_csv(fileName)
         x = ['something', 5, 30]
         self.data = oe.data(df,x)
         self.assertListEqual([0,1,2], self.data.x['parent'])
 
     def test_setup_floats(self):
         fileName = 'data_test.csv'
-        df = pd.DataFrame.from_csv(fileName)
+        df = pd.read_csv(fileName)
         x = [0.0, 5.0, 30.0]
         self.data = oe.data(df,x)
         self.assertListEqual(x, self.data.x['parent'])
@@ -120,7 +120,7 @@ class TestFunctions(unittest.TestCase):
 
     def test_dataObj_merge(self):
         fileName = 'data_test.csv'
-        df = pd.DataFrame.from_csv(fileName)
+        df = pd.read_csv(fileName)
         x = [0, 5, 30]
         data2 = oe.data(df, x)
 

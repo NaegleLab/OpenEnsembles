@@ -78,8 +78,8 @@ class MI:
 			for name_2 in names:
 				if np.isnan(d.loc[name_1, name_2]):
 					MI = calculate_MI(cObj.labels[name_1], cObj.labels[name_2], MI_type)
-					d = d.set_value(name_1, name_2, MI)
-					d = d.set_value(name_2, name_1, MI)
+					d.at[name_1, name_2] = MI
+					d.at[name_2, name_1] = MI
 				#check that the value is nonexistent, then place calculation in the symmetric positions 
 
 

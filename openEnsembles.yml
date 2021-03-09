@@ -1,0 +1,21 @@
+name: py37-openEnsembles
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7.*
+  - hdbscan=0.8.*
+  - ipykernel=5.1.*
+  - ipython=7.21.*
+  - jupyter=1.0.*
+  - matplotlib=3.3*
+  - nb_conda_kernels=2.2.*
+  - nbclient=0.5.*
+  - networkx=2.5
+  - notebook=6.0.*
+  - numpy=1.19.*
+  - pandas=1.2.*
+  - scikit-learn=0.24.*
+  - scipy=1.6.*
+prefix: /anaconda3/envs/py37-openEnsembles
+
