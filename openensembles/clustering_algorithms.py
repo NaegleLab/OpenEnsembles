@@ -98,7 +98,7 @@ class clustering_algorithms:
 		"""
 		kmeans clustering see `skc.KMeans <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html>`_
 
-		**Defaults and var_params:** skc.KMeans(n_clusters=2, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='auto', verbose=0, random_state=None, copy_x=True, n_jobs=1)
+		**Defaults and var_params:** skc.KMeans(n_clusters=2, init='k-means++', n_init=10, max_iter=300, tol=0.0001, verbose=0, random_state=None, copy_x=True)
 
 	
 		Other Parameters
@@ -117,11 +117,11 @@ class clustering_algorithms:
 		params['n_init'] = 10
 		params['max_iter'] = 300
 		params['tol'] = 0.0001
-		params['precompute_distances'] = 'auto'
+		#params['precompute_distances'] = 'auto' #removed in version 0.23 and has no effect
 		params['verbose'] = 0
 		params['random_state'] = None
 		params['copy_x'] = True
-		params['n_jobs'] = 1
+		#params['n_jobs'] = 1 #removed in version 0.23 and has no effect
 		if not self.K:
 			raise ValueError('kmeans clustering requires an argument K=<intiger value>')
 
@@ -131,8 +131,8 @@ class clustering_algorithms:
 		seed = params['random_state'][1][0]
 		solution=skc.KMeans(n_clusters=self.K, init=params['init'], 
 			n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'],
-			precompute_distances=params['precompute_distances'], verbose=params['verbose'],
-			random_state=seed, copy_x=params['copy_x'], n_jobs=params['n_jobs'])
+			verbose=params['verbose'],
+			random_state=seed, copy_x=params['copy_x'])
 		solution.fit(self.data)
 		self.out = solution.labels_
 		self.var_params = params #update dictionary of parameters to match that used.
@@ -225,7 +225,7 @@ class clustering_algorithms:
 		"""
 		Uses sklearns `AgglomerativeClustering algorithm <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html>`_ 
 
-		**Defaults and var_params:** sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', connectivity=None, compute_full_tree='auto', linkage='ward', pooling_func=<function mean>)
+		**Defaults and var_params: ** sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None)
 
 		Other Parameters
 		----------------
@@ -240,12 +240,13 @@ class clustering_algorithms:
 		params = {}
 		params['distance'] = 'euclidean'
 		params['affinity'] = params['distance']
-		#params['memory'] = 'Memory(cachedir=None)'
+		params['memory'] = None
 		params['connectivity']= None
 		#params['n_components'] = None #gone in newest version
 		params['compute_full_tree'] = 'auto'
 		params['linkage'] = 'ward'
-		params['pooling_func'] = np.mean
+		params['distance_threshold'] = None
+		#params['pooling_func'] = np.mean #Removed in sklearn 0.22.1
 
 		params = returnParams(self.var_params, params, 'agglomerative')
 		params['affinity'] = params['distance']
@@ -255,7 +256,7 @@ class clustering_algorithms:
 
 		solution = skc.AgglomerativeClustering(n_clusters=self.K, affinity=params['affinity'],
 			connectivity=params['connectivity'],
-			compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , pooling_func=params['pooling_func'])
+			compute_full_tree=params['compute_full_tree'], linkage=params['linkage'] , distance_threshold=params['distance_threshold'])
 		solution.fit(self.data)
 		self.out = solution.labels_
 		self.var_params = params #update dictionary of parameters to match that used.
@@ -385,16 +386,18 @@ class clustering_algorithms:
 		params['convergence_iter'] = 15
 		params['copy'] = True
 		params['preference'] = None
-
+		params['random_state'] = None
 		params['verbose'] = False
+		
 		params = returnParams(self.var_params, params, 'AffinityPropagation')
+		seed = params['random_state'][1][0]
 
 		#params['distance'] says what to precompute on
 		params['affinity'] = 'precomputed'
 		d = returnDistanceMatrix(self.data, params['distance'])
 		
 		solution = skc.AffinityPropagation(damping=params['damping'], max_iter=params['max_iter'], convergence_iter=params['convergence_iter'], 
-			copy=params['copy'], preference=params['preference'], affinity=params['affinity'], verbose=params['verbose'])
+			copy=params['copy'], preference=params['preference'], affinity=params['affinity'], verbose=params['verbose'], random_state = seed)
 		solution.fit(d) #operates on distance matrix
 
 		self.out = solution.labels_

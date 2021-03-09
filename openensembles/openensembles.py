@@ -166,8 +166,8 @@ class data:
 		#SETUP axes, as either 2D or 3D
 		if n==3:
 			ax = fig.gca(projection='3d')
-		else:
-			ax = fig.add_subplot(111)
+		#else:
+		#	ax = fig.add_subplot(111)
 		#ax.hold(True)
 
 		if n <= 3: #scatter plots for less than 4-dimensions

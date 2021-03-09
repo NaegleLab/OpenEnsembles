@@ -357,7 +357,7 @@ class majority_vote:
 		"""
 		labels = np.zeros(self.N).astype(int)
 		currCluster = 1
-		x = self.co_matrix.as_matrix()
+		x = self.co_matrix.to_numpy()
 
 		for i in range(0, self.N):
 			for j in range(i+1, self.N):
