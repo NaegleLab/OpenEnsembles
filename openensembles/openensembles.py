@@ -174,9 +174,9 @@ class data:
 			for clusterNum in clusters:
 				indexes = np.where(class_labels==clusterNum)
 				if n==2:
-					plt.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], c=next(color))
+					plt.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], color=next(color))
 				elif n==3:
-					ax.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], self.D[source_name][indexes,2], c=next(color), s=10)
+					ax.scatter(self.D[source_name][indexes,0], self.D[source_name][indexes,1], self.D[source_name][indexes,2], color=next(color), s=10)
 
 
 			plt.xlabel(self.x[source_name][0])
@@ -187,7 +187,7 @@ class data:
 		else:
 			for clusterNum in clusters:
 				indexes = np.where(class_labels==clusterNum)
-				plt.plot(self.x[source_name], self.D[source_name][indexes].transpose(), c=next(color))
+				plt.plot(self.x[source_name], self.D[source_name][indexes].transpose(), color=next(color))
 
 
 		plt.title(title)
