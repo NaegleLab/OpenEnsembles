@@ -483,7 +483,7 @@ class cluster:
 		a['distance'] = ['HDBSCAN', 'DBSCAN', 'spectral', 'AffinityPropagation', 'agglomerative']
 		return a
 
-	def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, random_seed=None, **kwargs):
+	def cluster(self, source_name, algorithm, output_name, K=None, Require_Unique=False, random_state=None, **kwargs):
 
 		"""
 		This runs clustering algorithms on the data matrix defined by
@@ -504,8 +504,8 @@ class cluster:
 		Require_Unique: bool
 			If FALSE and you already have an output_name solution, this will append a number to create a unique name. If TRUE and a 
 			solution by that name exists, this will not add solution and raise ValueError. Default Require_Unique=False
-		random_seed: int or random.getstate()
-			Pass a random seed or random seed state (random.getstate()) in order to force the starting point of a clustering algorithm to that state. 
+		random_state: int 
+			Pass a random seed in order to force the starting point of a clustering algorithm to that state. 
 			Default is None
 
 		Warnings
@@ -543,18 +543,11 @@ class cluster:
 		else:
 			var_params = kwargs
 
-		#Here if handle if random seed was passed, set it. Else, store the random seed.
-		if 'random_seed':
-			try:
-				random.set_state(random_seed)
-				state = random_seed
+		#Here if random state was passed, set it. Else, keep the current numpy random seed.
+		if 'random_state' is not None:
+			random.seed(random_state)
 
-
-			except TypeError:
-				random.seed(random_seed)
-				state = random.get_state()
-
-		var_params['random_state'] = state
+		
 
 		##### Check to see if the same name exists for clustering solution name and decide what to do according to Require_Unique
 		if output_name in list(self.labels.keys()):
@@ -595,6 +588,8 @@ class cluster:
 		self.params[output_name] = c.var_params
 		self.clusterNumbers[output_name] = uniqueClusters
 		self.algorithms[output_name] = algorithm
+		#get random state used for this clustering
+		state = random.get_state()
 		self.random_state[output_name] = state
 
 

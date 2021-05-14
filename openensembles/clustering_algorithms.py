@@ -128,11 +128,11 @@ class clustering_algorithms:
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'kmeans')
 
-        seed = params['random_state'][1][0]
+        
         solution=skc.KMeans(n_clusters=self.K, init=params['init'], 
             n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'],
             verbose=params['verbose'],
-            random_state=seed, copy_x=params['copy_x'])
+            random_state=params['random_state'], copy_x=params['copy_x'])
         solution.fit(self.data)
         self.out = solution.labels_
         self.var_params = params #update dictionary of parameters to match that used.
@@ -178,14 +178,14 @@ class clustering_algorithms:
         #for anything in self.var_params that may replace defaults, update the param list
         params = returnParams(self.var_params, params, 'spectral')
  
-        seed = params['random_state'][1][0]
+       
 
         # handle the cases of affinity set, affinity as precomputed with a matrix, distance as a string that needs to be converted and distance as precomputed, which shoudl fail
 
         if 'affinity' in self.var_params:
             if self.var_params['affinity'] == 'precomputed':
                 solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
-                    eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                    eigen_solver=params['eigen_solver'], random_state=params['random_state'], n_init=params['n_init'],
                     affinity='precomputed', coef0=params['coef0'], kernel_params=params['kernel_params'],
                     eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
                 x = np.shape(self.var_params['M'])
@@ -193,7 +193,7 @@ class clustering_algorithms:
                 params['M'] = self.var_params['M']
             else: #it's affinity, that's not precomputed, but overrides the default
                 solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
-                            eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                            eigen_solver=params['eigen_solver'], random_state=params['random_state'], n_init=params['n_init'],
                             affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
                             eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
                 solution.fit(self.data)
@@ -206,13 +206,13 @@ class clustering_algorithms:
             D = returnDistanceMatrix(self.data, self.var_params['distance'])
             S = convertDistanceToSimilarity(D)
             solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
-                        eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                        eigen_solver=params['eigen_solver'], random_state=params['random_state'], n_init=params['n_init'],
                         affinity='precomputed', coef0=params['coef0'], kernel_params=params['kernel_params'],
                         eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
             solution.fit(S)
         else: #else it's an affinity that is not precomputed.
             solution = skc.SpectralClustering(n_clusters=self.K, n_neighbors=params['n_neighbors'], gamma=params['gamma'],
-                            eigen_solver=params['eigen_solver'], random_state=seed, n_init=params['n_init'],
+                            eigen_solver=params['eigen_solver'], random_state=params['random_state'], n_init=params['n_init'],
                             affinity=params['affinity'], coef0=params['coef0'], kernel_params=params['kernel_params'],
                             eigen_tol=params['eigen_tol'], assign_labels=params['assign_labels'], n_jobs=params['n_jobs'])
             solution.fit(self.data)
@@ -390,14 +390,14 @@ class clustering_algorithms:
         params['verbose'] = False
         
         params = returnParams(self.var_params, params, 'AffinityPropagation')
-        seed = params['random_state'][1][0]
+        
 
         #params['distance'] says what to precompute on
         params['affinity'] = 'precomputed'
         d = returnDistanceMatrix(self.data, params['distance'])
         
         solution = skc.AffinityPropagation(damping=params['damping'], max_iter=params['max_iter'], convergence_iter=params['convergence_iter'], 
-            copy=params['copy'], preference=params['preference'], affinity=params['affinity'], verbose=params['verbose'], random_state = seed)
+            copy=params['copy'], preference=params['preference'], affinity=params['affinity'], verbose=params['verbose'], random_state = params['random_state'])
         solution.fit(d) #operates on distance matrix
 
         self.out = solution.labels_
@@ -516,13 +516,13 @@ class clustering_algorithms:
 
         params = returnParams(self.var_params, params, 'GaussianMixture')
 
-        seed = params['random_state'][1][0]
+        
 
 
         solution=mixture.GaussianMixture(n_components=params['n_components'], covariance_type=params['covariance_type'], 
             tol=params['tol'], reg_covar=params['reg_covar'], max_iter=params['max_iter'], n_init=params['n_init'], 
             init_params=params['init_params'], weights_init=params['weights_init'], means_init=params['means_init'], 
-            precisions_init=params['precisions_init'], random_state = seed, warm_start=params['warm_start'], 
+            precisions_init=params['precisions_init'], random_state = params['random_state'], warm_start=params['warm_start'], 
             verbose=params['verbose'], verbose_interval=params['verbose_interval'])
         solution.fit(self.data)
         labels = solution.predict(self.data)
