@@ -566,7 +566,7 @@ class cluster:
 			raise ValueError( "The algorithm you requested does not exist, currently the following are supported %s"%(list(ALG_FCN_DICT.keys())))
 
 
-		random.set_state(state)
+		
 		c = ca.clustering_algorithms(self.dataObj.D[source_name], var_params, K)
 		func = getattr(c,algorithm)
 		func()
