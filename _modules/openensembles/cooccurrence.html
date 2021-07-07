@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>openensembles.cooccurrence &#8212; OpenEnsembles 1 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">openensembles.cooccurrence</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for openensembles.cooccurrence</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">OpenEnsembles is a resource for performing and analyzing ensemble clustering</span>
+
+<span class="sd">Copyright (C) 2017 Naegle Lab</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pylab</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">as</span> <span class="nn">sch</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">distance</span> <span class="k">as</span> <span class="n">ssd</span>
+
+<span class="k">class</span> <span class="nc">coMat</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that allows you to create and operate on a co-occurrence matrix</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cObj: openensembles.cluster object</span>
+<span class="sd">        The clustering object and all contained solutions of interest</span>
+<span class="sd">    data_source_name: string</span>
+<span class="sd">        The name of the data source of interest </span>
+
+<span class="sd">    Atrributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parg: array of ints</span>
+<span class="sd">        An array reshaped from all contained clustering solutions</span>
+<span class="sd">    N: int</span>
+<span class="sd">        Number of objects</span>
+<span class="sd">    nEnsembles: int</span>
+<span class="sd">        Number of clustering solutions</span>
+<span class="sd">    co_matrix: pandas dataframe</span>
+<span class="sd">        The co-occurrence matrix (square). An entry indicates the fraction of times any pair of objects co-clusters across the ensemble</span>
+<span class="sd">    avg_dist: float</span>
+<span class="sd">        The mean of all co-occurrences (not including self distances)</span>
+
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    openensembles.cluster.co_occurrence_matrix()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cObj</span><span class="p">,</span> <span class="n">data_source_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cObj</span> <span class="o">=</span> <span class="n">cObj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_source_name</span> <span class="o">=</span> <span class="n">data_source_name</span>
+        <span class="n">parg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">solution</span> <span class="ow">in</span> <span class="n">cObj</span><span class="o">.</span><span class="n">labels</span><span class="p">:</span>
+            <span class="n">parg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cObj</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">solution</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parg</span> <span class="o">=</span> <span class="n">parg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">cObj</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="n">data_source_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nEnsembles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parg</span><span class="p">)</span>
+        <span class="n">co_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gather_partitions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">co_matrix</span> <span class="o">=</span> <span class="n">co_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">co_matrix</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">gather_partitions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gather partitions sums the number of times all pairs of objects fall within the same cluster</span>
+<span class="sd">        across the ensemble.  </span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        co_matrix_df: pandas dataframe</span>
+<span class="sd">            a dataframe of object names in column and header, wrapped around the co-occurrence matrix</span>
+
+<span class="sd">        todo:: Check that the solution dimensionality and the data matrix dimensions are the same</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span>
+        <span class="n">co_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span><span class="n">dim</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">solution</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parg</span><span class="p">:</span>
+            <span class="n">co_bin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gather_single_partition</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+            <span class="n">co_matrix</span> <span class="o">+=</span> <span class="n">co_bin</span>
+        <span class="n">co_matrixF</span> <span class="o">=</span> <span class="n">co_matrix</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">nEnsembles</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cObj</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="n">co_matrix_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">co_matrixF</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">header</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">co_matrix_df</span>
+
+    <span class="k">def</span> <span class="nf">gather_single_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For an individual solution (set of labels), create a binary cooccurrence matrix that has an entry of 1 if </span>
+<span class="sd">        both objects are in the same cluster and 0 if not. </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Solution: list of ints</span>
+<span class="sd">            A single solution vector of clustering labels</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        co_matrix: matrix</span>
+<span class="sd">            a square matrix the size of the length of solution with boolean values (0,1)</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+        <span class="n">co_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span><span class="n">dim</span><span class="p">))</span>
+        <span class="n">clusterid_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+        <span class="c1">#print clusterid_list</span>
+        <span class="k">for</span> <span class="n">clusterid</span> <span class="ow">in</span> <span class="n">clusterid_list</span><span class="p">:</span>
+            <span class="n">itemindex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">solution</span><span class="o">==</span><span class="n">clusterid</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itemindex</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:]):</span>
+                <span class="n">co_matrix</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">x</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>           
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span><span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itemindex</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]):</span>
+                    <span class="n">co_matrix</span><span class="p">[</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+                    <span class="n">co_matrix</span><span class="p">[</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">co_matrix</span>
+    
+    <span class="k">def</span> <span class="nf">pairwise_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reshapes the co-occurrence dataframe matrix into a list, so it can easily be ordered and explored</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df: pandas dataframe </span>
+<span class="sd">            with a row entry index of object1_object2 and a co-occurrence column labled &#39;pairwise&#39;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#return a new dataframe in list with index equal to the pairs being</span>
+        <span class="c1">#considered </span>
+        <span class="n">coMat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">co_matrix</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;site_1&#39;</span><span class="p">,</span> <span class="s1">&#39;site_2&#39;</span><span class="p">,</span> <span class="s1">&#39;pairwise&#39;</span><span class="p">])</span>
+        <span class="n">headerList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">coMat</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">headerList</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">headerList</span><span class="p">)):</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="n">headerList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">headerList</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="n">s</span><span class="p">[</span><span class="s1">&#39;pairwise&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coMat</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">h</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">s</span><span class="p">[</span><span class="s1">&#39;site_1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span>
+                <span class="n">s</span><span class="p">[</span><span class="s1">&#39;site_2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">; </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Link a co-occurrence matrix. This is required so that co-occurrence is properly treated as a distance matrix</span>
+<span class="sd">        during scipy.cluster.hierarchy.linkage</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        linkage: string</span>
+<span class="sd">            type of linkage to use, see scipy.cluster.hierarchy.linkage for options</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lnk: scipy.cluster.hierarch.linkage object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#arr = self.co_matrix</span>
+        <span class="c1">#set diagonal to zero</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">co_matrix</span>
+        <span class="n">lnk</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">linkage</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lnk</span>
+
+    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lnk</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        **A finishing technique**</span>
+
+<span class="sd">        Given the calculation of a linkage (e.g. self.lnk(linkage=&#39;average&#39;)), cut the resulting linkage</span>
+<span class="sd">        at the given threshold and return the labels from the resulting cut on the hierarchically </span>
+<span class="sd">            :param lnk: a linkage object, that can be generated by self.link() </span>
+<span class="sd">            :type lnk: scipy.cluster.hierarch.linkage object</span>
+<span class="sd">            :param threshold: the threshold to cut the groups into. See self.plot() to visually explore the cuts at different thresholds.</span>
+<span class="sd">            :type threshold: float</span>
+<span class="sd">        </span>
+<span class="sd">            :returns: labels - vector of ints assigning each object into a group. This is a type of finishing for deterministic clustering from an ensemble. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">fcluster</span><span class="p">(</span><span class="n">lnk</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="s1">&#39;distance&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ind</span>
+
+     
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="s1">&#39;avg&#39;</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="n">add_labels</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span><span class="c1">#dist_thresh=self.avg_dist):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the co_occurrence matrix with a dendrogram and heatmap </span>
+<span class="sd">        By Default labels=True, set to false to suppress labels in graph</span>
+<span class="sd">        By default label_vec equal to the index list of the dataObj dataframe. Otherwise, you can pass in an alternate naming scheme, </span>
+<span class="sd">        vector length should be the same as </span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        threshold: float</span>
+<span class="sd">            Use threshold to color the dendrogram</span>
+<span class="sd">            This is useful for identifying visually how to call .cut()</span>
+<span class="sd">            Default is the average value in the co-occurrence matrix, which is updated to float when &#39;avg&#39; is passed</span>
+<span class="sd">        add_labels: bool</span>
+<span class="sd">            If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers</span>
+<span class="sd">        linkage: string</span>
+<span class="sd">            Linkage type to use for dendrogram. Default is average</span>
+
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+
+<span class="sd">        label_vec: list</span>
+<span class="sd">            If you want to add labels, but not the same in co-occurrence matrix dataframe, then pass those here</span>
+
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">            ValueError: </span>
+<span class="sd">                if label_vec in **kwargs is different size then number of objects</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; coMat = c.co_occurrence_matrix()</span>
+<span class="sd">        &gt;&gt;&gt; coMat.plot(threshold=1, linkage=&#39;average&#39;, labels=False)</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_dist</span>
+        
+        <span class="k">if</span> <span class="n">add_labels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;label_vec&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span> <span class="c1"># use this if you have different labels than in c.dataObj.df.index.values</span>
+                <span class="n">label_vec</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;label_vec&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_vec</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">co_matrix</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ERROR: the length of label vector does not equal the number of objects in the co_occurrence matrix&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label_vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cObj</span><span class="o">.</span><span class="n">dataObj</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="c1">#using parent just to get column names</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="n">label_vec</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_matrix_sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">co_matrix</span><span class="p">,</span> <span class="n">label_vec</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">))</span>
+            
+        <span class="k">return</span> <span class="n">fig</span>
+
+<div class="viewcode-block" id="plot_matrix_sorted"><a class="viewcode-back" href="../../cooccurrence.html#openensembles.cooccurrence.plot_matrix_sorted">[docs]</a><span class="k">def</span> <span class="nf">plot_matrix_sorted</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">label_vec</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">lnk1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A heatmap plotting function, for both co-occurrence and mutual information</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    matrix: np.array</span>
+<span class="sd">        An array of values to plot as a heatmap</span>
+<span class="sd">    label_vec: list of strings</span>
+<span class="sd">        A label_vec to label the row-wise objects. Empty if labels not requested</span>
+<span class="sd">    threshold: float</span>
+<span class="sd">        Threshold to use for coloring of dendrogram</span>
+<span class="sd">    lnk1: linkage object</span>
+<span class="sd">        A pre-calcluated linkage object to use to sort.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig: matplotlib.pyplot figure </span>
+<span class="sd">        The figure handle </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+    <span class="n">panel3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">panel3</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add dendrogram </span>
+    <span class="k">if</span> <span class="n">label_vec</span><span class="p">:</span>
+        <span class="n">add_labels</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">add_labels</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">if</span> <span class="n">add_labels</span><span class="p">:</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">add_subplot_axes</span><span class="p">(</span><span class="n">panel3</span><span class="p">,[</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.11</span><span class="p">,</span><span class="o">.</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">Z_pp</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="n">lnk1</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">color_threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">label_vec</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">add_subplot_axes</span><span class="p">(</span><span class="n">panel3</span><span class="p">,[</span><span class="mf">0.16</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.11</span><span class="p">,</span><span class="o">.</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">Z_pp</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="n">lnk1</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">color_threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+    <span class="n">idx_pp</span> <span class="o">=</span> <span class="n">Z_pp</span><span class="p">[</span><span class="s1">&#39;leaves&#39;</span><span class="p">]</span>
+    <span class="c1">#</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span> <span class="c1"># must couple with matshow origin=&#39;upper&#39;,</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">,</span><span class="s1">&#39;right&#39;</span><span class="p">,</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span><span class="s1">&#39;left&#39;</span><span class="p">]:</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="n">side</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+     <span class="c1"># plot heatmap</span>
+    <span class="n">axmatrix</span> <span class="o">=</span> <span class="n">add_subplot_axes</span><span class="p">(</span><span class="n">panel3</span><span class="p">,[</span><span class="mf">0.28</span><span class="p">,</span><span class="mf">0.3</span><span class="p">,</span><span class="mf">0.7</span><span class="p">,</span><span class="o">.</span><span class="mi">6</span><span class="p">])</span>
+    <span class="n">hm</span> <span class="o">=</span> <span class="n">matrix</span>
+    <span class="n">hm</span> <span class="o">=</span> <span class="n">hm</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">idx_pp</span><span class="p">,</span><span class="n">idx_pp</span><span class="p">]</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">axmatrix</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">hm</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;upper&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;afmhot&#39;</span><span class="p">)</span>
+    <span class="n">axmatrix</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+
+
+     <span class="c1"># Plot colorbar indicating scale</span>
+    <span class="n">axcolor</span> <span class="o">=</span> <span class="n">add_subplot_axes</span><span class="p">(</span><span class="n">panel3</span><span class="p">,[</span><span class="mf">0.28</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.7</span><span class="p">,</span><span class="o">.</span><span class="mi">02</span><span class="p">])</span> <span class="c1"># [xmin, ymin, dx, and dy]</span>
+    <span class="n">h</span><span class="o">=</span><span class="n">pylab</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">axcolor</span><span class="p">,</span><span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+    <span class="n">h</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">h</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span><span class="o">.</span><span class="mi">25</span><span class="p">,</span><span class="o">.</span><span class="mi">50</span><span class="p">,</span><span class="o">.</span><span class="mi">75</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1">#h.set_ticklabels([&#39;0%&#39;,&#39;25%&#39;,&#39;50%&#39;,&#39;75%&#39;,&#39;100%&#39;])</span>
+
+    <span class="c1">#plt.show()</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+<div class="viewcode-block" id="add_subplot_axes"><a class="viewcode-back" href="../../cooccurrence.html#openensembles.cooccurrence.add_subplot_axes">[docs]</a><span class="k">def</span> <span class="nf">add_subplot_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">rect</span><span class="p">,</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A non-class function to handle subaxes</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+    <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span>
+    <span class="n">inax_position</span>  <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">rect</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">transFigure</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">transFigure</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span>
+    <span class="n">infig_position</span> <span class="o">=</span> <span class="n">transFigure</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">inax_position</span><span class="p">)</span>    
+    <span class="n">x</span> <span class="o">=</span> <span class="n">infig_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">infig_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">width</span> <span class="o">*=</span> <span class="n">rect</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">height</span> <span class="o">*=</span> <span class="n">rect</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">subax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">width</span><span class="p">,</span><span class="n">height</span><span class="p">],</span><span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">subax</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../OpenEnsembles.html">OpenEnsembles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Supporting.html">Supporting Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Installation.html">Installation</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">openensembles.cooccurrence</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

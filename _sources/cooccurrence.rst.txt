@@ -1,6 +1,6 @@
 Cooccurrence
 =======================================
-.. automodule:: cooccurrence
+.. automodule:: openensembles.cooccurrence
 	:members: 
 
 

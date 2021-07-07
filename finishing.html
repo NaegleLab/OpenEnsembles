@@ -47,8 +47,169 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="finishing">
-<h1>Finishing<a class="headerlink" href="#finishing" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-openensembles.finishing">
+<span id="finishing"></span><h1>Finishing<a class="headerlink" href="#module-openensembles.finishing" title="Permalink to this headline">¶</a></h1>
+<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering</p>
+<p>Copyright (C) 2017 Naegle Lab</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<dl class="py class">
+<dt id="openensembles.finishing.graph_closure">
+<em class="property">class </em><code class="sig-prename descclassname">openensembles.finishing.</code><code class="sig-name descname">graph_closure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">co_occ_matrix</span></em>, <em class="sig-param"><span class="n">threshold</span></em>, <em class="sig-param"><span class="n">clique_size</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#graph_closure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.graph_closure" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Returns a final solution of the ensemble based on treating the co-occurrence matrix as a weighted graph whose 
+solution is found from identifying network components within the graph</p>
+<p>Finds k-percolated cliques in G, e.g,</p>
+</div></blockquote>
+<p>Unless the cliques argument evaluates to True, this algorithm
+first enumerates all cliques in G. These are stored in memory,
+which in large graphs can consume large amounts of memory.
+Returns a generator object. To return a list of percolated k-cliques,
+Notes
+—–</p>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>Based on the method outlined in Palla et. al., Nature 435, 814-818 (2005)</p></li>
+<li><p>Based on Code for <a class="reference external" href="https://gist.github.com/conradlee/1341985">Percolation From ConradLee</a></p></li>
+</ul>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openensembles.finishing.graph_closure.finish" title="openensembles.finishing.graph_closure.finish"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finish</span></code></a>()</p></td>
+<td><p>Finishes the ensemble by taking a binary adjacency matrix, defined in initilization according to the threshold given and percolates the cliques</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="openensembles.finishing.graph_closure.finish">
+<code class="sig-name descname">finish</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#graph_closure.finish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.graph_closure.finish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finishes the ensemble by taking a binary adjacency matrix, defined in initilization according to the threshold given
+and percolates the cliques</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="openensembles.finishing.mixture_model">
+<em class="property">class </em><code class="sig-prename descclassname">openensembles.finishing.</code><code class="sig-name descname">mixture_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parg</span></em>, <em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">nEnsCluster</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">iterations</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#mixture_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.mixture_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the article Mixture Models for Ensemble CLustering
+Topchy, Jain, and Punch, “A mixture model for clustering ensembles Proc. SIAM Int. Conf. Data Mining (2004)</p>
+<p>Written by Pedro da Silva Tavares and adapted by Kristen M. Naegle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parg: list of lists</strong></dt><dd><p>Solutions of assignments of objects to clusters across an ensemble</p>
+</dd>
+<dt><strong>N: int</strong></dt><dd><p>Number of data points to cluster</p>
+</dd>
+<dt><strong>nEnsCluster: int</strong></dt><dd><p>Number of clusters to create in mixture model
+Default is 2</p>
+</dd>
+<dt><strong>iterations:</strong></dt><dd><p>Number of expectation maximization iterations
+Default is 10</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="OpenEnsembles.html#openensembles.cluster.mixture_model" title="openensembles.cluster.mixture_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openensembles.cluster.mixture_model</span></code></a></dt><dd></dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>labels: list of ints</strong></dt><dd><p>Final Mixture Model partitions of objects</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openensembles.finishing.mixture_model.expectation" title="openensembles.finishing.mixture_model.expectation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expectation</span></code></a>()</p></td>
+<td><p>Compute the Expectation (ExpZ) according to parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openensembles.finishing.mixture_model.gatherPartitions" title="openensembles.finishing.mixture_model.gatherPartitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gatherPartitions</span></code></a>()</p></td>
+<td><p>Returns the y vector.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openensembles.finishing.mixture_model.genKj" title="openensembles.finishing.mixture_model.genKj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">genKj</span></code></a>()</p></td>
+<td><p>Generates the K(j) H-array that contains the tuples of unique  clusters of each j-th partition, eg: K = [(X,Y), (A,B)]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#openensembles.finishing.mixture_model.initParameters" title="openensembles.finishing.mixture_model.initParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initParameters</span></code></a>()</p></td>
+<td><p>The function initializes the parameters of the mixture model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#openensembles.finishing.mixture_model.maximization" title="openensembles.finishing.mixture_model.maximization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximization</span></code></a>()</p></td>
+<td><p>Update the parameters taking into account the ExpZ computed in the  Expectation (ExpZ) step.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 57%" />
+<col style="width: 43%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>emProcess</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="openensembles.finishing.mixture_model.expectation">
+<code class="sig-name descname">expectation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#mixture_model.expectation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.mixture_model.expectation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Expectation (ExpZ) according to parameters.
+Obs: y(N,H) Kj(H) alpha(M) v(H,M,K(j)) ExpZ(N,M)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="openensembles.finishing.mixture_model.gatherPartitions">
+<code class="sig-name descname">gatherPartitions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#mixture_model.gatherPartitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.mixture_model.gatherPartitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the y vector.
+parg: list of H-labeling solutions
+nElem: number of features/objects</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="openensembles.finishing.mixture_model.genKj">
+<code class="sig-name descname">genKj</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#mixture_model.genKj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.mixture_model.genKj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the K(j) H-array that contains the tuples of unique 
+clusters of each j-th partition, eg: K = [(X,Y), (A,B)]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="openensembles.finishing.mixture_model.initParameters">
+<code class="sig-name descname">initParameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#mixture_model.initParameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.mixture_model.initParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function initializes the parameters of the mixture model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="openensembles.finishing.mixture_model.maximization">
+<code class="sig-name descname">maximization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/finishing.html#mixture_model.maximization"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.finishing.mixture_model.maximization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the parameters taking into account the ExpZ computed in the 
+Expectation (ExpZ) step.
+Obs: y(N,H) Kj(H) alpha(M) v(H,M,K(j)) ExpZ(N,M)</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

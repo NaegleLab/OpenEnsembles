@@ -1,6 +1,6 @@
 Validation
 =======================================
-.. automodule:: validation
+.. automodule:: openensembles.validation
 	:members: 
 
 

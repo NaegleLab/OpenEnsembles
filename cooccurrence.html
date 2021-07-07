@@ -47,8 +47,52 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="cooccurrence">
-<h1>Cooccurrence<a class="headerlink" href="#cooccurrence" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-openensembles.cooccurrence">
+<span id="cooccurrence"></span><h1>Cooccurrence<a class="headerlink" href="#module-openensembles.cooccurrence" title="Permalink to this headline">¶</a></h1>
+<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering</p>
+<p>Copyright (C) 2017 Naegle Lab</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
+<p>You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<dl class="py function">
+<dt id="openensembles.cooccurrence.add_subplot_axes">
+<code class="sig-prename descclassname">openensembles.cooccurrence.</code><code class="sig-name descname">add_subplot_axes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">rect</span></em>, <em class="sig-param"><span class="n">facecolor</span><span class="o">=</span><span class="default_value">'w'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/cooccurrence.html#add_subplot_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cooccurrence.add_subplot_axes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A non-class function to handle subaxes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="openensembles.cooccurrence.plot_matrix_sorted">
+<code class="sig-prename descclassname">openensembles.cooccurrence.</code><code class="sig-name descname">plot_matrix_sorted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">matrix</span></em>, <em class="sig-param"><span class="n">label_vec</span></em>, <em class="sig-param"><span class="n">threshold</span></em>, <em class="sig-param"><span class="n">lnk1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/cooccurrence.html#plot_matrix_sorted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.cooccurrence.plot_matrix_sorted" title="Permalink to this definition">¶</a></dt>
+<dd><p>A heatmap plotting function, for both co-occurrence and mutual information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>matrix: np.array</strong></dt><dd><p>An array of values to plot as a heatmap</p>
+</dd>
+<dt><strong>label_vec: list of strings</strong></dt><dd><p>A label_vec to label the row-wise objects. Empty if labels not requested</p>
+</dd>
+<dt><strong>threshold: float</strong></dt><dd><p>Threshold to use for coloring of dendrogram</p>
+</dd>
+<dt><strong>lnk1: linkage object</strong></dt><dd><p>A pre-calcluated linkage object to use to sort.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>fig: matplotlib.pyplot figure</dt><dd><p>The figure handle</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
