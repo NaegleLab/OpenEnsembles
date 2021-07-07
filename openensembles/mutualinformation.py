@@ -42,8 +42,8 @@ class MI:
 	Parameters
 	----------
 	cObj: an openensembles.cluster object
-	    The clustering object and all contained solutions of interest
-	MI_type: string {'standard', 'normalized', 'adjusted'}
+		The clustering object and all contained solutions of interest
+	MI_type: string {'normalized', 'adjusted'}
 		The type of mutual information to use
 
 	Attributes
@@ -61,13 +61,13 @@ class MI:
 
 	"""
 
-	def __init__(self, cObj, MI_type):
+	def __init__(self, cObj, MI_type = 'normalized'):
 		self.cObj = cObj
 		self.MI_type = MI_type
 
 		#check that MI_type is recognized
-		if MI_type != 'standard' and MI_type != 'adjusted' and MI_type != 'normalized':			
-			raise ValueError("Did not recognize MI_type %s as one of standard/adjusted/normalized"%(MI_type))
+		if MI_type != 'adjusted' and MI_type != 'normalized':		  
+			raise ValueError("Did not recognize MI_type %s as either normalized or adjusted"%(MI_type))
 
 		
 		#get all names of solutions in cObj, these we will walk through
@@ -100,24 +100,24 @@ class MI:
 		Parameters
 		----------
 		threshold: float
-		    Use threshold to color the dendrogram
-		    This is useful for identifying visually how to call .cut()
+			Use threshold to color the dendrogram
+			This is useful for identifying visually how to call .cut()
 		add_labels: bool
-		    If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
+			If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers
 		linkage: string
-		    Linkage type to use for dendrogram. Default is average
+			Linkage type to use for dendrogram. Default is average
 
 
 		Other Parameters
 		----------------
 		label_vec: list
-		    If you want to add labels, but not the same in mutual information matrix dataframe, then pass those here
+			If you want to add labels, but not the same in mutual information matrix dataframe, then pass those here
 
 
 		Raises
 		------
-		    ValueError: 
-		        if label_vec in **kwargs is different size then number of objects
+			ValueError: 
+				if label_vec in **kwargs is different size then number of objects
 
 		Examples
 		--------
@@ -128,21 +128,25 @@ class MI:
 
 		"""
 		if add_labels:
-		    if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
-		        label_vec = kwargs['label_vec']
-		        if len(label_vec) != len(self.matrix):
-		            raise ValueError("ERROR: the length of label vector does not equal the number of objects in the co_occurrence matrix")
-		    else:
-		        label_vec = self.matrix.index.values.tolist()
+			if "label_vec" in kwargs: # use this if you have different labels than in c.dataObj.df.index.values
+				label_vec = kwargs['label_vec']
+				if len(label_vec) != len(self.matrix):
+					raise ValueError("ERROR: the length of label vector does not equal the number of objects in the co_occurrence matrix")
+			else:
+				label_vec = self.matrix.index.values.tolist()
 		else: 
-		    label_vec = []
+			label_vec = []
 
 		arr = 1 - self.matrix
-		lnk = sch.linkage(ssd.squareform(arr), method=linkage, metric='euclidean')
-
+		#occasional error where above produces small negative numbers. Fix this by setting these to 0
+		arr.iloc[np.where(arr < 0)] = 0.0
+		
+		dist_vec = arr.values[np.triu_indices(arr.shape[0],1)]
+		lnk = sch.linkage(dist_vec, method=linkage, metric='euclidean')
+	   
 
 		fig = co.plot_matrix_sorted(self.matrix.astype('float32'), label_vec, threshold, lnk)
-		    
+			
 		return fig
 
 
@@ -166,10 +170,11 @@ def calculate_MI(a,b, MI_type):
 		Mutual information between class assignments in a and b
 
 	"""
-	if MI_type == 'standard':
-		MI = skm.mutual_info_score(a,b)
+	#Remove standard as an option as it does not easily convert to a distance matrix (not scaled between 0 and 1)
+	#if MI_type == 'standard':
+	#	 MI = skm.mutual_info_score(a,b)
 
-	elif MI_type == 'adjusted':
+	if MI_type == 'adjusted':
 		MI = skm.adjusted_mutual_info_score(a,b)
 
 	elif MI_type=='normalized':
