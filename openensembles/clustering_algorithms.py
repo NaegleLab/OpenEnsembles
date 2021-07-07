@@ -98,7 +98,7 @@ class clustering_algorithms:
         """
         kmeans clustering see `skc.KMeans <http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html>`_
 
-        **Defaults and var_params:** skc.KMeans(n_clusters=2, init='k-means++', n_init=10, max_iter=300, tol=0.0001, verbose=0, random_state=None, copy_x=True)
+        **Defaults and var_params:** skc.KMeans(n_clusters=2, init='k-means++', n_init=10, max_iter=300, tol=0.0001, verbose=0, random_state=None, copy_x=True, algorithm='auto')
 
     
         Other Parameters
@@ -121,6 +121,7 @@ class clustering_algorithms:
         params['verbose'] = 0
         params['random_state'] = None
         params['copy_x'] = True
+        params['algorithm'] = 'auto'
         #params['n_jobs'] = 1 #removed in version 0.23 and has no effect
         if not self.K:
             raise ValueError('kmeans clustering requires an argument K=<intiger value>')
