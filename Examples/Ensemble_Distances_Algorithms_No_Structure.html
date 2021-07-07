@@ -1,32 +1,26 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms" href="Demonstrate_RandomSeed.html" />
-    <link rel="prev" title="Use Majority Vote to stabilize k-means clustering" href="Example_Kmeans_MajorityVote.html" /> 
-  </head>
-  <body>
+    <link rel="next" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space." href="Demonstrate_Distance_Affinity_effects.html" />
+    <link rel="prev" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms" href="Demonstrate_RandomSeed.html" /> 
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -37,13 +31,14 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
+          <a href="Demonstrate_Distance_Affinity_effects.html" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space."
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="Example_Kmeans_MajorityVote.html" title="Use Majority Vote to stabilize k-means clustering"
+          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></li> 
       </ul>
     </div>  
 
@@ -57,31 +52,45 @@
 /* CSS for nbsphinx extension */
 
 /* remove conflicting styling from Sphinx themes */
-div.nbinput,
-div.nbinput div.prompt,
-div.nbinput div.input_area,
-div.nbinput div[class*=highlight],
-div.nbinput div[class*=highlight] pre,
-div.nboutput,
-div.nbinput div.prompt,
-div.nbinput div.output_area,
-div.nboutput div[class*=highlight],
-div.nboutput div[class*=highlight] pre {
-    background: none;
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
     border: none;
-    padding: 0 0;
+    padding: 0;
     margin: 0;
     box-shadow: none;
 }
 
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
 /* avoid gaps between output lines */
-div.nboutput div[class*=highlight] pre {
+div.nboutput.container div[class*=highlight] pre {
     line-height: normal;
 }
 
 /* input/output containers */
-div.nbinput,
-div.nboutput {
+div.nbinput.container,
+div.nboutput.container {
     display: -webkit-flex;
     display: flex;
     align-items: flex-start;
@@ -89,92 +98,104 @@ div.nboutput {
     width: 100%;
 }
 @media (max-width: 540px) {
-    div.nbinput,
-    div.nboutput {
+    div.nbinput.container,
+    div.nboutput.container {
         flex-direction: column;
     }
 }
 
 /* input container */
-div.nbinput {
+div.nbinput.container {
     padding-top: 5px;
 }
 
 /* last container */
-div.nblast {
+div.nblast.container {
     padding-bottom: 5px;
 }
 
 /* input prompt */
-div.nbinput div.prompt pre {
-    color: #303F9F;
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
 }
 
 /* output prompt */
-div.nboutput div.prompt pre {
-    color: #D84315;
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
 }
 
 /* all prompts */
-div.nbinput div.prompt,
-div.nboutput div.prompt {
-    min-width: 7ex;
-    padding-top: 0.4em;
-    padding-right: 0.4em;
-    text-align: right;
-    flex: 0;
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
 }
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
 @media (max-width: 540px) {
-    div.nbinput div.prompt,
-    div.nboutput div.prompt {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
         text-align: left;
         padding: 0.4em;
     }
-    div.nboutput div.prompt.empty {
+    div.nboutput.container div.prompt.empty {
         padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
     }
 }
 
 /* disable scrollbars on prompts */
-div.nbinput div.prompt pre,
-div.nboutput div.prompt pre {
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
     overflow: hidden;
 }
 
 /* input/output area */
-div.nbinput div.input_area,
-div.nboutput div.output_area {
-    padding: 0.4em;
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
     -webkit-flex: 1;
     flex: 1;
     overflow: auto;
 }
 @media (max-width: 540px) {
-    div.nbinput div.input_area,
-    div.nboutput div.output_area {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
         width: 100%;
     }
 }
 
 /* input area */
-div.nbinput div.input_area {
-    border: 1px solid #cfcfcf;
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
-    background: #f7f7f7;
+    /*background: #f5f5f5;*/
 }
 
 /* override MathJax center alignment in output cells */
-div.nboutput div[class*=MathJax] {
+div.nboutput.container div[class*=MathJax] {
     text-align: left !important;
 }
 
-/* override sphinx.ext.pngmath center alignment in output cells */
-div.nboutput div.math p {
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
     text-align: left;
 }
 
 /* standard error */
-div.nboutput div.output_area.stderr {
+div.nboutput.container div.output_area.stderr {
     background: #fdd;
 }
 
@@ -217,38 +238,91 @@ div.nboutput div.output_area.stderr {
 
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
 </style>
 <div class="section" id="Build-an-ensemble-using-algorithms-and-distances,-finish-to-see-if-it-uncovers-the-lack-of-structure">
 <h1>Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure<a class="headerlink" href="#Build-an-ensemble-using-algorithms-and-distances,-finish-to-see-if-it-uncovers-the-lack-of-structure" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">openensembles</span> <span class="k">as</span> <span class="nn">oe</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 
 <span class="n">n_samples</span> <span class="o">=</span> <span class="mi">800</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#this helps to establish the same dataset and functionality, but is not required</span>
 
-<span class="n">no_structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="bp">None</span>
+<span class="n">no_structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="kc">None</span>
 <span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">no_structure</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 <span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
 
 
-<span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+<span class="n">plt_data</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[1]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_1_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_1_0.png" />
@@ -257,11 +331,10 @@ div.nboutput div.output_area.stderr {
 <div class="section" id="Create-an-ensemble">
 <h2>Create an ensemble<a class="headerlink" href="#Create-an-ensemble" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">c</span>  <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1">#instantiate an object so we can get all available algorithms</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">algorithms_available</span><span class="p">()</span>
 <span class="n">paramsC</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">clustering_algorithm_parameters</span><span class="p">()</span> <span class="c1">#here we will rely on walking through</span>
@@ -281,11 +354,10 @@ div.nboutput div.output_area.stderr {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#setup the parameters of clustering here, algorithms are set by algorithms_available</span>
 <span class="n">K</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">linkages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="s1">&#39;ward&#39;</span><span class="p">]</span>
@@ -295,11 +367,10 @@ div.nboutput div.output_area.stderr {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Create an ensemble: sweep K, distance metrics</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#if there were transformations in d.D</span>
@@ -311,31 +382,31 @@ div.nboutput div.output_area.stderr {
                         <span class="k">for</span> <span class="n">linkage</span> <span class="ow">in</span> <span class="n">linkages</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">linkage</span> <span class="o">==</span> <span class="s1">&#39;ward&#39;</span><span class="p">:</span>
                                 <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
-                                <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">)</span>
+                                <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">)</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
                                     <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
-                                    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+                                    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">linkage</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
 
 
 
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
                             <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
-                            <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+                            <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)])</span>
-                    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+                    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 
 
         <span class="k">else</span><span class="p">:</span> <span class="c1"># does not take K</span>
             <span class="k">if</span> <span class="n">algorithm</span> <span class="ow">in</span> <span class="n">takesDistances</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
                         <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">dist</span><span class="p">])</span>
-                        <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+                        <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">out_name</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">])</span>
-                <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -343,11 +414,10 @@ div.nboutput div.output_area.stderr {
 <div class="section" id="Plot-example-solutions-from-the-ensemble">
 <h2>Plot example solutions from the ensemble<a class="headerlink" href="#Plot-example-solutions-from-the-ensemble" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#plot some random number of solutions</span>
 <span class="n">names</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 <span class="n">figs</span> <span class="o">=</span><span class="p">[]</span>
@@ -355,10 +425,9 @@ div.nboutput div.output_area.stderr {
 
 <span class="n">numSolutions</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="c1">#namesToSelect = random.sample(names, numSolutions)</span>
-<span class="n">namesToSelect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">numSolutions</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">namesToSelect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">numSolutions</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">namesToSelect</span><span class="p">:</span>
     <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">fig_num</span><span class="o">=</span><span class="n">fig</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="n">fig</span><span class="o">+=</span><span class="mi">1</span>
 </pre></div>
 </div>
@@ -398,61 +467,43 @@ div.nboutput div.output_area.stderr {
 <img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_4.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_4.png" />
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_5.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_5.png" />
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_6.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_7_6.png" />
-</div>
-</div>
 </div>
 <div class="section" id="Finish-the-ensemble-using-Majority-Vote-and-Graph-Closure">
 <h2>Finish the ensemble using Majority Vote and Graph Closure<a class="headerlink" href="#Finish-the-ensemble-using-Majority-Vote-and-Graph-Closure" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [6]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#View the ensembles</span>
 <span class="n">coMat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">()</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">add_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">add_labels</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_10_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_10_0.png" />
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_9_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_9_0.png" />
 </div>
 </div>
 <div class="section" id="Graph-Closure-and-Majority-Vote-Finishing">
 <h3>Graph Closure and Majority Vote Finishing<a class="headerlink" href="#Graph-Closure-and-Majority-Vote-Finishing" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Explore effects of threshold on graph closure</span>
 <span class="n">thresholds</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
@@ -467,19 +518,53 @@ div.nboutput div.output_area.stderr {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Plot the solutions of Graph Closure</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">c_graph_dict</span><span class="p">:</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">c_graph_dict</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;graph_closure&#39;</span><span class="p">]</span>
     <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">fig_num</span> <span class="o">=</span> <span class="n">fig</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Graph Closure threshold=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="n">fig</span><span class="o">+=</span><span class="mi">1</span>
 
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_1.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_2.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_12_2.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Plot the solutions of Majority Vote</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">figs</span> <span class="o">=</span><span class="p">[]</span>
+<span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">c_majority_vote_dict</span><span class="p">:</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">c_majority_vote_dict</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;majority_vote&#39;</span><span class="p">]</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">fig_num</span> <span class="o">=</span> <span class="n">fig</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Majority Vote threshold=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+    <span class="n">fig</span><span class="o">+=</span><span class="mi">1</span>
 </pre></div>
 </div>
 </div>
@@ -504,75 +589,47 @@ div.nboutput div.output_area.stderr {
 <img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_2.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_13_2.png" />
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [10]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="c1"># Plot the solutions of Majority Vote</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">figs</span> <span class="o">=</span><span class="p">[]</span>
-<span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">c_majority_vote_dict</span><span class="p">:</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="n">c_majority_vote_dict</span><span class="p">[</span><span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;majority_vote&#39;</span><span class="p">]</span>
-    <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">fig_num</span> <span class="o">=</span> <span class="n">fig</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Majority Vote threshold=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="n">fig</span><span class="o">+=</span><span class="mi">1</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_14_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_14_0.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_14_1.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_14_1.png" />
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_14_2.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_14_2.png" />
-</div>
-</div>
 </div>
 </div>
 <div class="section" id="Use-mutual-information-to-compare-solutions">
 <h2>Use mutual information to compare solutions<a class="headerlink" href="#Use-mutual-information-to-compare-solutions" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">mi_adjusted</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;adjusted&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">mi_adjusted</span><span class="o">.</span><span class="n">matrix</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="output_area docutils container">
+<div class="output_area rendered_html docutils container">
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -603,723 +660,123 @@ div.nboutput div.output_area.stderr {
   <tbody>
     <tr>
       <th>parent_AffinityPropagation_euclidean</th>
-      <td>1</td>
-      <td>0.969461</td>
-      <td>1</td>
-      <td>0.47185</td>
-      <td>0.550541</td>
-      <td>0.515455</td>
-      <td>0.461976</td>
-      <td>0.426</td>
-      <td>0.413298</td>
-      <td>0.389352</td>
+      <td>1.0</td>
+      <td>0.969941</td>
+      <td>1.0</td>
+      <td>0.53533</td>
+      <td>0.588711</td>
+      <td>0.598626</td>
+      <td>0.565102</td>
+      <td>0.539072</td>
+      <td>0.536421</td>
+      <td>0.51596</td>
       <td>...</td>
-      <td>0.435873</td>
-      <td>0.414618</td>
-      <td>0.390257</td>
-      <td>0.415368</td>
-      <td>0.385858</td>
-      <td>0.396539</td>
-      <td>0.388509</td>
-      <td>0.363028</td>
-      <td>0.373439</td>
-      <td>0.365509</td>
+      <td>0.552151</td>
+      <td>0.537204</td>
+      <td>0.520182</td>
+      <td>0.534409</td>
+      <td>0.509064</td>
+      <td>0.511144</td>
+      <td>0.512794</td>
+      <td>0.491146</td>
+      <td>0.481378</td>
+      <td>0.494583</td>
     </tr>
     <tr>
       <th>parent_AffinityPropagation_l1</th>
-      <td>0.969461</td>
-      <td>1</td>
-      <td>0.969461</td>
-      <td>0.471528</td>
-      <td>0.551682</td>
-      <td>0.514644</td>
-      <td>0.460579</td>
-      <td>0.42472</td>
-      <td>0.412512</td>
-      <td>0.38861</td>
+      <td>0.969941</td>
+      <td>1.0</td>
+      <td>0.969941</td>
+      <td>0.535193</td>
+      <td>0.589659</td>
+      <td>0.597436</td>
+      <td>0.563175</td>
+      <td>0.537255</td>
+      <td>0.535212</td>
+      <td>0.514802</td>
       <td>...</td>
-      <td>0.435468</td>
-      <td>0.420074</td>
-      <td>0.388147</td>
-      <td>0.420788</td>
-      <td>0.386825</td>
-      <td>0.39792</td>
-      <td>0.38942</td>
-      <td>0.363668</td>
-      <td>0.37529</td>
-      <td>0.365794</td>
+      <td>0.553737</td>
+      <td>0.544558</td>
+      <td>0.518381</td>
+      <td>0.541775</td>
+      <td>0.509783</td>
+      <td>0.513119</td>
+      <td>0.513668</td>
+      <td>0.49179</td>
+      <td>0.481861</td>
+      <td>0.495228</td>
     </tr>
     <tr>
       <th>parent_AffinityPropagation_l2</th>
-      <td>1</td>
-      <td>0.969461</td>
-      <td>1</td>
-      <td>0.47185</td>
-      <td>0.550541</td>
-      <td>0.515455</td>
-      <td>0.461976</td>
-      <td>0.426</td>
-      <td>0.413298</td>
-      <td>0.389352</td>
+      <td>1.0</td>
+      <td>0.969941</td>
+      <td>1.0</td>
+      <td>0.53533</td>
+      <td>0.588711</td>
+      <td>0.598626</td>
+      <td>0.565102</td>
+      <td>0.539072</td>
+      <td>0.536421</td>
+      <td>0.51596</td>
       <td>...</td>
-      <td>0.435873</td>
-      <td>0.414618</td>
-      <td>0.390257</td>
-      <td>0.415368</td>
-      <td>0.385858</td>
-      <td>0.396539</td>
-      <td>0.388509</td>
-      <td>0.363028</td>
-      <td>0.373439</td>
-      <td>0.365509</td>
+      <td>0.552151</td>
+      <td>0.537204</td>
+      <td>0.520182</td>
+      <td>0.534409</td>
+      <td>0.509064</td>
+      <td>0.511144</td>
+      <td>0.512794</td>
+      <td>0.491146</td>
+      <td>0.481378</td>
+      <td>0.494583</td>
     </tr>
     <tr>
       <th>parent_Birch_3</th>
-      <td>0.47185</td>
-      <td>0.471528</td>
-      <td>0.47185</td>
-      <td>1</td>
-      <td>0.663886</td>
-      <td>0.550815</td>
-      <td>0.484374</td>
-      <td>0.442792</td>
-      <td>0.412642</td>
-      <td>0.388473</td>
+      <td>0.53533</td>
+      <td>0.535193</td>
+      <td>0.53533</td>
+      <td>1.0</td>
+      <td>0.797995</td>
+      <td>0.710356</td>
+      <td>0.652631</td>
+      <td>0.613799</td>
+      <td>0.584213</td>
+      <td>0.559569</td>
       <td>...</td>
-      <td>0.316598</td>
-      <td>0.315282</td>
-      <td>0.315271</td>
-      <td>0.315378</td>
-      <td>0.305555</td>
-      <td>0.292182</td>
-      <td>0.301978</td>
-      <td>0.283765</td>
-      <td>0.285804</td>
-      <td>0.296302</td>
+      <td>0.418875</td>
+      <td>0.449921</td>
+      <td>0.426089</td>
+      <td>0.451691</td>
+      <td>0.457276</td>
+      <td>0.428064</td>
+      <td>0.448247</td>
+      <td>0.425964</td>
+      <td>0.430374</td>
+      <td>0.41837</td>
     </tr>
     <tr>
       <th>parent_Birch_5</th>
-      <td>0.550541</td>
-      <td>0.551682</td>
-      <td>0.550541</td>
-      <td>0.663886</td>
-      <td>1</td>
-      <td>0.829675</td>
-      <td>0.729517</td>
-      <td>0.666798</td>
-      <td>0.621283</td>
-      <td>0.584759</td>
+      <td>0.588711</td>
+      <td>0.589659</td>
+      <td>0.588711</td>
+      <td>0.797995</td>
+      <td>1.0</td>
+      <td>0.90691</td>
+      <td>0.843608</td>
+      <td>0.800095</td>
+      <td>0.766409</td>
+      <td>0.737979</td>
       <td>...</td>
-      <td>0.460372</td>
-      <td>0.462782</td>
-      <td>0.460737</td>
-      <td>0.460849</td>
-      <td>0.449125</td>
-      <td>0.422942</td>
-      <td>0.445373</td>
-      <td>0.423259</td>
-      <td>0.41632</td>
-      <td>0.428678</td>
-    </tr>
-    <tr>
-      <th>parent_Birch_7</th>
-      <td>0.515455</td>
-      <td>0.514644</td>
-      <td>0.515455</td>
-      <td>0.550815</td>
-      <td>0.829675</td>
-      <td>1</td>
-      <td>0.879187</td>
-      <td>0.803491</td>
-      <td>0.748506</td>
-      <td>0.70433</td>
-      <td>...</td>
-      <td>0.552846</td>
-      <td>0.560904</td>
-      <td>0.547815</td>
-      <td>0.558991</td>
-      <td>0.539924</td>
-      <td>0.514103</td>
-      <td>0.536182</td>
-      <td>0.507555</td>
-      <td>0.494372</td>
-      <td>0.523523</td>
-    </tr>
-    <tr>
-      <th>parent_Birch_9</th>
-      <td>0.461976</td>
-      <td>0.460579</td>
-      <td>0.461976</td>
-      <td>0.484374</td>
-      <td>0.729517</td>
-      <td>0.879187</td>
-      <td>1</td>
-      <td>0.913878</td>
-      <td>0.851275</td>
-      <td>0.800923</td>
-      <td>...</td>
-      <td>0.622663</td>
-      <td>0.630586</td>
-      <td>0.618948</td>
-      <td>0.628647</td>
-      <td>0.597772</td>
-      <td>0.589919</td>
-      <td>0.59426</td>
-      <td>0.56635</td>
-      <td>0.552682</td>
-      <td>0.581835</td>
-    </tr>
-    <tr>
-      <th>parent_Birch_11</th>
-      <td>0.426</td>
-      <td>0.42472</td>
-      <td>0.426</td>
-      <td>0.442792</td>
-      <td>0.666798</td>
-      <td>0.803491</td>
-      <td>0.913878</td>
-      <td>1</td>
-      <td>0.931447</td>
-      <td>0.876249</td>
-      <td>...</td>
-      <td>0.670469</td>
-      <td>0.664053</td>
-      <td>0.659505</td>
-      <td>0.662095</td>
-      <td>0.628322</td>
-      <td>0.646462</td>
-      <td>0.624923</td>
-      <td>0.620017</td>
-      <td>0.594294</td>
-      <td>0.623674</td>
-    </tr>
-    <tr>
-      <th>parent_Birch_13</th>
-      <td>0.413298</td>
-      <td>0.412512</td>
-      <td>0.413298</td>
-      <td>0.412642</td>
-      <td>0.621283</td>
-      <td>0.748506</td>
-      <td>0.851275</td>
-      <td>0.931447</td>
-      <td>1</td>
-      <td>0.940677</td>
-      <td>...</td>
-      <td>0.721066</td>
-      <td>0.696608</td>
-      <td>0.710368</td>
-      <td>0.694629</td>
-      <td>0.661231</td>
-      <td>0.686351</td>
-      <td>0.657149</td>
-      <td>0.646025</td>
-      <td>0.633005</td>
-      <td>0.64669</td>
-    </tr>
-    <tr>
-      <th>parent_Birch_15</th>
-      <td>0.389352</td>
-      <td>0.38861</td>
-      <td>0.389352</td>
-      <td>0.388473</td>
-      <td>0.584759</td>
-      <td>0.70433</td>
-      <td>0.800923</td>
-      <td>0.876249</td>
-      <td>0.940677</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0.723527</td>
-      <td>0.737951</td>
-      <td>0.760141</td>
-      <td>0.736082</td>
-      <td>0.707519</td>
-      <td>0.727009</td>
-      <td>0.703423</td>
-      <td>0.689421</td>
-      <td>0.681628</td>
-      <td>0.682925</td>
-    </tr>
-    <tr>
-      <th>parent_Birch_17</th>
-      <td>0.384262</td>
-      <td>0.384809</td>
-      <td>0.384262</td>
-      <td>0.371696</td>
-      <td>0.559383</td>
-      <td>0.673601</td>
-      <td>0.765888</td>
-      <td>0.837841</td>
-      <td>0.89941</td>
-      <td>0.956163</td>
-      <td>...</td>
-      <td>0.701424</td>
-      <td>0.715313</td>
-      <td>0.741844</td>
-      <td>0.714695</td>
-      <td>0.717888</td>
-      <td>0.743659</td>
-      <td>0.71376</td>
-      <td>0.708991</td>
-      <td>0.696404</td>
-      <td>0.693339</td>
-    </tr>
-    <tr>
-      <th>parent_Birch_19</th>
-      <td>0.375528</td>
-      <td>0.376623</td>
-      <td>0.375528</td>
-      <td>0.359189</td>
-      <td>0.540438</td>
-      <td>0.650623</td>
-      <td>0.739672</td>
-      <td>0.809097</td>
-      <td>0.868534</td>
-      <td>0.923386</td>
-      <td>...</td>
-      <td>0.693274</td>
-      <td>0.712199</td>
-      <td>0.733563</td>
-      <td>0.711596</td>
-      <td>0.720586</td>
-      <td>0.738412</td>
-      <td>0.717238</td>
-      <td>0.724051</td>
-      <td>0.724144</td>
-      <td>0.723293</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_3</th>
-      <td>0.491595</td>
-      <td>0.499757</td>
-      <td>0.491595</td>
-      <td>0.376803</td>
-      <td>0.427384</td>
-      <td>0.409299</td>
-      <td>0.36674</td>
-      <td>0.352211</td>
-      <td>0.338986</td>
-      <td>0.318962</td>
-      <td>...</td>
-      <td>0.338588</td>
-      <td>0.335342</td>
-      <td>0.319242</td>
-      <td>0.335484</td>
-      <td>0.326423</td>
-      <td>0.299767</td>
-      <td>0.328127</td>
-      <td>0.311226</td>
-      <td>0.312871</td>
-      <td>0.308678</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_5</th>
-      <td>0.625357</td>
-      <td>0.632403</td>
-      <td>0.625357</td>
-      <td>0.409874</td>
-      <td>0.580182</td>
-      <td>0.528853</td>
-      <td>0.503244</td>
-      <td>0.46033</td>
-      <td>0.461255</td>
-      <td>0.445039</td>
-      <td>...</td>
-      <td>0.470461</td>
-      <td>0.450929</td>
-      <td>0.458477</td>
-      <td>0.451644</td>
-      <td>0.44811</td>
-      <td>0.437881</td>
-      <td>0.442986</td>
-      <td>0.414601</td>
-      <td>0.446266</td>
-      <td>0.416592</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_7</th>
-      <td>0.464368</td>
-      <td>0.464958</td>
-      <td>0.464368</td>
-      <td>0.356254</td>
-      <td>0.519618</td>
-      <td>0.649037</td>
-      <td>0.639994</td>
-      <td>0.604625</td>
-      <td>0.581099</td>
-      <td>0.550556</td>
-      <td>...</td>
-      <td>0.553389</td>
-      <td>0.557106</td>
-      <td>0.539279</td>
-      <td>0.556639</td>
-      <td>0.561709</td>
-      <td>0.520792</td>
-      <td>0.560374</td>
-      <td>0.528144</td>
-      <td>0.528483</td>
-      <td>0.540561</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_9</th>
-      <td>0.379559</td>
-      <td>0.379532</td>
-      <td>0.379559</td>
-      <td>0.357252</td>
-      <td>0.494436</td>
-      <td>0.594575</td>
-      <td>0.61581</td>
-      <td>0.591439</td>
-      <td>0.584176</td>
-      <td>0.571439</td>
-      <td>...</td>
-      <td>0.565084</td>
-      <td>0.566758</td>
-      <td>0.598223</td>
-      <td>0.56637</td>
-      <td>0.570017</td>
-      <td>0.572604</td>
-      <td>0.567997</td>
-      <td>0.552163</td>
-      <td>0.542871</td>
-      <td>0.565181</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_11</th>
-      <td>0.373241</td>
-      <td>0.370956</td>
-      <td>0.373241</td>
-      <td>0.310686</td>
-      <td>0.473861</td>
-      <td>0.568562</td>
-      <td>0.643831</td>
-      <td>0.66791</td>
-      <td>0.641404</td>
-      <td>0.625874</td>
-      <td>...</td>
-      <td>0.646543</td>
-      <td>0.641193</td>
-      <td>0.663627</td>
-      <td>0.639277</td>
-      <td>0.638928</td>
-      <td>0.62816</td>
-      <td>0.636104</td>
-      <td>0.605981</td>
-      <td>0.606077</td>
-      <td>0.601932</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_13</th>
-      <td>0.399287</td>
-      <td>0.399824</td>
-      <td>0.399287</td>
-      <td>0.318035</td>
-      <td>0.466653</td>
-      <td>0.554099</td>
-      <td>0.626396</td>
-      <td>0.660843</td>
-      <td>0.674713</td>
-      <td>0.663794</td>
-      <td>...</td>
-      <td>0.709852</td>
-      <td>0.703604</td>
-      <td>0.692881</td>
-      <td>0.706984</td>
-      <td>0.696317</td>
-      <td>0.656026</td>
-      <td>0.695963</td>
-      <td>0.679099</td>
-      <td>0.664882</td>
-      <td>0.675276</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_15</th>
-      <td>0.398547</td>
-      <td>0.398714</td>
-      <td>0.398547</td>
-      <td>0.307431</td>
-      <td>0.444546</td>
-      <td>0.536538</td>
-      <td>0.606048</td>
-      <td>0.651592</td>
-      <td>0.685968</td>
-      <td>0.710123</td>
-      <td>...</td>
-      <td>0.748829</td>
-      <td>0.778362</td>
-      <td>0.735559</td>
-      <td>0.774902</td>
-      <td>0.744204</td>
-      <td>0.730885</td>
-      <td>0.740447</td>
-      <td>0.693122</td>
-      <td>0.671811</td>
-      <td>0.684968</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_17</th>
-      <td>0.364989</td>
-      <td>0.364704</td>
-      <td>0.364989</td>
-      <td>0.288004</td>
-      <td>0.430594</td>
-      <td>0.526012</td>
-      <td>0.589397</td>
-      <td>0.629549</td>
-      <td>0.657248</td>
-      <td>0.6961</td>
-      <td>...</td>
-      <td>0.721545</td>
-      <td>0.73644</td>
-      <td>0.733151</td>
-      <td>0.739853</td>
-      <td>0.78721</td>
-      <td>0.736502</td>
-      <td>0.786564</td>
-      <td>0.772925</td>
-      <td>0.739776</td>
-      <td>0.731283</td>
-    </tr>
-    <tr>
-      <th>parent_GaussianMixture_19</th>
-      <td>0.346846</td>
-      <td>0.347013</td>
-      <td>0.346846</td>
-      <td>0.293521</td>
-      <td>0.414892</td>
-      <td>0.497263</td>
-      <td>0.551663</td>
-      <td>0.590396</td>
-      <td>0.624579</td>
-      <td>0.659462</td>
-      <td>...</td>
-      <td>0.649745</td>
-      <td>0.655257</td>
-      <td>0.701795</td>
-      <td>0.654675</td>
-      <td>0.729222</td>
-      <td>0.706584</td>
-      <td>0.728252</td>
-      <td>0.726658</td>
-      <td>0.705793</td>
-      <td>0.73214</td>
-    </tr>
-    <tr>
-      <th>parent_MeanShift</th>
-      <td>-6.59181e-16</td>
-      <td>-5.58949e-16</td>
-      <td>-6.59181e-16</td>
-      <td>-8.59172e-16</td>
-      <td>-5.15298e-16</td>
-      <td>5.81832e-17</td>
-      <td>1.02507e-16</td>
-      <td>-5.06908e-17</td>
-      <td>-2.15151e-16</td>
-      <td>-1.71929e-16</td>
-      <td>...</td>
-      <td>-1.0896e-16</td>
-      <td>-6.92843e-17</td>
-      <td>-7.75696e-17</td>
-      <td>-6.92731e-17</td>
-      <td>-6.0719e-17</td>
-      <td>2.43932e-17</td>
-      <td>-4.59056e-17</td>
-      <td>-4.74278e-18</td>
-      <td>-7.7665e-17</td>
-      <td>-1.91793e-16</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_euclidean_average_3</th>
-      <td>0.484124</td>
-      <td>0.482645</td>
-      <td>0.484124</td>
-      <td>0.341926</td>
-      <td>0.363089</td>
-      <td>0.38382</td>
-      <td>0.353056</td>
-      <td>0.322453</td>
-      <td>0.331442</td>
-      <td>0.31184</td>
-      <td>...</td>
-      <td>0.330045</td>
-      <td>0.292672</td>
-      <td>0.30903</td>
-      <td>0.292624</td>
-      <td>0.287761</td>
-      <td>0.303011</td>
-      <td>0.28889</td>
-      <td>0.285827</td>
-      <td>0.283431</td>
-      <td>0.277953</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_l1_average_3</th>
-      <td>0.497627</td>
-      <td>0.507491</td>
-      <td>0.497627</td>
-      <td>0.314346</td>
-      <td>0.364984</td>
-      <td>0.376568</td>
-      <td>0.347591</td>
-      <td>0.317445</td>
-      <td>0.3372</td>
-      <td>0.317274</td>
-      <td>...</td>
-      <td>0.329333</td>
-      <td>0.298182</td>
-      <td>0.309831</td>
-      <td>0.298133</td>
-      <td>0.291934</td>
-      <td>0.297212</td>
-      <td>0.291948</td>
-      <td>0.278671</td>
-      <td>0.283653</td>
-      <td>0.275488</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_l2_average_3</th>
-      <td>0.484124</td>
-      <td>0.482645</td>
-      <td>0.484124</td>
-      <td>0.341926</td>
-      <td>0.363089</td>
-      <td>0.38382</td>
-      <td>0.353056</td>
-      <td>0.322453</td>
-      <td>0.331442</td>
-      <td>0.31184</td>
-      <td>...</td>
-      <td>0.330045</td>
-      <td>0.292672</td>
-      <td>0.30903</td>
-      <td>0.292624</td>
-      <td>0.287761</td>
-      <td>0.303011</td>
-      <td>0.28889</td>
-      <td>0.285827</td>
-      <td>0.283431</td>
-      <td>0.277953</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_euclidean_complete_3</th>
-      <td>0.496248</td>
-      <td>0.498918</td>
-      <td>0.496248</td>
-      <td>0.391211</td>
-      <td>0.447078</td>
-      <td>0.390698</td>
-      <td>0.358241</td>
-      <td>0.327205</td>
-      <td>0.341885</td>
-      <td>0.321696</td>
-      <td>...</td>
-      <td>0.317334</td>
-      <td>0.307444</td>
-      <td>0.314595</td>
-      <td>0.307642</td>
-      <td>0.3173</td>
-      <td>0.292784</td>
-      <td>0.316463</td>
-      <td>0.300647</td>
-      <td>0.311321</td>
-      <td>0.304386</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_l1_complete_3</th>
-      <td>0.473226</td>
-      <td>0.474033</td>
-      <td>0.473226</td>
-      <td>0.374806</td>
-      <td>0.359418</td>
-      <td>0.393353</td>
-      <td>0.346552</td>
-      <td>0.322487</td>
-      <td>0.307054</td>
-      <td>0.288821</td>
-      <td>...</td>
-      <td>0.29383</td>
-      <td>0.28375</td>
-      <td>0.275929</td>
-      <td>0.284641</td>
-      <td>0.273021</td>
-      <td>0.276348</td>
-      <td>0.275044</td>
-      <td>0.286391</td>
-      <td>0.283634</td>
-      <td>0.28204</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_l2_complete_3</th>
-      <td>0.496248</td>
-      <td>0.498918</td>
-      <td>0.496248</td>
-      <td>0.391211</td>
-      <td>0.447078</td>
-      <td>0.390698</td>
-      <td>0.358241</td>
-      <td>0.327205</td>
-      <td>0.341885</td>
-      <td>0.321696</td>
-      <td>...</td>
-      <td>0.317334</td>
-      <td>0.307444</td>
-      <td>0.314595</td>
-      <td>0.307642</td>
-      <td>0.3173</td>
-      <td>0.292784</td>
-      <td>0.316463</td>
-      <td>0.300647</td>
-      <td>0.311321</td>
-      <td>0.304386</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_ward_3</th>
-      <td>0.395781</td>
-      <td>0.390465</td>
-      <td>0.395781</td>
-      <td>0.397594</td>
-      <td>0.437303</td>
-      <td>0.426709</td>
-      <td>0.384411</td>
-      <td>0.35154</td>
-      <td>0.329568</td>
-      <td>0.324764</td>
-      <td>...</td>
-      <td>0.306745</td>
-      <td>0.291573</td>
-      <td>0.299644</td>
-      <td>0.289534</td>
-      <td>0.310278</td>
-      <td>0.288305</td>
-      <td>0.307468</td>
-      <td>0.295109</td>
-      <td>0.275555</td>
-      <td>0.28247</td>
-    </tr>
-    <tr>
-      <th>parent_agglomerative_euclidean_average_5</th>
-      <td>0.555307</td>
-      <td>0.555174</td>
-      <td>0.555307</td>
-      <td>0.408765</td>
-      <td>0.560105</td>
-      <td>0.547018</td>
-      <td>0.516742</td>
-      <td>0.500903</td>
-      <td>0.497583</td>
-      <td>0.468676</td>
-      <td>...</td>
-      <td>0.453865</td>
-      <td>0.4268</td>
-      <td>0.458549</td>
-      <td>0.426772</td>
-      <td>0.421302</td>
-      <td>0.446142</td>
-      <td>0.419657</td>
-      <td>0.418274</td>
-      <td>0.418961</td>
-      <td>0.411544</td>
+      <td>0.541362</td>
+      <td>0.592401</td>
+      <td>0.559478</td>
+      <td>0.592515</td>
+      <td>0.566349</td>
+      <td>0.541955</td>
+      <td>0.574147</td>
+      <td>0.551822</td>
+      <td>0.535815</td>
+      <td>0.551853</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1346,755 +803,151 @@ div.nboutput div.output_area.stderr {
       <td>...</td>
     </tr>
     <tr>
-      <th>parent_kmeans_15</th>
-      <td>0.418025</td>
-      <td>0.419735</td>
-      <td>0.418025</td>
-      <td>0.326308</td>
-      <td>0.46769</td>
-      <td>0.574453</td>
-      <td>0.640097</td>
-      <td>0.67731</td>
-      <td>0.718999</td>
-      <td>0.752146</td>
-      <td>...</td>
-      <td>0.778527</td>
-      <td>0.839448</td>
-      <td>0.764194</td>
-      <td>0.841979</td>
-      <td>0.764634</td>
-      <td>0.740969</td>
-      <td>0.767202</td>
-      <td>0.680437</td>
-      <td>0.701905</td>
-      <td>0.699909</td>
-    </tr>
-    <tr>
-      <th>parent_kmeans_17</th>
-      <td>0.4147</td>
-      <td>0.41922</td>
-      <td>0.4147</td>
-      <td>0.306316</td>
-      <td>0.440751</td>
-      <td>0.534829</td>
-      <td>0.601402</td>
-      <td>0.644232</td>
-      <td>0.682215</td>
-      <td>0.711828</td>
-      <td>...</td>
-      <td>0.740715</td>
-      <td>0.797526</td>
-      <td>0.717737</td>
-      <td>0.800142</td>
-      <td>0.783447</td>
-      <td>0.753964</td>
-      <td>0.784365</td>
-      <td>0.72275</td>
-      <td>0.708458</td>
-      <td>0.733076</td>
-    </tr>
-    <tr>
-      <th>parent_kmeans_19</th>
-      <td>0.382241</td>
-      <td>0.383054</td>
-      <td>0.382241</td>
-      <td>0.300765</td>
-      <td>0.437271</td>
-      <td>0.529889</td>
-      <td>0.591024</td>
-      <td>0.626969</td>
-      <td>0.654736</td>
-      <td>0.690157</td>
-      <td>...</td>
-      <td>0.706554</td>
-      <td>0.755458</td>
-      <td>0.722024</td>
-      <td>0.75826</td>
-      <td>0.828208</td>
-      <td>0.726479</td>
-      <td>0.830806</td>
-      <td>0.777178</td>
-      <td>0.75917</td>
-      <td>0.821596</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_3</th>
-      <td>0.519826</td>
-      <td>0.530227</td>
-      <td>0.519826</td>
-      <td>0.4373</td>
-      <td>0.466959</td>
-      <td>0.457537</td>
-      <td>0.408181</td>
-      <td>0.381463</td>
-      <td>0.361443</td>
-      <td>0.342208</td>
-      <td>...</td>
-      <td>0.360182</td>
-      <td>0.353962</td>
-      <td>0.323203</td>
-      <td>0.353975</td>
-      <td>0.320365</td>
-      <td>0.320417</td>
-      <td>0.319173</td>
-      <td>0.325855</td>
-      <td>0.291035</td>
-      <td>0.317642</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l1_3</th>
-      <td>0.520333</td>
-      <td>0.53074</td>
-      <td>0.520333</td>
-      <td>0.437666</td>
-      <td>0.468319</td>
-      <td>0.458669</td>
-      <td>0.409179</td>
-      <td>0.381873</td>
-      <td>0.361826</td>
-      <td>0.34257</td>
-      <td>...</td>
-      <td>0.359395</td>
-      <td>0.353159</td>
-      <td>0.322327</td>
-      <td>0.353173</td>
-      <td>0.31959</td>
-      <td>0.318968</td>
-      <td>0.318397</td>
-      <td>0.324437</td>
-      <td>0.291511</td>
-      <td>0.316205</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l2_3</th>
-      <td>0.519826</td>
-      <td>0.530227</td>
-      <td>0.519826</td>
-      <td>0.4373</td>
-      <td>0.466959</td>
-      <td>0.457537</td>
-      <td>0.408181</td>
-      <td>0.381463</td>
-      <td>0.361443</td>
-      <td>0.342208</td>
-      <td>...</td>
-      <td>0.360182</td>
-      <td>0.353962</td>
-      <td>0.323203</td>
-      <td>0.353975</td>
-      <td>0.320365</td>
-      <td>0.320417</td>
-      <td>0.319173</td>
-      <td>0.325855</td>
-      <td>0.291035</td>
-      <td>0.317642</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_5</th>
-      <td>0.627664</td>
-      <td>0.636214</td>
-      <td>0.627664</td>
-      <td>0.394777</td>
-      <td>0.567896</td>
-      <td>0.5648</td>
-      <td>0.507323</td>
-      <td>0.46943</td>
-      <td>0.461334</td>
-      <td>0.438439</td>
-      <td>...</td>
-      <td>0.50628</td>
-      <td>0.457121</td>
-      <td>0.465574</td>
-      <td>0.458043</td>
-      <td>0.448745</td>
-      <td>0.463751</td>
-      <td>0.454043</td>
-      <td>0.429169</td>
-      <td>0.437458</td>
-      <td>0.420863</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l1_5</th>
-      <td>0.610574</td>
-      <td>0.61809</td>
-      <td>0.610574</td>
-      <td>0.404844</td>
-      <td>0.583855</td>
-      <td>0.575314</td>
-      <td>0.518721</td>
-      <td>0.47805</td>
-      <td>0.471063</td>
-      <td>0.446584</td>
-      <td>...</td>
-      <td>0.513065</td>
-      <td>0.459136</td>
-      <td>0.473179</td>
-      <td>0.459952</td>
-      <td>0.444541</td>
-      <td>0.461689</td>
-      <td>0.450446</td>
-      <td>0.432566</td>
-      <td>0.44361</td>
-      <td>0.421603</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l2_5</th>
-      <td>0.625604</td>
-      <td>0.63404</td>
-      <td>0.625604</td>
-      <td>0.396181</td>
-      <td>0.568511</td>
-      <td>0.565132</td>
-      <td>0.507616</td>
-      <td>0.469699</td>
-      <td>0.461586</td>
-      <td>0.438676</td>
-      <td>...</td>
-      <td>0.505613</td>
-      <td>0.456993</td>
-      <td>0.466191</td>
-      <td>0.457873</td>
-      <td>0.448773</td>
-      <td>0.462876</td>
-      <td>0.454072</td>
-      <td>0.428915</td>
-      <td>0.438572</td>
-      <td>0.420763</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_7</th>
-      <td>0.403297</td>
-      <td>0.400556</td>
-      <td>0.403297</td>
-      <td>0.312456</td>
-      <td>0.469974</td>
-      <td>0.589357</td>
-      <td>0.606791</td>
-      <td>0.57347</td>
-      <td>0.550647</td>
-      <td>0.549046</td>
-      <td>...</td>
-      <td>0.551949</td>
-      <td>0.556804</td>
-      <td>0.536399</td>
-      <td>0.557025</td>
-      <td>0.536419</td>
-      <td>0.525111</td>
-      <td>0.53773</td>
-      <td>0.498079</td>
-      <td>0.525449</td>
-      <td>0.51092</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l1_7</th>
-      <td>0.45155</td>
-      <td>0.457857</td>
-      <td>0.45155</td>
-      <td>0.368037</td>
-      <td>0.485989</td>
-      <td>0.591534</td>
-      <td>0.603329</td>
-      <td>0.588505</td>
-      <td>0.568584</td>
-      <td>0.546961</td>
-      <td>...</td>
-      <td>0.564399</td>
-      <td>0.557542</td>
-      <td>0.53948</td>
-      <td>0.557671</td>
-      <td>0.518908</td>
-      <td>0.502261</td>
-      <td>0.521743</td>
-      <td>0.492522</td>
-      <td>0.511539</td>
-      <td>0.508959</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l2_7</th>
-      <td>0.4078</td>
-      <td>0.405078</td>
-      <td>0.4078</td>
-      <td>0.314818</td>
-      <td>0.464454</td>
-      <td>0.582466</td>
-      <td>0.600077</td>
-      <td>0.567309</td>
-      <td>0.545508</td>
-      <td>0.544191</td>
-      <td>...</td>
-      <td>0.552708</td>
-      <td>0.559082</td>
-      <td>0.537231</td>
-      <td>0.559303</td>
-      <td>0.538618</td>
-      <td>0.525188</td>
-      <td>0.539974</td>
-      <td>0.502417</td>
-      <td>0.525549</td>
-      <td>0.515253</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_9</th>
-      <td>0.415411</td>
-      <td>0.418631</td>
-      <td>0.415411</td>
-      <td>0.350733</td>
-      <td>0.519749</td>
-      <td>0.595488</td>
-      <td>0.671264</td>
-      <td>0.642453</td>
-      <td>0.611383</td>
-      <td>0.600179</td>
-      <td>...</td>
-      <td>0.611176</td>
-      <td>0.597888</td>
-      <td>0.597529</td>
-      <td>0.59817</td>
-      <td>0.584416</td>
-      <td>0.574476</td>
-      <td>0.583007</td>
-      <td>0.568593</td>
-      <td>0.571808</td>
-      <td>0.559767</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l1_9</th>
-      <td>0.424035</td>
-      <td>0.426794</td>
-      <td>0.424035</td>
-      <td>0.339465</td>
-      <td>0.503009</td>
-      <td>0.587693</td>
-      <td>0.675815</td>
-      <td>0.642036</td>
-      <td>0.619733</td>
-      <td>0.609617</td>
-      <td>...</td>
-      <td>0.64783</td>
-      <td>0.628374</td>
-      <td>0.586749</td>
-      <td>0.627013</td>
-      <td>0.57221</td>
-      <td>0.586623</td>
-      <td>0.573891</td>
-      <td>0.556572</td>
-      <td>0.546617</td>
-      <td>0.560743</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l2_9</th>
-      <td>0.416085</td>
-      <td>0.417115</td>
-      <td>0.416085</td>
-      <td>0.349521</td>
-      <td>0.518561</td>
-      <td>0.594817</td>
-      <td>0.670603</td>
-      <td>0.641736</td>
-      <td>0.610711</td>
-      <td>0.599544</td>
-      <td>...</td>
-      <td>0.610332</td>
-      <td>0.597038</td>
-      <td>0.598039</td>
-      <td>0.59732</td>
-      <td>0.584468</td>
-      <td>0.572925</td>
-      <td>0.583059</td>
-      <td>0.568546</td>
-      <td>0.571567</td>
-      <td>0.559699</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_11</th>
-      <td>0.426311</td>
-      <td>0.430548</td>
-      <td>0.426311</td>
-      <td>0.347833</td>
-      <td>0.495037</td>
-      <td>0.610978</td>
-      <td>0.678481</td>
-      <td>0.716362</td>
-      <td>0.697921</td>
-      <td>0.68672</td>
-      <td>...</td>
-      <td>0.750297</td>
-      <td>0.721631</td>
-      <td>0.68768</td>
-      <td>0.724563</td>
-      <td>0.65613</td>
-      <td>0.645092</td>
-      <td>0.654237</td>
-      <td>0.635847</td>
-      <td>0.616443</td>
-      <td>0.640551</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l1_11</th>
-      <td>0.406278</td>
-      <td>0.405887</td>
-      <td>0.406278</td>
-      <td>0.351067</td>
-      <td>0.492709</td>
-      <td>0.593273</td>
-      <td>0.669266</td>
-      <td>0.700479</td>
-      <td>0.679691</td>
-      <td>0.676794</td>
-      <td>...</td>
-      <td>0.660162</td>
-      <td>0.655272</td>
-      <td>0.646476</td>
-      <td>0.654947</td>
-      <td>0.670392</td>
-      <td>0.618723</td>
-      <td>0.669174</td>
-      <td>0.637554</td>
-      <td>0.619275</td>
-      <td>0.641215</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l2_11</th>
-      <td>0.427764</td>
-      <td>0.424271</td>
-      <td>0.427764</td>
-      <td>0.341706</td>
-      <td>0.492396</td>
-      <td>0.587038</td>
-      <td>0.656161</td>
-      <td>0.691805</td>
-      <td>0.681986</td>
-      <td>0.671635</td>
-      <td>...</td>
-      <td>0.736597</td>
-      <td>0.711089</td>
-      <td>0.689592</td>
-      <td>0.714441</td>
-      <td>0.663382</td>
-      <td>0.642409</td>
-      <td>0.661414</td>
-      <td>0.621595</td>
-      <td>0.615013</td>
-      <td>0.6265</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_13</th>
-      <td>0.433302</td>
-      <td>0.432977</td>
-      <td>0.433302</td>
-      <td>0.317581</td>
-      <td>0.462278</td>
-      <td>0.557081</td>
-      <td>0.629159</td>
-      <td>0.681285</td>
-      <td>0.731814</td>
-      <td>0.733464</td>
-      <td>...</td>
-      <td>0.961493</td>
-      <td>0.773755</td>
-      <td>0.79658</td>
-      <td>0.776396</td>
-      <td>0.720039</td>
-      <td>0.751187</td>
-      <td>0.726745</td>
-      <td>0.700836</td>
-      <td>0.673473</td>
-      <td>0.669745</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l1_13</th>
-      <td>0.39967</td>
-      <td>0.398636</td>
-      <td>0.39967</td>
-      <td>0.323434</td>
-      <td>0.4928</td>
-      <td>0.579213</td>
-      <td>0.646464</td>
-      <td>0.699808</td>
-      <td>0.732805</td>
-      <td>0.72547</td>
-      <td>...</td>
-      <td>0.733991</td>
-      <td>0.711796</td>
-      <td>0.713211</td>
-      <td>0.709194</td>
-      <td>0.71171</td>
-      <td>0.674692</td>
-      <td>0.710954</td>
-      <td>0.700202</td>
-      <td>0.673986</td>
-      <td>0.660686</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l2_13</th>
-      <td>0.435873</td>
-      <td>0.435468</td>
-      <td>0.435873</td>
-      <td>0.316598</td>
-      <td>0.460372</td>
-      <td>0.552846</td>
-      <td>0.622663</td>
-      <td>0.670469</td>
-      <td>0.721066</td>
-      <td>0.723527</td>
-      <td>...</td>
-      <td>1</td>
-      <td>0.773236</td>
-      <td>0.807224</td>
-      <td>0.775877</td>
-      <td>0.724981</td>
-      <td>0.754707</td>
-      <td>0.731369</td>
-      <td>0.701548</td>
-      <td>0.673217</td>
-      <td>0.67261</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_15</th>
-      <td>0.414618</td>
-      <td>0.420074</td>
-      <td>0.414618</td>
-      <td>0.315282</td>
-      <td>0.462782</td>
-      <td>0.560904</td>
-      <td>0.630586</td>
-      <td>0.664053</td>
-      <td>0.696608</td>
-      <td>0.737951</td>
-      <td>...</td>
-      <td>0.773236</td>
-      <td>1</td>
-      <td>0.772125</td>
-      <td>0.995535</td>
-      <td>0.827192</td>
-      <td>0.749297</td>
-      <td>0.826437</td>
-      <td>0.701904</td>
-      <td>0.705166</td>
-      <td>0.747121</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l1_15</th>
-      <td>0.390257</td>
-      <td>0.388147</td>
-      <td>0.390257</td>
-      <td>0.315271</td>
-      <td>0.460737</td>
-      <td>0.547815</td>
-      <td>0.618948</td>
-      <td>0.659505</td>
-      <td>0.710368</td>
-      <td>0.760141</td>
-      <td>...</td>
-      <td>0.807224</td>
-      <td>0.772125</td>
-      <td>1</td>
-      <td>0.770232</td>
-      <td>0.772969</td>
-      <td>0.809908</td>
-      <td>0.768177</td>
-      <td>0.706049</td>
-      <td>0.736309</td>
-      <td>0.702273</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_l2_15</th>
-      <td>0.415368</td>
-      <td>0.420788</td>
-      <td>0.415368</td>
-      <td>0.315378</td>
-      <td>0.460849</td>
-      <td>0.558991</td>
-      <td>0.628647</td>
-      <td>0.662095</td>
-      <td>0.694629</td>
-      <td>0.736082</td>
-      <td>...</td>
-      <td>0.775877</td>
-      <td>0.995535</td>
-      <td>0.770232</td>
-      <td>1</td>
-      <td>0.824794</td>
-      <td>0.749841</td>
-      <td>0.824037</td>
-      <td>0.702628</td>
-      <td>0.705074</td>
-      <td>0.746187</td>
-    </tr>
-    <tr>
-      <th>parent_spectral_euclidean_17</th>
-      <td>0.385858</td>
-      <td>0.386825</td>
-      <td>0.385858</td>
-      <td>0.305555</td>
-      <td>0.449125</td>
-      <td>0.539924</td>
-      <td>0.597772</td>
-      <td>0.628322</td>
-      <td>0.661231</td>
-      <td>0.707519</td>
-      <td>...</td>
-      <td>0.724981</td>
-      <td>0.827192</td>
-      <td>0.772969</td>
-      <td>0.824794</td>
-      <td>1</td>
-      <td>0.761901</td>
-      <td>0.987949</td>
-      <td>0.794851</td>
-      <td>0.787314</td>
-      <td>0.828907</td>
-    </tr>
-    <tr>
       <th>parent_spectral_l1_17</th>
-      <td>0.396539</td>
-      <td>0.39792</td>
-      <td>0.396539</td>
-      <td>0.292182</td>
-      <td>0.422942</td>
-      <td>0.514103</td>
-      <td>0.589919</td>
-      <td>0.646462</td>
-      <td>0.686351</td>
-      <td>0.727009</td>
+      <td>0.511144</td>
+      <td>0.513119</td>
+      <td>0.511144</td>
+      <td>0.428064</td>
+      <td>0.541955</td>
+      <td>0.612765</td>
+      <td>0.657557</td>
+      <td>0.66832</td>
+      <td>0.674726</td>
+      <td>0.705532</td>
       <td>...</td>
-      <td>0.754707</td>
-      <td>0.749297</td>
-      <td>0.809908</td>
-      <td>0.749841</td>
-      <td>0.761901</td>
-      <td>1</td>
-      <td>0.761437</td>
-      <td>0.768048</td>
-      <td>0.726761</td>
-      <td>0.742357</td>
+      <td>0.75896</td>
+      <td>0.775011</td>
+      <td>0.793162</td>
+      <td>0.774445</td>
+      <td>0.761963</td>
+      <td>1.0</td>
+      <td>0.776813</td>
+      <td>0.752915</td>
+      <td>0.748487</td>
+      <td>0.75456</td>
     </tr>
     <tr>
       <th>parent_spectral_l2_17</th>
-      <td>0.388509</td>
-      <td>0.38942</td>
-      <td>0.388509</td>
-      <td>0.301978</td>
-      <td>0.445373</td>
-      <td>0.536182</td>
-      <td>0.59426</td>
-      <td>0.624923</td>
-      <td>0.657149</td>
-      <td>0.703423</td>
+      <td>0.512794</td>
+      <td>0.513668</td>
+      <td>0.512794</td>
+      <td>0.448247</td>
+      <td>0.574147</td>
+      <td>0.640012</td>
+      <td>0.67637</td>
+      <td>0.68908</td>
+      <td>0.690357</td>
+      <td>0.712109</td>
       <td>...</td>
-      <td>0.731369</td>
-      <td>0.826437</td>
-      <td>0.768177</td>
-      <td>0.824037</td>
-      <td>0.987949</td>
-      <td>0.761437</td>
-      <td>1</td>
-      <td>0.794387</td>
-      <td>0.785477</td>
-      <td>0.828684</td>
+      <td>0.752843</td>
+      <td>0.821791</td>
+      <td>0.79629</td>
+      <td>0.820391</td>
+      <td>0.902564</td>
+      <td>0.776813</td>
+      <td>1.0</td>
+      <td>0.793866</td>
+      <td>0.724944</td>
+      <td>0.810557</td>
     </tr>
     <tr>
       <th>parent_spectral_euclidean_19</th>
-      <td>0.363028</td>
-      <td>0.363668</td>
-      <td>0.363028</td>
-      <td>0.283765</td>
-      <td>0.423259</td>
-      <td>0.507555</td>
-      <td>0.56635</td>
-      <td>0.620017</td>
-      <td>0.646025</td>
-      <td>0.689421</td>
+      <td>0.491146</td>
+      <td>0.49179</td>
+      <td>0.491146</td>
+      <td>0.425964</td>
+      <td>0.551822</td>
+      <td>0.622116</td>
+      <td>0.659149</td>
+      <td>0.666747</td>
+      <td>0.671274</td>
+      <td>0.688036</td>
       <td>...</td>
-      <td>0.701548</td>
-      <td>0.701904</td>
-      <td>0.706049</td>
-      <td>0.702628</td>
-      <td>0.794851</td>
-      <td>0.768048</td>
-      <td>0.794387</td>
-      <td>1</td>
-      <td>0.774385</td>
-      <td>0.840652</td>
+      <td>0.719309</td>
+      <td>0.769043</td>
+      <td>0.741931</td>
+      <td>0.770196</td>
+      <td>0.798569</td>
+      <td>0.752915</td>
+      <td>0.793866</td>
+      <td>1.0</td>
+      <td>0.76557</td>
+      <td>0.935674</td>
     </tr>
     <tr>
       <th>parent_spectral_l1_19</th>
-      <td>0.373439</td>
-      <td>0.37529</td>
-      <td>0.373439</td>
-      <td>0.285804</td>
-      <td>0.41632</td>
-      <td>0.494372</td>
-      <td>0.552682</td>
-      <td>0.594294</td>
-      <td>0.633005</td>
-      <td>0.681628</td>
+      <td>0.481378</td>
+      <td>0.481861</td>
+      <td>0.481378</td>
+      <td>0.430374</td>
+      <td>0.535815</td>
+      <td>0.596919</td>
+      <td>0.640646</td>
+      <td>0.653699</td>
+      <td>0.659841</td>
+      <td>0.676507</td>
       <td>...</td>
-      <td>0.673217</td>
-      <td>0.705166</td>
-      <td>0.736309</td>
-      <td>0.705074</td>
-      <td>0.787314</td>
-      <td>0.726761</td>
-      <td>0.785477</td>
-      <td>0.774385</td>
-      <td>1</td>
-      <td>0.756606</td>
+      <td>0.69741</td>
+      <td>0.715167</td>
+      <td>0.6999</td>
+      <td>0.716911</td>
+      <td>0.75862</td>
+      <td>0.748487</td>
+      <td>0.724944</td>
+      <td>0.76557</td>
+      <td>1.0</td>
+      <td>0.762221</td>
     </tr>
     <tr>
       <th>parent_spectral_l2_19</th>
-      <td>0.365509</td>
-      <td>0.365794</td>
-      <td>0.365509</td>
-      <td>0.296302</td>
-      <td>0.428678</td>
-      <td>0.523523</td>
-      <td>0.581835</td>
-      <td>0.623674</td>
-      <td>0.64669</td>
-      <td>0.682925</td>
+      <td>0.494583</td>
+      <td>0.495228</td>
+      <td>0.494583</td>
+      <td>0.41837</td>
+      <td>0.551853</td>
+      <td>0.620496</td>
+      <td>0.659171</td>
+      <td>0.673963</td>
+      <td>0.679704</td>
+      <td>0.696205</td>
       <td>...</td>
-      <td>0.67261</td>
-      <td>0.747121</td>
-      <td>0.702273</td>
-      <td>0.746187</td>
-      <td>0.828907</td>
-      <td>0.742357</td>
-      <td>0.828684</td>
-      <td>0.840652</td>
-      <td>0.756606</td>
-      <td>1</td>
+      <td>0.726722</td>
+      <td>0.776894</td>
+      <td>0.737667</td>
+      <td>0.778176</td>
+      <td>0.808413</td>
+      <td>0.75456</td>
+      <td>0.810557</td>
+      <td>0.935674</td>
+      <td>0.762221</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
-<p>121 rows × 121 columns</p>
+<p>124 rows × 124 columns</p>
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">mi_adjusted</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">mi_plot</span> <span class="o">=</span> <span class="n">mi_adjusted</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[13]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_18_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_18_0.png" />
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_17_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_17_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#plot MI with type of algorithm as label</span>
 <span class="n">label_vec</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">mi_adjusted</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
@@ -2104,30 +957,26 @@ div.nboutput div.output_area.stderr {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">mi_adjusted</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">label_vec</span><span class="o">=</span><span class="n">label_vec</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">mi_plot</span> <span class="o">=</span> <span class="n">mi_adjusted</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">label_vec</span><span class="o">=</span><span class="n">label_vec</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[15]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_20_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_20_0.png" />
+<img alt="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_19_0.png" src="../_images/Examples_Ensemble_Distances_Algorithms_No_Structure_19_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span>
 </pre></div>
 </div>
@@ -2136,30 +985,37 @@ div.nboutput div.output_area.stderr {
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <h3><a href="../index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Example_Kmeans_MajorityVote.html">Use Majority Vote to stabilize k-means clustering</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Create-an-ensemble">Create an ensemble</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Plot-example-solutions-from-the-ensemble">Plot example solutions from the ensemble</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Finish-the-ensemble-using-Majority-Vote-and-Graph-Closure">Finish the ensemble using Majority Vote and Graph Closure</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#Graph-Closure-and-Majority-Vote-Finishing">Graph Closure and Majority Vote Finishing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-k">Ensembles by changing K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-the-random-seed">Ensembles by changing the random seed</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="Examples.html#ensembles-by-changing-distances-and-or-algorithms">Ensembles by changing Distances and/or Algorithms</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Create-an-ensemble">Create an ensemble</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-example-solutions-from-the-ensemble">Plot example solutions from the ensemble</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Finish-the-ensemble-using-Majority-Vote-and-Graph-Closure">Finish the ensemble using Majority Vote and Graph Closure</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#Graph-Closure-and-Majority-Vote-Finishing">Graph Closure and Majority Vote Finishing</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#Use-mutual-information-to-compare-solutions">Use mutual information to compare solutions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Use-mutual-information-to-compare-solutions">Use mutual information to compare solutions</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Demonstrate_RandomSeed.html">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Demonstrate_Distance_Affinity_effects.html">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Demonstrate_Distance_Affinity_effects.html">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-subsampling-data-features">Ensembles by subsampling data features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-that-account-for-experimental-noise">Ensembles that account for experimental noise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-that-use-parallelization">Ensembles that use parallelization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
@@ -2167,11 +1023,11 @@ div.nboutput div.output_area.stderr {
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="Example_Kmeans_MajorityVote.html"
-                        title="previous chapter">Use Majority Vote to stabilize k-means clustering</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="Demonstrate_RandomSeed.html"
-                        title="next chapter">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></p>
+                        title="previous chapter">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Demonstrate_Distance_Affinity_effects.html"
+                        title="next chapter">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -2180,15 +1036,15 @@ div.nboutput div.output_area.stderr {
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -2203,18 +1059,19 @@ div.nboutput div.output_area.stderr {
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
+          <a href="Demonstrate_Distance_Affinity_effects.html" title="Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space."
              >next</a> |</li>
         <li class="right" >
-          <a href="Example_Kmeans_MajorityVote.html" title="Use Majority Vote to stabilize k-means clustering"
+          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

@@ -1,32 +1,26 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clustering Algorithms &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Transformations" href="transforms.html" />
     <link rel="prev" title="Validation" href="validation.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +37,8 @@
           <a href="validation.html" title="Validation"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Clustering Algorithms</a></li> 
       </ul>
     </div>  
 
@@ -70,405 +65,88 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
-<dl class="class">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms">
-<em class="property">class </em><code class="descclassname">openensembles.clustering_algorithms.</code><code class="descname">clustering_algorithms</code><span class="sig-paren">(</span><em>data</em>, <em>kwargs</em>, <em>K=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms" title="Permalink to this definition">¶</a></dt>
-<dd><p>The calls to all clustering algorithms reside here. Each call takes on the form of explicitly encoding the default 
-sklearn parameters, overwriting any passed in as kwargs.</p>
-<p>The act of clustering creates a list of assignments of objects in data assigned to clustering classes
-var_params contains all the final parameters used in the act of clustering</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data: matrix</strong></p>
-<blockquote>
-<div><p>Data matrix, assumes feature dimensions are found column wise (objects in rows)</p>
-</div></blockquote>
-<p><strong>kwargs: dict</strong></p>
-<blockquote>
-<div><p>Variable parameters passed in as a dict. These are specific to each algorithm
-The keyword ‘distance’ is used by OpenEnsembles to generalize distance/similarity calls across algorithms. Use ‘distance’ and a string for distance metric. 
-Algorithms requiring similarity will use the conversion of Distance (D) to Similarity (S) according to: S = np.exp(-D / D.std()). 
-Use ‘affinity’ and ‘precomputed’ to exert greater control over usage.</p>
-</div></blockquote>
-<p><strong>K: int</strong></p>
-<blockquote class="last">
-<div><p>Number of clusters to create, required for most, but not all algorithms. Default K=2</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.cluster" title="openensembles.cluster"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.cluster</span></code></a></p>
-</div>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="19%" />
-<col width="81%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>var_params: dict</strong></td>
-<td>The dict of all parameters, including defaults assumed and those overwritten by kwargs</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Methods</p>
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.AffinityPropagation">
-<code class="descname">AffinityPropagation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.AffinityPropagation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.AffinityPropagation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html">sklearn’s Affinity Propagation</a></p>
-<p><strong>Defaults and var_params:</strong> sklearn.cluster.AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity=’euclidean’, verbose=False)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.Birch">
-<code class="descname">Birch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.Birch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.Birch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html">sklearn’s Birch</a>
-<strong>Defaults and var_params:</strong> sklearn.cluster.Birch(threshold=0.5, branching_factor=50, compute_labels=True, copy=True)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.DBSCAN">
-<code class="descname">DBSCAN</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.DBSCAN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.DBSCAN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html">sklearn’s DBSCAN</a></p>
-<p><strong>Defaults and var_params:</strong> sklearn.cluster.DBSCAN(eps=0.5, min_samples=5, metric=’euclidean’, algorithm=’auto’, leaf_size=30, p=None, n_jobs=1)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.GaussianMixture">
-<code class="descname">GaussianMixture</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.GaussianMixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.GaussianMixture" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/mixture.html">sklearn’s GuassianMixture</a></p>
-<blockquote>
-<div><strong>Defaults and var_params:</strong> (n_components=2, covariance_type=’full’, tol=0.001, reg_covar=1e-06, max_iter=100, n_init=1, init_params=’kmeans’, weights_init=None, means_init=None, precisions_init=None, random_state=None, warm_start=False, verbose=0, verbose_interval=10)</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.HDBSCAN">
-<code class="descname">HDBSCAN</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.HDBSCAN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.HDBSCAN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hieararchical Density-Based Spatial Clustering of Applications with Noise
-Uses <a class="reference external" href="https://github.com/scikit-learn-contrib/hdbscan">HDBSCAN</a></p>
-<p><strong>Defaults and var_params:</strong> hdbscan.HDBSCAN(eps=0.5, min_samples=5, metric=’euclidean’, algorithm=’auto’, leaf_size=30, p=None, n_jobs=1)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.MeanShift">
-<code class="descname">MeanShift</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.MeanShift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.MeanShift" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html">sklearn’s MeanShift</a></p>
-<blockquote>
-<div><strong>Defaults and var_params:</strong> sklearn.cluster.MeanShift(bandwidth=None, seeds=None, bin_seeding=False, min_bin_freq=1, cluster_all=True, n_jobs=1)</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.agglomerative">
-<code class="descname">agglomerative</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.agglomerative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.agglomerative" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses sklearns <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html">AgglomerativeClustering algorithm</a></p>
-<p><strong>Defaults and var_params:</strong> sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity=’euclidean’, connectivity=None, compute_full_tree=’auto’, linkage=’ward’, pooling_func=&lt;function mean&gt;)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.clustering_algorithms_available">
-<code class="descname">clustering_algorithms_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.clustering_algorithms_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.clustering_algorithms_available" title="Permalink to this definition">¶</a></dt>
-<dd><p>Report available algorithms</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">methods: dict</p>
-<blockquote class="last">
-<div><p>Dictionary with keys equal to available function calls</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.kmeans">
-<code class="descname">kmeans</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.kmeans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.kmeans" title="Permalink to this definition">¶</a></dt>
-<dd><p>kmeans clustering see <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html">skc.KMeans</a></p>
-<p><strong>Defaults and var_params:</strong> skc.KMeans(n_clusters=2, init=’k-means++’, n_init=10, max_iter=300, tol=0.0001, precompute_distances=’auto’, verbose=0, random_state=None, copy_x=True, n_jobs=1)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote>
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>var_params: dict</strong></p>
-<blockquote class="last">
-<div><p>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="openensembles.clustering_algorithms.clustering_algorithms.spectral">
-<code class="descname">spectral</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#clustering_algorithms.spectral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.clustering_algorithms.spectral" title="Permalink to this definition">¶</a></dt>
-<dd><p>Spectral clustering, see <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html">skc.SpectralClustering</a></p>
-<p><strong>Defaults and var_params:</strong> skc.SpectralClustering(n_clusters=2, eigen_solver=None, random_state=None, n_init=10, gamma=1.0, affinity=’rbf’, n_neighbors=10, eigen_tol=0.0, assign_labels=’kmeans’, degree=3, coef0=1, kernel_params=None, n_jobs=1)
-Other Parameters
-—————-
-var_params: dict</p>
-<blockquote>
-<div>Pass variable params through constructor as dictionary pairs. Current default parameters are listed above</div></blockquote>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">labels: list of ints</p>
-<blockquote class="last">
-<div><p>Solution of clustering labels for each object (updated in object.out)</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
+<dl class="py function">
 <dt id="openensembles.clustering_algorithms.convertDistanceToSimilarity">
-<code class="descclassname">openensembles.clustering_algorithms.</code><code class="descname">convertDistanceToSimilarity</code><span class="sig-paren">(</span><em>D</em>, <em>beta=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#convertDistanceToSimilarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.convertDistanceToSimilarity" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openensembles.clustering_algorithms.</code><code class="sig-name descname">convertDistanceToSimilarity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">D</span></em>, <em class="sig-param"><span class="n">beta</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#convertDistanceToSimilarity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.convertDistanceToSimilarity" title="Permalink to this definition">¶</a></dt>
 <dd><p>A utility to convert a distance matrix to a similarity matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>D: matrix of floats</strong></p>
-<blockquote>
-<div><p>A matrix of distances, such as returned by returnDistanceMatrix(data,distanceType)</p>
-</div></blockquote>
-<p><strong>beta: float</strong></p>
-<blockquote>
-<div><p>A variable for mapping distance to similarity.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">S: a matrix of floats</p>
-<blockquote class="last">
-<div><p>A matrix of similarity values. according to S = np.exp(-beta * D / D.std())</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>D: matrix of floats</strong></dt><dd><p>A matrix of distances, such as returned by returnDistanceMatrix(data,distanceType)</p>
+</dd>
+<dt><strong>beta: float</strong></dt><dd><p>A variable for mapping distance to similarity.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>S: a matrix of floats</dt><dd><p>A matrix of similarity values. according to S = np.exp(-beta * D / D.std())</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="openensembles.clustering_algorithms.returnDistanceMatrix">
-<code class="descclassname">openensembles.clustering_algorithms.</code><code class="descname">returnDistanceMatrix</code><span class="sig-paren">(</span><em>data</em>, <em>distance</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#returnDistanceMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.returnDistanceMatrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openensembles.clustering_algorithms.</code><code class="sig-name descname">returnDistanceMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">distance</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#returnDistanceMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.returnDistanceMatrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>A utility to calculate a distance matrix, according to type in &lt;distance&gt; on the data array.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data: matrix</strong></p>
-<blockquote>
-<div><p>Data matrix to calculate distances from</p>
-</div></blockquote>
-<p><strong>distance: string</strong></p>
-<blockquote>
-<div><p>Distance metric. See <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html">sklearn’s pairwise distances</a></p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">d: matrix</p>
-<blockquote>
-<div><p>the distance matrix computed by distance</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError:</strong></p>
-<blockquote class="last">
-<div><p>if the distance metric is not available.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data: matrix</strong></dt><dd><p>Data matrix to calculate distances from</p>
+</dd>
+<dt><strong>distance: string</strong></dt><dd><p>Distance metric. See <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html">sklearn’s pairwise distances</a></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>d: matrix</dt><dd><p>the distance matrix computed by distance</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError:</dt><dd><p>if the distance metric is not available.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="openensembles.clustering_algorithms.returnParams">
-<code class="descclassname">openensembles.clustering_algorithms.</code><code class="descname">returnParams</code><span class="sig-paren">(</span><em>paramsSent</em>, <em>paramsExpected</em>, <em>algorithm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#returnParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.returnParams" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">openensembles.clustering_algorithms.</code><code class="sig-name descname">returnParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paramsSent</span></em>, <em class="sig-param"><span class="n">paramsExpected</span></em>, <em class="sig-param"><span class="n">algorithm</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/openensembles/clustering_algorithms.html#returnParams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#openensembles.clustering_algorithms.returnParams" title="Permalink to this definition">¶</a></dt>
 <dd><p>A utility for variable parameter setting in clustering algorithms
 Takes two dictionaries of parameter key, value pairs and replaces that in paramsExpected 
 with anything in paramsSent.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">params: dict</p>
-<blockquote class="last">
-<div><p>Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>params: dict</dt><dd><p>Dict of parameters that represent the final parameters, overwritten in paramsExpected by paramsSent
 This will handle checking to make sure that if precomputed distances have been selected, that a distance 
 or similarity matrix is also passed.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
+</dd>
+</dl>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Will warn users if a key in sent does not appear in expected.</p>
+<p class="admonition-title">Warning</p>
+<p>Will warn users if a key in sent does not appear in expected.</p>
 </div>
 </dd></dl>
 
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="OpenEnsembles.html">OpenEnsembles</a></li>
@@ -499,15 +177,15 @@ or similarity matrix is also passed.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -528,12 +206,13 @@ or similarity matrix is also passed.</p>
           <a href="validation.html" title="Validation"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Clustering Algorithms</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

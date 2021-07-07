@@ -1,30 +1,24 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>openensembles.clustering_algorithms &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -35,8 +29,8 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../openensembles.html" accesskey="U">openensembles</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">openensembles.clustering_algorithms</a></li> 
       </ul>
     </div>  
 
@@ -75,17 +69,17 @@
 <span class="kn">import</span> <span class="nn">sklearn.cluster</span> <span class="k">as</span> <span class="nn">skc</span>
 <span class="kn">import</span> <span class="nn">sklearn</span> <span class="k">as</span> <span class="nn">sk</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">datasets</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 <span class="kn">import</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">as</span> <span class="nn">sch</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">preprocessing</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
 <span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
-<span class="kn">from</span> <span class="nn">types</span> <span class="k">import</span> <span class="n">FunctionType</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">FunctionType</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">mixture</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">mixture</span>
 <span class="kn">import</span> <span class="nn">hdbscan</span>
 
-<div class="viewcode-block" id="clustering_algorithms"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms">[docs]</a><span class="k">class</span> <span class="nc">clustering_algorithms</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">clustering_algorithms</span><span class="p">:</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	The calls to all clustering algorithms reside here. Each call takes on the form of explicitly encoding the default </span>
 <span class="sd">	sklearn parameters, overwriting any passed in as kwargs.</span>
@@ -114,7 +108,7 @@
 <span class="sd">	--------</span>
 <span class="sd">	openensembles.cluster()</span>
 <span class="sd">	&quot;&quot;&quot;</span>
-	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">kwargs</span>
@@ -123,7 +117,7 @@
 		<span class="c1">#if &#39;K&#39; not in self.args:</span>
 		<span class="c1">#    raise ValueError(&#39;clustering_algorithms should have an instantiated K as part of kwargs key, pair&#39;)</span>
 
-<div class="viewcode-block" id="clustering_algorithms.clustering_algorithms_available"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.clustering_algorithms_available">[docs]</a>	<span class="k">def</span> <span class="nf">clustering_algorithms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">clustering_algorithms_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Report available algorithms</span>
 <span class="sd">		</span>
@@ -139,10 +133,10 @@
 		<span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
 			<span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
 				<span class="n">methodDict</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-		<span class="k">return</span> <span class="n">methodDict</span></div>
+		<span class="k">return</span> <span class="n">methodDict</span>
 
 
-<div class="viewcode-block" id="clustering_algorithms.kmeans"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.kmeans">[docs]</a>	<span class="k">def</span> <span class="nf">kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">kmeans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		kmeans clustering see `skc.KMeans &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html&gt;`_</span>
 
@@ -183,10 +177,10 @@
 			<span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">copy_x</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;copy_x&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
 		<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span>
 
 
-<div class="viewcode-block" id="clustering_algorithms.spectral"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.spectral">[docs]</a>	<span class="k">def</span> <span class="nf">spectral</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">spectral</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">		Spectral clustering, see `skc.SpectralClustering &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html&gt;`_</span>
 
@@ -265,15 +259,15 @@
 							<span class="n">eigen_tol</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;eigen_tol&#39;</span><span class="p">],</span> <span class="n">assign_labels</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;assign_labels&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span>
 			<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.        </span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.        </span>
 
 <span class="c1">######### BELOW HERE ARE ALGORITHMS that accept DISTANCE METRICS</span>
 
-<div class="viewcode-block" id="clustering_algorithms.agglomerative"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.agglomerative">[docs]</a>	<span class="k">def</span> <span class="nf">agglomerative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">agglomerative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Uses sklearns `AgglomerativeClustering algorithm &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AgglomerativeClustering.html&gt;`_ </span>
 
-<span class="sd">		**Defaults and var_params:** sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity=&#39;euclidean&#39;, connectivity=None, compute_full_tree=&#39;auto&#39;, linkage=&#39;ward&#39;, pooling_func=&lt;function mean&gt;)</span>
+<span class="sd">		**Defaults and var_params: ** sklearn.cluster.AgglomerativeClustering(n_clusters=2, affinity=&#39;euclidean&#39;, memory=None, connectivity=None, compute_full_tree=&#39;auto&#39;, linkage=&#39;ward&#39;, distance_threshold=None)</span>
 
 <span class="sd">		Other Parameters</span>
 <span class="sd">		----------------</span>
@@ -288,12 +282,13 @@
 		<span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span>
-		<span class="c1">#params[&#39;memory&#39;] = &#39;Memory(cachedir=None)&#39;</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;memory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;connectivity&#39;</span><span class="p">]</span><span class="o">=</span> <span class="kc">None</span>
 		<span class="c1">#params[&#39;n_components&#39;] = None #gone in newest version</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;compute_full_tree&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ward&#39;</span>
-		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;pooling_func&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance_threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+		<span class="c1">#params[&#39;pooling_func&#39;] = np.mean #Removed in sklearn 0.22.1</span>
 
 		<span class="n">params</span> <span class="o">=</span> <span class="n">returnParams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_params</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="s1">&#39;agglomerative&#39;</span><span class="p">)</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;affinity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">]</span>
@@ -306,10 +301,10 @@
 			<span class="n">compute_full_tree</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;compute_full_tree&#39;</span><span class="p">],</span> <span class="n">linkage</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;linkage&#39;</span><span class="p">]</span> <span class="p">,</span> <span class="n">pooling_func</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;pooling_func&#39;</span><span class="p">])</span>
 		<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span>
 
 
-<div class="viewcode-block" id="clustering_algorithms.DBSCAN"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.DBSCAN">[docs]</a>	<span class="k">def</span> <span class="nf">DBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">DBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Uses `sklearn&#39;s DBSCAN &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html&gt;`_</span>
 
@@ -351,9 +346,9 @@
 			<span class="n">p</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;p&#39;</span><span class="p">],</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">])</span> 
 		<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span>
 
-<div class="viewcode-block" id="clustering_algorithms.HDBSCAN"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.HDBSCAN">[docs]</a>	<span class="k">def</span> <span class="nf">HDBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">HDBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Hieararchical Density-Based Spatial Clustering of Applications with Noise</span>
 <span class="sd">		Uses `HDBSCAN &lt;https://github.com/scikit-learn-contrib/hdbscan&gt;`_</span>
@@ -406,10 +401,10 @@
 			<span class="n">cluster_selection_method</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;cluster_selection_method&#39;</span><span class="p">],</span> <span class="n">allow_single_cluster</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;allow_single_cluster&#39;</span><span class="p">],</span> 
 			<span class="n">prediction_data</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;prediction_data&#39;</span><span class="p">],</span> <span class="n">match_reference_implementation</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;match_reference_implementation&#39;</span><span class="p">])</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span>
 
 
-<div class="viewcode-block" id="clustering_algorithms.AffinityPropagation"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.AffinityPropagation">[docs]</a>	<span class="k">def</span> <span class="nf">AffinityPropagation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">AffinityPropagation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Uses `sklearn&#39;s Affinity Propagation &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.AffinityPropagation.html&gt;`_</span>
 
@@ -446,9 +441,9 @@
 		<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1">#operates on distance matrix</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span> <span class="c1">#update dictionary of parameters to match that used.</span>
 
-<div class="viewcode-block" id="clustering_algorithms.Birch"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.Birch">[docs]</a>	<span class="k">def</span> <span class="nf">Birch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">Birch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Uses `sklearn&#39;s Birch &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.Birch.html&gt;`_</span>
 <span class="sd">		**Defaults and var_params:** sklearn.cluster.Birch(threshold=0.5, branching_factor=50, compute_labels=True, copy=True)</span>
@@ -482,10 +477,10 @@
 		<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">labels_</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span>
 
 
-<div class="viewcode-block" id="clustering_algorithms.MeanShift"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.MeanShift">[docs]</a>	<span class="k">def</span> <span class="nf">MeanShift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">MeanShift</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Uses `sklearn&#39;s MeanShift &lt;http://scikit-learn.org/stable/modules/generated/sklearn.cluster.MeanShift.html&gt;`_</span>
 
@@ -521,9 +516,9 @@
 		<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 		<span class="n">labels</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">labels</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span>
 
-<div class="viewcode-block" id="clustering_algorithms.GaussianMixture"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.clustering_algorithms.GaussianMixture">[docs]</a>	<span class="k">def</span> <span class="nf">GaussianMixture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+	<span class="k">def</span> <span class="nf">GaussianMixture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Uses `sklearn&#39;s GuassianMixture &lt;http://scikit-learn.org/stable/modules/mixture.html&gt;`_</span>
 
@@ -544,7 +539,7 @@
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_components&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;covariance_type&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;full&#39;</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;tol&#39;</span><span class="p">]</span><span class="o">=</span><span class="mf">0.001</span>
-		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;reg_covar&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">06</span>
+		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;reg_covar&#39;</span><span class="p">]</span><span class="o">=</span><span class="mf">1e-06</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">100</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;n_init&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
 		<span class="n">params</span><span class="p">[</span><span class="s1">&#39;init_params&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;kmeans&#39;</span>
@@ -572,7 +567,7 @@
 		<span class="n">solution</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 		<span class="n">labels</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">labels</span>
-		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span></div></div>
+		<span class="bp">self</span><span class="o">.</span><span class="n">var_params</span> <span class="o">=</span> <span class="n">params</span>
 
 <div class="viewcode-block" id="returnParams"><a class="viewcode-back" href="../../clustering_algorithms.html#openensembles.clustering_algorithms.returnParams">[docs]</a><span class="k">def</span> <span class="nf">returnParams</span><span class="p">(</span><span class="n">paramsSent</span><span class="p">,</span> <span class="n">paramsExpected</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
@@ -673,12 +668,13 @@
 
 </pre></div>
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <h3><a href="../../index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../OpenEnsembles.html">OpenEnsembles</a></li>
@@ -689,15 +685,15 @@
 </ul>
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -713,12 +709,12 @@
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="../openensembles.html" >openensembles</a> &#187;</li> 
+        <li class="nav-item nav-item-this"><a href="">openensembles.clustering_algorithms</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

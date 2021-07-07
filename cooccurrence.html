@@ -1,32 +1,26 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cooccurrence &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Validation" href="validation.html" />
     <link rel="prev" title="Finishing" href="finishing.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +37,8 @@
           <a href="finishing.html" title="Finishing"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Cooccurrence</a></li> 
       </ul>
     </div>  
 
@@ -52,259 +47,18 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-cooccurrence">
-<span id="cooccurrence"></span><h1>Cooccurrence<a class="headerlink" href="#module-cooccurrence" title="Permalink to this headline">¶</a></h1>
-<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering</p>
-<p>Copyright (C) 2017 Naegle Lab</p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.</p>
-<p>You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
-<dl class="function">
-<dt id="cooccurrence.add_subplot_axes">
-<code class="descclassname">cooccurrence.</code><code class="descname">add_subplot_axes</code><span class="sig-paren">(</span><em>ax</em>, <em>rect</em>, <em>facecolor='w'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#add_subplot_axes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.add_subplot_axes" title="Permalink to this definition">¶</a></dt>
-<dd><p>A non-class function to handle subaxes</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="cooccurrence.coMat">
-<em class="property">class </em><code class="descclassname">cooccurrence.</code><code class="descname">coMat</code><span class="sig-paren">(</span><em>cObj</em>, <em>data_source_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat" title="Permalink to this definition">¶</a></dt>
-<dd><p>A class that allows you to create and operate on a co-occurrence matrix</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cObj: openensembles.cluster object</strong></p>
-<blockquote>
-<div><p>The clustering object and all contained solutions of interest</p>
-</div></blockquote>
-<p><strong>data_source_name: string</strong></p>
-<blockquote class="last">
-<div><p>The name of the data source of interest</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.cluster.co_occurrence_matrix" title="openensembles.cluster.co_occurrence_matrix"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.cluster.co_occurrence_matrix</span></code></a></p>
-</div>
-<p class="rubric">Methods</p>
-<dl class="method">
-<dt id="cooccurrence.coMat.cut">
-<code class="descname">cut</code><span class="sig-paren">(</span><em>lnk</em>, <em>threshold</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.cut" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>A finishing technique</strong></p>
-<p>Given the calculation of a linkage (e.g. self.lnk(linkage=’average’)), cut the resulting linkage
-at the given threshold and return the labels from the resulting cut on the hierarchically</p>
-<blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">param lnk:</th><td class="field-body">a linkage object, that can be generated by self.link()</td>
-</tr>
-<tr class="field-even field"><th class="field-name">type lnk:</th><td class="field-body">scipy.cluster.hierarch.linkage object</td>
-</tr>
-<tr class="field-odd field"><th class="field-name" colspan="2">param threshold:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body">the threshold to cut the groups into. See self.plot() to visually explore the cuts at different thresholds.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">type threshold:</th><td class="field-body">float</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">returns:</th><td class="field-body">labels - vector of ints assigning each object into a group. This is a type of finishing for deterministic clustering from an ensemble.</td>
-</tr>
-</tbody>
-</table>
-</div></blockquote>
-</dd></dl>
-
-<dl class="method">
-<dt id="cooccurrence.coMat.gather_partitions">
-<code class="descname">gather_partitions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.gather_partitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.gather_partitions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gather partitions sums the number of times all pairs of objects fall within the same cluster
-across the ensemble.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">co_matrix_df: pandas dataframe</p>
-<blockquote>
-<div><p>a dataframe of object names in column and header, wrapped around the co-occurrence matrix</p>
-</div></blockquote>
-<p class="last">todo:: Check that the solution dimensionality and the data matrix dimensions are the same</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="cooccurrence.coMat.gather_single_partition">
-<code class="descname">gather_single_partition</code><span class="sig-paren">(</span><em>solution</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.gather_single_partition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.gather_single_partition" title="Permalink to this definition">¶</a></dt>
-<dd><p>For an individual solution (set of labels), create a binary cooccurrence matrix that has an entry of 1 if 
-both objects are in the same cluster and 0 if not.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>Solution: list of ints</strong></p>
-<blockquote>
-<div><p>A single solution vector of clustering labels</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">co_matrix: matrix</p>
-<blockquote class="last">
-<div><p>a square matrix the size of the length of solution with boolean values (0,1)</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="cooccurrence.coMat.link">
-<code class="descname">link</code><span class="sig-paren">(</span><em>linkage='average'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.link" title="Permalink to this definition">¶</a></dt>
-<dd><p>Link a co-occurrence matrix. This is required so that co-occurrence is properly treated as a distance matrix
-during scipy.cluster.hierarchy.linkage</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>linkage: string</strong></p>
-<blockquote>
-<div><p>type of linkage to use, see scipy.cluster.hierarchy.linkage for options</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">lnk: scipy.cluster.hierarch.linkage object</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="cooccurrence.coMat.pairwise_list">
-<code class="descname">pairwise_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.pairwise_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.pairwise_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reshapes the co-occurrence dataframe matrix into a list, so it can easily be ordered and explored</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">df: pandas dataframe</p>
-<blockquote class="last">
-<div><p>with a row entry index of object1_object2 and a co-occurrence column labled ‘pairwise’</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="cooccurrence.coMat.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>threshold='avg'</em>, <em>linkage='average'</em>, <em>add_labels=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#coMat.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.coMat.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plot the co_occurrence matrix with a dendrogram and heatmap 
-By Default labels=True, set to false to suppress labels in graph
-By default label_vec equal to the index list of the dataObj dataframe. Otherwise, you can pass in an alternate naming scheme, 
-vector length should be the same as</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>threshold: float</strong></p>
-<blockquote>
-<div><p>Use threshold to color the dendrogram
-This is useful for identifying visually how to call .cut()
-Default is the average value in the co-occurrence matrix, which is updated to float when ‘avg’ is passed</p>
-</div></blockquote>
-<p><strong>add_labels: bool</strong></p>
-<blockquote>
-<div><p>If you wish to shut off printing of labels pass False, else this will print labels according to the co-matrix data frame headers</p>
-</div></blockquote>
-<p><strong>linkage: string</strong></p>
-<blockquote>
-<div><p>Linkage type to use for dendrogram. Default is average</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Other Parameters:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first"><strong>label_vec: list</strong></p>
-<blockquote>
-<div><p>If you want to add labels, but not the same in co-occurrence matrix dataframe, then pass those here</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>ValueError:</strong></p>
-<blockquote class="last">
-<div><p>if label_vec in <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs is different size then number of objects</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">coMat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="cooccurrence.plot_matrix_sorted">
-<code class="descclassname">cooccurrence.</code><code class="descname">plot_matrix_sorted</code><span class="sig-paren">(</span><em>matrix</em>, <em>label_vec</em>, <em>threshold</em>, <em>lnk1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cooccurrence.html#plot_matrix_sorted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#cooccurrence.plot_matrix_sorted" title="Permalink to this definition">¶</a></dt>
-<dd><p>A heatmap plotting function, for both co-occurrence and mutual information</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>matrix: np.array</strong></p>
-<blockquote>
-<div><p>An array of values to plot as a heatmap</p>
-</div></blockquote>
-<p><strong>label_vec: list of strings</strong></p>
-<blockquote>
-<div><p>A label_vec to label the row-wise objects. Empty if labels not requested</p>
-</div></blockquote>
-<p><strong>threshold: float</strong></p>
-<blockquote>
-<div><p>Threshold to use for coloring of dendrogram</p>
-</div></blockquote>
-<p><strong>lnk1: linkage object</strong></p>
-<blockquote>
-<div><p>A pre-calcluated linkage object to use to sort.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">fig: matplotlib.pyplot figure</p>
-<blockquote class="last">
-<div><p>The figure handle</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+  <div class="section" id="cooccurrence">
+<h1>Cooccurrence<a class="headerlink" href="#cooccurrence" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="OpenEnsembles.html">OpenEnsembles</a></li>
@@ -335,15 +89,15 @@ Default is the average value in the co-occurrence matrix, which is updated to fl
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -364,12 +118,13 @@ Default is the average value in the co-occurrence matrix, which is updated to fl
           <a href="finishing.html" title="Finishing"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Cooccurrence</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

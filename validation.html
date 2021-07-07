@@ -1,32 +1,26 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Validation &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Clustering Algorithms" href="clustering_algorithms.html" />
     <link rel="prev" title="Cooccurrence" href="cooccurrence.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +37,8 @@
           <a href="cooccurrence.html" title="Cooccurrence"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Supporting.html" accesskey="U">Supporting Code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Validation</a></li> 
       </ul>
     </div>  
 
@@ -52,253 +47,18 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-validation">
-<span id="validation"></span><h1>Validation<a class="headerlink" href="#module-validation" title="Permalink to this headline">¶</a></h1>
-<p>OpenEnsembles is a resource for performing and analyzing ensemble clustering</p>
-<p>Copyright (C) 2017 Naegle Lab</p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.</p>
-<p>You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
-<dl class="class">
-<dt id="validation.validation">
-<em class="property">class </em><code class="descclassname">validation.</code><code class="descname">validation</code><span class="sig-paren">(</span><em>data</em>, <em>labels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation" title="Permalink to this definition">¶</a></dt>
-<dd><p>validation is a class for calculating validation metrics on a data matrix (data), given the clustering labels in labels.
-Instantiation sets validation to NaN and a description to ‘’. Once a metric is performed, these are replaced (unless)
-validation did not yield a valid mathematical number, which can happen in certain cases, such as when a cluster
-consists of only one member. Such results will warn the user.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data: matrix of floats</strong></p>
-<blockquote>
-<div><p>data matrix</p>
-</div></blockquote>
-<p><strong>labels: list of ints</strong></p>
-<blockquote class="last">
-<div><p>The solution labels</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="OpenEnsembles.html#openensembles.validation" title="openensembles.validation"><code class="xref py py-obj docutils literal"><span class="pre">openensembles.validation</span></code></a></p>
-</div>
-<p class="rubric">Attributes</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="38%" />
-<col width="62%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>validation: float</strong></td>
-<td>Validation metric. NaN if error</td>
-</tr>
-<tr class="row-even"><td><strong>description: string</strong></td>
-<td>A description of the validation metric</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Methods</p>
-<dl class="method">
-<dt id="validation.validation.Baker_Hubert_Gamma">
-<code class="descname">Baker_Hubert_Gamma</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Baker_Hubert_Gamma"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Baker_Hubert_Gamma" title="Permalink to this definition">¶</a></dt>
-<dd><p>Baker-Hubert Gamma Index: A measure of compactness, based on similarity between points in a cluster, compared to similarity
-with points in other clusters</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Ball_Hall">
-<code class="descname">Ball_Hall</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Ball_Hall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Ball_Hall" title="Permalink to this definition">¶</a></dt>
-<dd><p>Ball-Hall Index is the mean of the mean dispersion across all clusters</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Banfeld_Raferty">
-<code class="descname">Banfeld_Raferty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Banfeld_Raferty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Banfeld_Raferty" title="Permalink to this definition">¶</a></dt>
-<dd><p>Banfeld-Raferty index is the weighted sum of the logarithms of the traces of the variance-covariance matrix of each cluster</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Davies_Bouldin">
-<code class="descname">Davies_Bouldin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Davies_Bouldin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Davies_Bouldin" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Davies-Bouldin index, the average of all cluster similarities.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Dunns_index">
-<code class="descname">Dunns_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Dunns_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Dunns_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dunn’s index, a measure of cluster compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.McClain_Rao">
-<code class="descname">McClain_Rao</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.McClain_Rao"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.McClain_Rao" title="Permalink to this definition">¶</a></dt>
-<dd><p>The McClain-Rao Index, a measure of compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.PBM_index">
-<code class="descname">PBM_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.PBM_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.PBM_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>The PBM index, a measure of compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Ratkowsky_Lance">
-<code class="descname">Ratkowsky_Lance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Ratkowsky_Lance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Ratkowsky_Lance" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Ratkowsky-Lance index, a measure of compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Ray_Turi">
-<code class="descname">Ray_Turi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Ray_Turi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Ray_Turi" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Ray-Turi index, a measure of compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Scott_Symons">
-<code class="descname">Scott_Symons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Scott_Symons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Scott_Symons" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Scott-Symons index, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Wemmert_Gancarski">
-<code class="descname">Wemmert_Gancarski</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Wemmert_Gancarski"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Wemmert_Gancarski" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Wemmert-Gancarski index, the quotients of distances between the points and the barycenters of all clusters, a measure of compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.Xie_Beni">
-<code class="descname">Xie_Beni</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.Xie_Beni"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.Xie_Beni" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Xie-Beni index, a measure of compactness.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.c_index">
-<code class="descname">c_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.c_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.c_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>The C-Index, a measure of compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.det_ratio">
-<code class="descname">det_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.det_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.det_ratio" title="Permalink to this definition">¶</a></dt>
-<dd><p>The determinant ratio index, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.g_plus_index">
-<code class="descname">g_plus_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.g_plus_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.g_plus_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>The G_plus index, the proportion of discordant pairs among all the pairs of distinct point, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.i_index">
-<code class="descname">i_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.i_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.i_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>The I index, a measure of compactness.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.ksq_detw_index">
-<code class="descname">ksq_detw_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.ksq_detw_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.ksq_detw_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Ksq_DetW Index, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.log_det_ratio">
-<code class="descname">log_det_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.log_det_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.log_det_ratio" title="Permalink to this definition">¶</a></dt>
-<dd><p>The log determinant ratio index, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.log_ss_ratio">
-<code class="descname">log_ss_ratio</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.log_ss_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.log_ss_ratio" title="Permalink to this definition">¶</a></dt>
-<dd><p>The log ss ratio, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.modified_hubert_t">
-<code class="descname">modified_hubert_t</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.modified_hubert_t"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.modified_hubert_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Modified Hubert T Statistic, a measure of compactness.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.point_biserial">
-<code class="descname">point_biserial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.point_biserial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.point_biserial" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Point-Biserial index, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.r_squared">
-<code class="descname">r_squared</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.r_squared"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.r_squared" title="Permalink to this definition">¶</a></dt>
-<dd><p>R-squared, a statistical measure of how close the data is to a fitted regression line.
-A measure of compactness.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.root_mean_square">
-<code class="descname">root_mean_square</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.root_mean_square"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.root_mean_square" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Root-Mean-Square Standard Deviation (RMSSTD), the root mean square
-standard deviation of all variables within each cluster. A measure of
-connectedness.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.s_dbw">
-<code class="descname">s_dbw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.s_dbw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.s_dbw" title="Permalink to this definition">¶</a></dt>
-<dd><p>The S_Dbw index, a measure of compactness.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.silhouette">
-<code class="descname">silhouette</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.silhouette"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.silhouette" title="Permalink to this definition">¶</a></dt>
-<dd><p>Silhouette: Compactness and connectedness combination that measures a ratio of within cluster distances to closest neighbors
-outside of cluster. This uses sklearn.metrics version of the Silhouette.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.tau_index">
-<code class="descname">tau_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.tau_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.tau_index" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Tau index, a measure of compactness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.trace_w">
-<code class="descname">trace_w</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.trace_w"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.trace_w" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Trace_W index, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.trace_wib">
-<code class="descname">trace_wib</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.trace_wib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.trace_wib" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Trace_WiB index, a measure of connectedness</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="validation.validation.validation_metrics_available">
-<code class="descname">validation_metrics_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/validation.html#validation.validation_metrics_available"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#validation.validation.validation_metrics_available" title="Permalink to this definition">¶</a></dt>
-<dd><p>self.validation_metrics_available() returns a dictionary, whose keys are the available validation metrics</p>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="validation">
+<h1>Validation<a class="headerlink" href="#validation" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="OpenEnsembles.html">OpenEnsembles</a></li>
@@ -329,15 +89,15 @@ outside of cluster. This uses sklearn.metrics version of the Silhouette.</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -358,12 +118,13 @@ outside of cluster. This uses sklearn.metrics version of the Silhouette.</p>
           <a href="cooccurrence.html" title="Cooccurrence"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Supporting.html" >Supporting Code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Validation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

@@ -1,32 +1,26 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Examples &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Use Majority Vote to stabilize k-means clustering" href="Example_Kmeans_MajorityVote.html" />
     <link rel="prev" title="Transformations" href="../transforms.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -42,7 +36,8 @@
         <li class="right" >
           <a href="../transforms.html" title="Transformations"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
       </ul>
     </div>  
 
@@ -83,7 +78,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Demonstrate_RandomSeed.html#Compare-results-with-and-without-random-seed-for-spectral-clustering">Compare results with and without random seed for spectral clustering</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Demonstrate_RandomSeed.html#Mutual-information-should-show-results-vary-when-seed-is-not-forced-to-the-same-starting-point">Mutual information should show results vary when seed is not forced to the same starting point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Demonstrate_RandomSeed.html#id1">Mutual information should show results vary when seed is not forced to the same starting point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Demonstrate_RandomSeed.html#When-the-seed-is-forced-to-the-same,-Spectral-clustering-should-return-the-same-results,-as-indicated-by-mutual-information-of-1-between-all-clustering-results.">When the seed is forced to the same, Spectral clustering should return the same results, as indicated by mutual information of 1 between all clustering results.</a></li>
 </ul>
 </li>
@@ -153,12 +148,13 @@
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <h3><a href="../index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
@@ -211,15 +207,15 @@
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -239,12 +235,13 @@
         <li class="right" >
           <a href="../transforms.html" title="Transformations"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

@@ -1,32 +1,26 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Parallelization of data and cluster objects: Resampling data to explore effects of noise &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Dependencies" href="../Dependencies.html" />
     <link rel="prev" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons" href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +37,8 @@
           <a href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Parallelization of data and cluster objects: Resampling data to explore effects of noise</a></li> 
       </ul>
     </div>  
 
@@ -57,31 +52,45 @@
 /* CSS for nbsphinx extension */
 
 /* remove conflicting styling from Sphinx themes */
-div.nbinput,
-div.nbinput div.prompt,
-div.nbinput div.input_area,
-div.nbinput div[class*=highlight],
-div.nbinput div[class*=highlight] pre,
-div.nboutput,
-div.nbinput div.prompt,
-div.nbinput div.output_area,
-div.nboutput div[class*=highlight],
-div.nboutput div[class*=highlight] pre {
-    background: none;
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
     border: none;
-    padding: 0 0;
+    padding: 0;
     margin: 0;
     box-shadow: none;
 }
 
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
 /* avoid gaps between output lines */
-div.nboutput div[class*=highlight] pre {
+div.nboutput.container div[class*=highlight] pre {
     line-height: normal;
 }
 
 /* input/output containers */
-div.nbinput,
-div.nboutput {
+div.nbinput.container,
+div.nboutput.container {
     display: -webkit-flex;
     display: flex;
     align-items: flex-start;
@@ -89,92 +98,104 @@ div.nboutput {
     width: 100%;
 }
 @media (max-width: 540px) {
-    div.nbinput,
-    div.nboutput {
+    div.nbinput.container,
+    div.nboutput.container {
         flex-direction: column;
     }
 }
 
 /* input container */
-div.nbinput {
+div.nbinput.container {
     padding-top: 5px;
 }
 
 /* last container */
-div.nblast {
+div.nblast.container {
     padding-bottom: 5px;
 }
 
 /* input prompt */
-div.nbinput div.prompt pre {
-    color: #303F9F;
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
 }
 
 /* output prompt */
-div.nboutput div.prompt pre {
-    color: #D84315;
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
 }
 
 /* all prompts */
-div.nbinput div.prompt,
-div.nboutput div.prompt {
-    min-width: 7ex;
-    padding-top: 0.4em;
-    padding-right: 0.4em;
-    text-align: right;
-    flex: 0;
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
 }
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
 @media (max-width: 540px) {
-    div.nbinput div.prompt,
-    div.nboutput div.prompt {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
         text-align: left;
         padding: 0.4em;
     }
-    div.nboutput div.prompt.empty {
+    div.nboutput.container div.prompt.empty {
         padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
     }
 }
 
 /* disable scrollbars on prompts */
-div.nbinput div.prompt pre,
-div.nboutput div.prompt pre {
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
     overflow: hidden;
 }
 
 /* input/output area */
-div.nbinput div.input_area,
-div.nboutput div.output_area {
-    padding: 0.4em;
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
     -webkit-flex: 1;
     flex: 1;
     overflow: auto;
 }
 @media (max-width: 540px) {
-    div.nbinput div.input_area,
-    div.nboutput div.output_area {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
         width: 100%;
     }
 }
 
 /* input area */
-div.nbinput div.input_area {
-    border: 1px solid #cfcfcf;
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
-    background: #f7f7f7;
+    /*background: #f5f5f5;*/
 }
 
 /* override MathJax center alignment in output cells */
-div.nboutput div[class*=MathJax] {
+div.nboutput.container div[class*=MathJax] {
     text-align: left !important;
 }
 
-/* override sphinx.ext.pngmath center alignment in output cells */
-div.nboutput div.math p {
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
     text-align: left;
 }
 
 /* standard error */
-div.nboutput div.output_area.stderr {
+div.nboutput.container div.output_area.stderr {
     background: #fdd;
 }
 
@@ -217,37 +238,81 @@ div.nboutput div.output_area.stderr {
 
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
 </style>
 <div class="section" id="Parallelization-of-data-and-cluster-objects:-Resampling-data-to-explore-effects-of-noise">
 <h1>Parallelization of data and cluster objects: Resampling data to explore effects of noise<a class="headerlink" href="#Parallelization-of-data-and-cluster-objects:-Resampling-data-to-explore-effects-of-noise" title="Permalink to this headline">¶</a></h1>
-<p>This is similar to the example in Sloutsky, R., Jimenez, N., Swamidass,
-S. J. &amp; Naegle, K. M. Accounting for noise when clustering biological
-data. Brief. Bioinform. 14, 423–36 (2013) – we resample each data point
-according to a Guassian distribution defined by the mean and standard
-deviation of the measured data.</p>
-<p>This example is phosphoproteomic dataset of epithelial cells stimulated
-with a growth factor and measured immediately afterward at seven time
-points in the first 32 minutes, specifically [0, 1, 2, 4, 8, 16, 32]. It
-was downloaded from
-<a class="reference external" href="https://proteomescout.wustl.edu/experiments/1381">ProteomeScout</a> and
-published in: Wolf-Yadlin, A., Hautaniemi, S., Lauffenburger, D. A. &amp;
-White, F. M. Multiple reaction monitoring for robust quantitative
-proteomic analysis of cellular signaling networks. Proc. Natl. Acad.
-Sci. U. S. A. 104, 5860–5 (2007).</p>
+<p>This is similar to the example in Sloutsky, R., Jimenez, N., Swamidass, S. J. &amp; Naegle, K. M. Accounting for noise when clustering biological data. Brief. Bioinform. 14, 423–36 (2013) – we resample each data point according to a Guassian distribution defined by the mean and standard deviation of the measured data.</p>
+<p>This example is phosphoproteomic dataset of epithelial cells stimulated with a growth factor and measured immediately afterward at seven time points in the first 32 minutes, specifically [0, 1, 2, 4, 8, 16, 32]. It was downloaded from <a class="reference external" href="https://proteomescout.wustl.edu/experiments/1381">ProteomeScout</a> and published in: Wolf-Yadlin, A., Hautaniemi, S., Lauffenburger, D. A. &amp; White, F. M. Multiple reaction monitoring for robust quantitative proteomic analysis of cellular signaling networks. Proc.
+Natl. Acad. Sci. U. S. A. 104, 5860–5 (2007).</p>
 <p>Compare this to the example without parallelization</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">openensembles</span> <span class="k">as</span> <span class="nn">oe</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
 
-<span class="n">fileName</span> <span class="o">=</span> <span class="s1">&#39;../data/experiment.1381.annotated_misTrypsRemoved.txt&#39;</span>
+<span class="n">fileName</span> <span class="o">=</span> <span class="s1">&#39;experiment.1381.annotated_misTrypsRemoved.txt&#39;</span> <span class="c1">#can find this in OpenEnsembles data directory</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <span class="c1">#keep the data and the standard deviations in different dataframes and then instantiate data objects with resampling,</span>
@@ -276,11 +341,10 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#create new data objects, resampling each time point for each object according to their mean and stdev</span>
 <span class="c1"># using a normal distribution</span>
 <span class="n">numRepeats</span> <span class="o">=</span> <span class="mi">500</span>
@@ -292,10 +356,10 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">dataCols</span><span class="p">:</span>
             <span class="n">stdevCol</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;stddev&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">stdev_df</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">stdevCol</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">df_temp</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">data</span><span class="p">],</span> <span class="n">stdev_df</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">stdevCol</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">stdev_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">stdevCol</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">df_temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">data</span><span class="p">],</span> <span class="n">stdev_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">stdevCol</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">df_temp</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">data</span><span class="p">]</span>
+                <span class="n">df_temp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span><span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">data</span><span class="p">]</span>
     <span class="n">d_temp</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df_temp</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">d_temp</span>
 
@@ -315,11 +379,22 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 <div class="section" id="Cluster-all-resampled-data-for-an-ensemble-solution">
 <h2>Cluster all resampled data for an ensemble solution<a class="headerlink" href="#Cluster-all-resampled-data-for-an-ensemble-solution" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Wrapper function to cluster and return object from thread</span>
+<span class="k">def</span> <span class="nf">run_clustering</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">c</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">K</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
@@ -327,11 +402,6 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 <span class="c1"># Number of threads to use, should be close to the number of physical cores on your machine</span>
 <span class="n">N_THREADS</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">N_THREADS</span><span class="p">)</span>
-
-<span class="c1"># Wrapper function to cluster and return object from thread</span>
-<span class="k">def</span> <span class="nf">run_clustering</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">source_name</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">c</span>
 
 <span class="c1"># Spawn a thread to cluster each source matrix in data object</span>
 <span class="n">apply_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">run_clustering</span><span class="p">,</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;kmeans&#39;</span><span class="p">,</span> <span class="s1">&#39;kmeans_&#39;</span><span class="o">+</span><span class="n">name</span><span class="p">,</span> <span class="n">K</span><span class="p">))</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
@@ -343,73 +413,55 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># how do all solutions compare?</span>
 <span class="n">MI</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;normalized&#39;</span><span class="p">)</span>
-<span class="n">MI</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">mi_plot</span> <span class="o">=</span> <span class="n">MI</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[8]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_6_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_6_0.png" />
+<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_7_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_7_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">coMat</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">co_occurrence_matrix</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">labels</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">d</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;mod_sites&#39;</span><span class="p">]</span>
-<span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label_vec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+<span class="n">co_plot</span> <span class="o">=</span> <span class="n">coMat</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label_vec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[10]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_8_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_8_0.png" />
+<img alt="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_9_0.png" src="../_images/Examples_Ensembles_Across_Experimental_Noise-parallel_9_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span>
 </pre></div>
 </div>
@@ -418,12 +470,13 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <h3><a href="../index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
@@ -462,15 +515,15 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -491,12 +544,13 @@ Sci. U. S. A. 104, 5860–5 (2007).</p>
           <a href="Example_Kmeans_MajorityVote-halfMoons-parallel.html" title="Parallelization of cluster and validation: Kmeans, Majority Vote on half moons"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Parallelization of data and cluster objects: Resampling data to explore effects of noise</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

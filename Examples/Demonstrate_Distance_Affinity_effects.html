@@ -1,32 +1,26 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space. &#8212; OpenEnsembles 1 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Dependencies" href="../Dependencies.html" />
-    <link rel="prev" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms" href="Demonstrate_RandomSeed.html" /> 
-  </head>
-  <body>
+    <link rel="next" title="Demonstration of subsampling feature dimensions" href="Subsample_features_randomly.html" />
+    <link rel="prev" title="Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure" href="Ensemble_Distances_Algorithms_No_Structure.html" /> 
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -37,13 +31,14 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../Dependencies.html" title="Dependencies"
+          <a href="Subsample_features_randomly.html" title="Demonstration of subsampling feature dimensions"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
+          <a href="Ensemble_Distances_Algorithms_No_Structure.html" title="Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></li> 
       </ul>
     </div>  
 
@@ -57,31 +52,45 @@
 /* CSS for nbsphinx extension */
 
 /* remove conflicting styling from Sphinx themes */
-div.nbinput,
-div.nbinput div.prompt,
-div.nbinput div.input_area,
-div.nbinput div[class*=highlight],
-div.nbinput div[class*=highlight] pre,
-div.nboutput,
-div.nbinput div.prompt,
-div.nbinput div.output_area,
-div.nboutput div[class*=highlight],
-div.nboutput div[class*=highlight] pre {
-    background: none;
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
     border: none;
-    padding: 0 0;
+    padding: 0;
     margin: 0;
     box-shadow: none;
 }
 
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
 /* avoid gaps between output lines */
-div.nboutput div[class*=highlight] pre {
+div.nboutput.container div[class*=highlight] pre {
     line-height: normal;
 }
 
 /* input/output containers */
-div.nbinput,
-div.nboutput {
+div.nbinput.container,
+div.nboutput.container {
     display: -webkit-flex;
     display: flex;
     align-items: flex-start;
@@ -89,92 +98,104 @@ div.nboutput {
     width: 100%;
 }
 @media (max-width: 540px) {
-    div.nbinput,
-    div.nboutput {
+    div.nbinput.container,
+    div.nboutput.container {
         flex-direction: column;
     }
 }
 
 /* input container */
-div.nbinput {
+div.nbinput.container {
     padding-top: 5px;
 }
 
 /* last container */
-div.nblast {
+div.nblast.container {
     padding-bottom: 5px;
 }
 
 /* input prompt */
-div.nbinput div.prompt pre {
-    color: #303F9F;
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
 }
 
 /* output prompt */
-div.nboutput div.prompt pre {
-    color: #D84315;
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
 }
 
 /* all prompts */
-div.nbinput div.prompt,
-div.nboutput div.prompt {
-    min-width: 7ex;
-    padding-top: 0.4em;
-    padding-right: 0.4em;
-    text-align: right;
-    flex: 0;
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
 }
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
 @media (max-width: 540px) {
-    div.nbinput div.prompt,
-    div.nboutput div.prompt {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
         text-align: left;
         padding: 0.4em;
     }
-    div.nboutput div.prompt.empty {
+    div.nboutput.container div.prompt.empty {
         padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
     }
 }
 
 /* disable scrollbars on prompts */
-div.nbinput div.prompt pre,
-div.nboutput div.prompt pre {
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
     overflow: hidden;
 }
 
 /* input/output area */
-div.nbinput div.input_area,
-div.nboutput div.output_area {
-    padding: 0.4em;
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
     -webkit-flex: 1;
     flex: 1;
     overflow: auto;
 }
 @media (max-width: 540px) {
-    div.nbinput div.input_area,
-    div.nboutput div.output_area {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
         width: 100%;
     }
 }
 
 /* input area */
-div.nbinput div.input_area {
-    border: 1px solid #cfcfcf;
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
-    background: #f7f7f7;
+    /*background: #f5f5f5;*/
 }
 
 /* override MathJax center alignment in output cells */
-div.nboutput div[class*=MathJax] {
+div.nboutput.container div[class*=MathJax] {
     text-align: left !important;
 }
 
-/* override sphinx.ext.pngmath center alignment in output cells */
-div.nboutput div.math p {
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
     text-align: left;
 }
 
 /* standard error */
-div.nboutput div.output_area.stderr {
+div.nboutput.container div.output_area.stderr {
     background: #fdd;
 }
 
@@ -217,28 +238,83 @@ div.nboutput div.output_area.stderr {
 
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
 </style>
 <div class="section" id="Some-algorithms-take-distance-or-similarity-as-a-parameter.-Here-we-demonstrate-their-effects-on-the-solution-space.">
 <h1>Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.<a class="headerlink" href="#Some-algorithms-take-distance-or-similarity-as-a-parameter.-Here-we-demonstrate-their-effects-on-the-solution-space." title="Permalink to this headline">¶</a></h1>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#%matplotlib inline</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">openensembles</span> <span class="kn">as</span> <span class="nn">oe</span>
-<span class="kn">import</span> <span class="nn">clustering_algorithms</span> <span class="kn">as</span> <span class="nn">ca</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">openensembles</span> <span class="k">as</span> <span class="nn">oe</span>
+<span class="kn">import</span> <span class="nn">clustering_algorithms</span> <span class="k">as</span> <span class="nn">ca</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
 
 
 <span class="n">n_samples</span> <span class="o">=</span> <span class="mi">800</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">no_structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="bp">None</span>
+<span class="n">no_structure</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="kc">None</span>
 <span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">no_structure</span>
 
 
@@ -254,14 +330,12 @@ div.nboutput div.output_area.stderr {
 
 
 
-<span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[1]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/Examples_Demonstrate_Distance_Affinity_effects_1_0.png" src="../_images/Examples_Demonstrate_Distance_Affinity_effects_1_0.png" />
@@ -270,30 +344,27 @@ div.nboutput div.output_area.stderr {
 <div class="section" id="Demonstration-of-varying-distance-for-algorithm-based-on-distance-metrics">
 <h2>Demonstration of varying distance for algorithm based on distance metrics<a class="headerlink" href="#Demonstration-of-varying-distance-for-algorithm-based-on-distance-metrics" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;manhattan&#39;</span><span class="p">,</span> <span class="s1">&#39;minkowski&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">,</span> <span class="s1">&#39;mahalanobis&#39;</span><span class="p">]</span>
 
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 
-<span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;agglomerative&#39;</span>
+<span></span><span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;agglomerative&#39;</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 <span class="n">K</span><span class="o">=</span><span class="mi">5</span>
 <span class="k">for</span> <span class="n">distance</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
     <span class="n">out_name</span> <span class="o">=</span> <span class="n">distance</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;complete&#39;</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="s1">&#39;complete&#39;</span><span class="p">)</span>
 
 <span class="c1">#PLOT</span>
 <span class="n">names</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -307,7 +378,7 @@ div.nboutput div.output_area.stderr {
 <span class="c1">#COMPARE SOLUTIONS</span>
 <span class="n">mi</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;adjusted&#39;</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">mi</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
 </pre></div>
 </div>
 </div>
@@ -371,54 +442,47 @@ div.nboutput div.output_area.stderr {
 <div class="section" id="Demonstration-of-varying-distance-for-algorithm-based-on-affinity-metrics">
 <h2>Demonstration of varying distance for algorithm based on affinity metrics<a class="headerlink" href="#Demonstration-of-varying-distance-for-algorithm-based-on-affinity-metrics" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-<span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral_default&#39;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral&#39;</span><span class="p">,</span> <span class="s1">&#39;spectral_default&#39;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;spectral_default&#39;</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Default Parameters&#39;</span><span class="p">)</span>
+<span class="n">data_plot</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;spectral_default&#39;</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Default Parameters&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[4]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/Examples_Demonstrate_Distance_Affinity_effects_6_0.png" src="../_images/Examples_Demonstrate_Distance_Affinity_effects_6_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;manhattan&#39;</span><span class="p">,</span> <span class="s1">&#39;minkowski&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="s1">&#39;cosine&#39;</span><span class="p">,</span> <span class="s1">&#39;mahalanobis&#39;</span><span class="p">]</span>
 
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 
-<span></span><span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;spectral&#39;</span>
+<span></span><span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;spectral&#39;</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 <span class="n">K</span><span class="o">=</span><span class="mi">5</span>
 <span class="k">for</span> <span class="n">distance</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
     <span class="n">out_name</span> <span class="o">=</span> <span class="n">distance</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
 
 <span class="c1">#PLOT</span>
 <span class="n">names</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -432,7 +496,7 @@ div.nboutput div.output_area.stderr {
 <span class="c1">#COMPARE SOLUTIONS</span>
 <span class="n">mi</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;adjusted&#39;</span><span class="p">)</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">mi</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
 
 </pre></div>
 </div>
@@ -493,14 +557,13 @@ div.nboutput div.output_area.stderr {
 <img alt="../_images/Examples_Demonstrate_Distance_Affinity_effects_8_7.png" src="../_images/Examples_Demonstrate_Distance_Affinity_effects_8_7.png" />
 </div>
 </div>
-<div class="section" id="Call-clustering-with-more-control-by-using-'precomputed'-distances-and-affinities.">
-<h3>Call clustering with more control by using ‘precomputed’ distances and affinities.<a class="headerlink" href="#Call-clustering-with-more-control-by-using-'precomputed'-distances-and-affinities." title="Permalink to this headline">¶</a></h3>
+<div class="section" id="Call-clustering-with-more-control-by-using-‘precomputed’-distances-and-affinities.">
+<h3>Call clustering with more control by using ‘precomputed’ distances and affinities.<a class="headerlink" href="#Call-clustering-with-more-control-by-using-‘precomputed’-distances-and-affinities." title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">distance</span> <span class="o">=</span> <span class="s1">&#39;euclidean&#39;</span>
 <span class="n">D</span> <span class="o">=</span> <span class="n">ca</span><span class="o">.</span><span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="n">distance</span><span class="p">)</span>
 <span class="n">beta</span><span class="o">=</span><span class="mf">0.25</span>
@@ -510,12 +573,49 @@ div.nboutput div.output_area.stderr {
 
 <span class="n">out_name</span><span class="o">=</span><span class="n">distance</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-<span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">affinity</span><span class="o">=</span><span class="s1">&#39;precomputed&#39;</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">S</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">affinity</span><span class="o">=</span><span class="s1">&#39;precomputed&#39;</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">S</span><span class="p">)</span>
 
 <span class="c1">#plt.close()</span>
 <span class="n">titleStr</span><span class="o">=</span><span class="s2">&quot;Precomputed Similarity from distance=</span><span class="si">%s</span><span class="s2"> and beta=</span><span class="si">%0.2f</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span><span class="n">beta</span><span class="p">)</span>
 <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">class_labels</span><span class="o">=</span><span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">out_name</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="n">titleStr</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Demonstrate_Distance_Affinity_effects_10_0.png" src="../_images/Examples_Demonstrate_Distance_Affinity_effects_10_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Examples_Demonstrate_Distance_Affinity_effects_10_1.png" src="../_images/Examples_Demonstrate_Distance_Affinity_effects_10_1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="DBSCAN-calls-with-precomputed-distances">
+<h3>DBSCAN calls with precomputed distances<a class="headerlink" href="#DBSCAN-calls-with-precomputed-distances" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+
+<span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">blobs</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_blobs</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">centers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">cluster_std</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">blobs</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">d_plot</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+
+
+
 
 </pre></div>
 </div>
@@ -524,63 +624,28 @@ div.nboutput div.output_area.stderr {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/Examples_Demonstrate_Distance_Affinity_effects_10_0.png" src="../_images/Examples_Demonstrate_Distance_Affinity_effects_10_0.png" />
-</div>
-</div>
-</div>
-<div class="section" id="DBSCAN-calls-with-precomputed-distances">
-<h3>DBSCAN calls with precomputed distances<a class="headerlink" href="#DBSCAN-calls-with-precomputed-distances" title="Permalink to this headline">¶</a></h3>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [8]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-
-<span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">n_samples</span> <span class="o">=</span> <span class="mi">300</span>
-<span class="n">blobs</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_blobs</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">centers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">cluster_std</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">blobs</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-<span class="n">d</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
-<span class="n">d</span><span class="o">.</span><span class="n">plot_data</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
-
-
-
-
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[8]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
 <img alt="../_images/Examples_Demonstrate_Distance_Affinity_effects_12_0.png" src="../_images/Examples_Demonstrate_Distance_Affinity_effects_12_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;DBSCAN&#39;</span>
 <span class="n">distance</span> <span class="o">=</span> <span class="s1">&#39;cosine&#39;</span>
 <span class="n">K</span><span class="o">=</span><span class="mi">3</span>
 
 <span class="n">out_name</span><span class="o">=</span><span class="n">distance</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-<span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="s1">&#39;default_DBSCAN&#39;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="s1">&#39;default_DBSCAN&#39;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">distance</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">:</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
 
     <span class="n">D</span> <span class="o">=</span> <span class="n">ca</span><span class="o">.</span><span class="n">returnDistanceMatrix</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="n">distance</span><span class="p">)</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">distance</span><span class="o">+</span><span class="s2">&quot;_precomputed&quot;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="s1">&#39;precomputed&#39;</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">distance</span><span class="o">+</span><span class="s2">&quot;_precomputed&quot;</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">,</span> <span class="n">Require_Unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="s1">&#39;precomputed&#39;</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">D</span><span class="p">)</span>
 
 <span class="c1">#PLOT</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="n">names</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 <span class="n">figs</span> <span class="o">=</span><span class="p">[]</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="mi">0</span>
@@ -592,55 +657,41 @@ div.nboutput div.output_area.stderr {
 <span class="c1">#COMPARE SOLUTIONS</span>
 <span class="n">mi</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">MI</span><span class="p">(</span><span class="n">MI_type</span><span class="o">=</span><span class="s1">&#39;adjusted&#39;</span><span class="p">)</span>
 <span class="n">f</span> <span class="o">=</span> <span class="n">mi</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
 </pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="stderr output_area docutils container">
+<div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: default_DBSCAN
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: default_DBSCAN
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: euclidean
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: euclidean
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/clustering_algorithms.py:421: UserWarning: Parameter M was not expected in algorithm DBSCAN and will be ignored
-  warnings.warn(&#34;Parameter %s was not expected in algorithm %s and will be ignored&#34;%(key, algorithm), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: euclidean_precomputed
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: euclidean_precomputed
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: l1
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: l1
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/clustering_algorithms.py:421: UserWarning: Parameter M was not expected in algorithm DBSCAN and will be ignored
-  warnings.warn(&#34;Parameter %s was not expected in algorithm %s and will be ignored&#34;%(key, algorithm), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: l1_precomputed
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: l1_precomputed
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: manhattan
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: manhattan
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/clustering_algorithms.py:421: UserWarning: Parameter M was not expected in algorithm DBSCAN and will be ignored
-  warnings.warn(&#34;Parameter %s was not expected in algorithm %s and will be ignored&#34;%(key, algorithm), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: manhattan_precomputed
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 2 returned does not match number requested 3 for solution: manhattan_precomputed
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: minkowski
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: minkowski
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/clustering_algorithms.py:421: UserWarning: Parameter M was not expected in algorithm DBSCAN and will be ignored
-  warnings.warn(&#34;Parameter %s was not expected in algorithm %s and will be ignored&#34;%(key, algorithm), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: minkowski_precomputed
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: minkowski_precomputed
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: l2
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: l2
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/clustering_algorithms.py:421: UserWarning: Parameter M was not expected in algorithm DBSCAN and will be ignored
-  warnings.warn(&#34;Parameter %s was not expected in algorithm %s and will be ignored&#34;%(key, algorithm), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: l2_precomputed
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 6 returned does not match number requested 3 for solution: l2_precomputed
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 1 returned does not match number requested 3 for solution: cosine
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 1 returned does not match number requested 3 for solution: cosine
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/clustering_algorithms.py:421: UserWarning: Parameter M was not expected in algorithm DBSCAN and will be ignored
-  warnings.warn(&#34;Parameter %s was not expected in algorithm %s and will be ignored&#34;%(key, algorithm), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/openensembles.py:482: UserWarning: Number of unique clusters 1 returned does not match number requested 3 for solution: cosine_precomputed
+/Users/kmn4mj/GIT/public/OpenEnsembles/openensembles/openensembles.py:581: UserWarning: Number of unique clusters 1 returned does not match number requested 3 for solution: cosine_precomputed
   warnings.warn(&#34;Number of unique clusters %d returned does not match number requested %d for solution: %s&#34;%(len(uniqueClusters), K, output_name), UserWarning)
-/Users/knaegle/GIT/public/OpenEnsembles/clustering_algorithms.py:421: UserWarning: Parameter M was not expected in algorithm DBSCAN and will be ignored
-  warnings.warn(&#34;Parameter %s was not expected in algorithm %s and will be ignored&#34;%(key, algorithm), UserWarning)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -756,11 +807,10 @@ div.nboutput div.output_area.stderr {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span>
 </pre></div>
 </div>
@@ -770,29 +820,36 @@ div.nboutput div.output_area.stderr {
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <h3><a href="../index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../OpenEnsembles.html">OpenEnsembles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Supporting.html">Supporting Code</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Example_Kmeans_MajorityVote.html">Use Majority Vote to stabilize k-means clustering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Ensemble_Distances_Algorithms_No_Structure.html">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Demonstrate_RandomSeed.html">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#Demonstration-of-varying-distance-for-algorithm-based-on-distance-metrics">Demonstration of varying distance for algorithm based on distance metrics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Demonstration-of-varying-distance-for-algorithm-based-on-affinity-metrics">Demonstration of varying distance for algorithm based on affinity metrics</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#Call-clustering-with-more-control-by-using-'precomputed'-distances-and-affinities.">Call clustering with more control by using ‘precomputed’ distances and affinities.</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#DBSCAN-calls-with-precomputed-distances">DBSCAN calls with precomputed distances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-k">Ensembles by changing K</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-changing-the-random-seed">Ensembles by changing the random seed</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="Examples.html#ensembles-by-changing-distances-and-or-algorithms">Ensembles by changing Distances and/or Algorithms</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Ensemble_Distances_Algorithms_No_Structure.html">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Demonstration-of-varying-distance-for-algorithm-based-on-distance-metrics">Demonstration of varying distance for algorithm based on distance metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Demonstration-of-varying-distance-for-algorithm-based-on-affinity-metrics">Demonstration of varying distance for algorithm based on affinity metrics</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#Call-clustering-with-more-control-by-using-‘precomputed’-distances-and-affinities.">Call clustering with more control by using ‘precomputed’ distances and affinities.</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#DBSCAN-calls-with-precomputed-distances">DBSCAN calls with precomputed distances</a></li>
 </ul>
 </li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-by-subsampling-data-features">Ensembles by subsampling data features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-that-account-for-experimental-noise">Ensembles that account for experimental noise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples.html#ensembles-that-use-parallelization">Ensembles that use parallelization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
@@ -800,11 +857,11 @@ div.nboutput div.output_area.stderr {
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="Demonstrate_RandomSeed.html"
-                        title="previous chapter">Demonstrate the ability to get reproducible results from non-deterministic algorithms</a></p>
+  <p class="topless"><a href="Ensemble_Distances_Algorithms_No_Structure.html"
+                        title="previous chapter">Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../Dependencies.html"
-                        title="next chapter">Dependencies</a></p>
+  <p class="topless"><a href="Subsample_features_randomly.html"
+                        title="next chapter">Demonstration of subsampling feature dimensions</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -813,15 +870,15 @@ div.nboutput div.output_area.stderr {
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -836,18 +893,19 @@ div.nboutput div.output_area.stderr {
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../Dependencies.html" title="Dependencies"
+          <a href="Subsample_features_randomly.html" title="Demonstration of subsampling feature dimensions"
              >next</a> |</li>
         <li class="right" >
-          <a href="Demonstrate_RandomSeed.html" title="Demonstrate the ability to get reproducible results from non-deterministic algorithms"
+          <a href="Ensemble_Distances_Algorithms_No_Structure.html" title="Build an ensemble using algorithms and distances, finish to see if it uncovers the lack of structure"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">OpenEnsembles 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Examples</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Some algorithms take distance or similarity as a parameter. Here we demonstrate their effects on the solution space.</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Naegle Lab.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>
