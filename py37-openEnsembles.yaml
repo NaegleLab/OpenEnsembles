@@ -1,24 +1,27 @@
 package:
   name: openensembles 
-  version: "1.1.1"
+  version: "2.0.0"
 
 source:
-  git_rev: OpenEnsembles-v1.1.1
+  git_rev: OpenEnsembles-v2.0.0
   git_url: https://github.com/NaegleLab/OpenEnsembles
 
 requirements:
   build:
-    - python=3.7
-    - ipykernel
-    - jupyter
-    - nbconda
-    - pandas=1.1.*
+    - python=3.7.*
+    - hdbscan=0.8.*
+    - ipykernel=5.1.*
+    - ipython=7.21.*
+    - jupyter=1.0.*
+    - matplotlib=3.3*
+    - nb_conda_kernels=2.2.*
+    - nbclient=0.5.*
+    - networkx=2.5
+    - notebook=6.0.*
     - numpy=1.19.*
-    - scikit-learn
-    - scipy=1.5.*
-    - networkx=2.5.*
-    - matplotlib=3.3.*
-    - hdbscan
+    - pandas=1.2.*
+    - scikit-learn=0.24.*
+    - scipy=1.6.*
 
   run:
     - python

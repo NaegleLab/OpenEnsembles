@@ -5,7 +5,7 @@ DESC = 'An open source Python package for performing, finishing, and analyzing e
 # Run setup
 setup(
     name='OpenEnsembles',
-    version='v1.1.1',
+    version='v2.0.0',
     author='Naegle Lab',
     url='https://github.com/NaegleLab/OpenEnsembles',
     packages=['openensembles'],
