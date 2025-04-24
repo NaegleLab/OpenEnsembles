@@ -1,4 +1,4 @@
-name: Track GitHub Traffic Statistics to Central Repository
+name: Track GitHub Traffic Statistics
 
 on:
   schedule:
@@ -13,14 +13,14 @@ jobs:
       - name: Checkout source repository
         uses: actions/checkout@v3
         with:
-          path: source-repo  # Check out to a specific folder
+          path: source-repo
       
       - name: Checkout stats repository
         uses: actions/checkout@v3
         with:
-          repository: NaegleLab/github-stats-central  # Replace with your central stats repo
-          path: stats-repo  # Check out to a specific folder
-          token: ${{ secrets.STATS_REPO_PAT }}  # PAT with access to the stats repo
+          repository: NaegleLab/github-stats-central  # Replace with your actual central stats repo
+          path: stats-repo
+          token: ${{ secrets.STATS_REPO_PAT }}
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -32,19 +32,55 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pandas matplotlib
       
-      - name: Create scripts directory
+      - name: Extract repository name
+        id: repo-name
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
+          echo "Repository name: $REPO_NAME"
+      
+      - name: Create scripts directory and copy script
         run: |
           mkdir -p ${{ github.workspace }}/stats-repo/.github/scripts/
           cp ${{ github.workspace }}/source-repo/.github/scripts/track_traffic_central.py ${{ github.workspace }}/stats-repo/.github/scripts/
       
+      - name: Create output directory
+        run: |
+          OUTPUT_DIR="${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ steps.repo-name.outputs.repo_name }}"
+          mkdir -p "$OUTPUT_DIR"
+          echo "Created output directory: $OUTPUT_DIR"
+      
+      - name: Check if token secret exists
+        id: check-secret
+        run: |
+          if [[ -n "${{ secrets.STATS_REPO_PAT }}" ]]; then
+            echo "Token is set"
+            echo "token_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Token is NOT set"
+            echo "token_exists=false" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Run traffic collection script
         env:
-          GITHUB_TOKEN: ${{ secrets.TRAFFIC_PAT }}  # Token for accessing traffic data
+          # Make sure to explicitly set the token - GITHUB_TOKEN is a special name in GitHub Actions
+          GITHUB_TOKEN: ${{ secrets.STATS_REPO_PAT }}
           REPO_OWNER: ${{ github.repository_owner }}
-          REPO_NAME: ${{ github.event.repository.name }}
-          OUTPUT_DIR: ${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ github.event.repository.name }}
+          REPO_NAME: ${{ steps.repo-name.outputs.repo_name }}
+          OUTPUT_DIR: ${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ steps.repo-name.outputs.repo_name }}
         run: |
-          mkdir -p $OUTPUT_DIR
+          echo "Running script with environment variables:"
+          echo "GITHUB_TOKEN: [Checking if set] ${{ steps.check-secret.outputs.token_exists }}"
+          echo "REPO_OWNER: $REPO_OWNER"
+          echo "REPO_NAME: $REPO_NAME"
+          echo "OUTPUT_DIR: $OUTPUT_DIR"
+          
+          # Export variables again to be extra safe (sometimes GitHub Actions can be tricky with env vars)
+          export GITHUB_TOKEN="${{ secrets.STATS_REPO_PAT }}"
+          export REPO_OWNER="${{ github.repository_owner }}"
+          export REPO_NAME="${{ steps.repo-name.outputs.repo_name }}"
+          export OUTPUT_DIR="${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ steps.repo-name.outputs.repo_name }}"
+          
           cd ${{ github.workspace }}/stats-repo
           python .github/scripts/track_traffic_central.py
       
@@ -54,5 +90,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add data/
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update traffic statistics for ${{ github.repository_owner }}/${{ github.event.repository.name }}"
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update traffic statistics for ${{ github.repository_owner }}/${{ steps.repo-name.outputs.repo_name }}"
           git push

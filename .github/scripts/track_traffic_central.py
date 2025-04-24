@@ -7,14 +7,25 @@ import matplotlib.pyplot as plt
 
 def get_traffic_data():
     """Fetch traffic data for a GitHub repository and save to central repository"""
-    # Get environment variables
+    # Get environment variables with better error handling
     token = os.environ.get('GITHUB_TOKEN')
     owner = os.environ.get('REPO_OWNER')
     repo = os.environ.get('REPO_NAME')
     output_dir = os.environ.get('OUTPUT_DIR')
     
-    if not all([token, owner, repo, output_dir]):
-        raise ValueError("Required environment variables not set")
+    # Check which variables are missing
+    missing_vars = []
+    if not token:
+        missing_vars.append('GITHUB_TOKEN')
+    if not owner:
+        missing_vars.append('REPO_OWNER')
+    if not repo:
+        missing_vars.append('REPO_NAME')
+    if not output_dir:
+        missing_vars.append('OUTPUT_DIR')
+    
+    if missing_vars:
+        raise ValueError(f"Required environment variables not set: {', '.join(missing_vars)}")
     
     headers = {
         'Authorization': f'token {token}',
@@ -53,15 +64,15 @@ def get_traffic_data():
     }
     
     # Ensure output directory exists
-    os.makedirs(f"{output_dir}/raw", exist_ok=True)
+    os.makedirs(os.path.join(output_dir, "raw"), exist_ok=True)
     
     # Save raw data with timestamp
-    raw_filename = f'{output_dir}/raw/{datetime.now().strftime("%Y%m%d")}.json'
+    raw_filename = os.path.join(output_dir, "raw", f"{datetime.now().strftime('%Y%m%d')}.json")
     with open(raw_filename, 'w') as f:
         json.dump(current_data, f, indent=2)
     
     # Load and update aggregated data
-    agg_filename = f'{output_dir}/aggregate.json'
+    agg_filename = os.path.join(output_dir, "aggregate.json")
     
     # Initialize aggregated data structure if it doesn't exist
     if not os.path.exists(agg_filename):
@@ -166,7 +177,10 @@ def get_traffic_data():
     print(f"Data collected since: {aggregated_data['first_collected']}")
     
     # Create a summary visualization and save it to the central repo
-    generate_traffic_report(aggregated_data, owner, repo, output_dir)
+    try:
+        generate_traffic_report(aggregated_data, owner, repo, output_dir)
+    except Exception as e:
+        print(f"Error generating traffic report: {e}")
     
     return aggregated_data
 
@@ -226,10 +240,10 @@ def generate_traffic_report(data, owner, repo, output_dir):
     plt.tight_layout()
     
     # Save the figure
-    plt.savefig(f'{output_dir}/traffic.png')
+    plt.savefig(os.path.join(output_dir, "traffic.png"))
     
     # Create summary README
-    with open(f'{output_dir}/README.md', 'w') as f:
+    with open(os.path.join(output_dir, "README.md"), 'w') as f:
         f.write(f'# Traffic Statistics for {owner}/{repo}\n\n')
         f.write(f'*Last updated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}*\n\n')
         f.write(f'### Traffic Summary\n')
@@ -255,4 +269,11 @@ def generate_traffic_report(data, owner, repo, output_dir):
                 f.write(f'| {name} | {count} |\n')
 
 if __name__ == "__main__":
+    # Debug environment variables
+    print("Environment Variables:")
+    print(f"GITHUB_TOKEN: {'Set' if os.environ.get('GITHUB_TOKEN') else 'Not Set'}")
+    print(f"REPO_OWNER: {os.environ.get('REPO_OWNER')}")
+    print(f"REPO_NAME: {os.environ.get('REPO_NAME')}")
+    print(f"OUTPUT_DIR: {os.environ.get('OUTPUT_DIR')}")
+    
     get_traffic_data()
