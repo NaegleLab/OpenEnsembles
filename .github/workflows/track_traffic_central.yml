@@ -1,0 +1,58 @@
+name: Track GitHub Traffic Statistics to Central Repository
+
+on:
+  schedule:
+    - cron: '0 0 */3 * *'  # Run every 3 days at midnight
+  workflow_dispatch:        # Allow manual triggering
+
+jobs:
+  collect-traffic:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v3
+        with:
+          path: source-repo  # Check out to a specific folder
+      
+      - name: Checkout stats repository
+        uses: actions/checkout@v3
+        with:
+          repository: NaegleLab/github-stats-central  # Replace with your central stats repo
+          path: stats-repo  # Check out to a specific folder
+          token: ${{ secrets.STATS_REPO_PAT }}  # PAT with access to the stats repo
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas matplotlib
+      
+      - name: Create scripts directory
+        run: |
+          mkdir -p ${{ github.workspace }}/stats-repo/.github/scripts/
+          cp ${{ github.workspace }}/source-repo/.github/scripts/track_traffic_central.py ${{ github.workspace }}/stats-repo/.github/scripts/
+      
+      - name: Run traffic collection script
+        env:
+          GITHUB_TOKEN: ${{ secrets.TRAFFIC_PAT }}  # Token for accessing traffic data
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          OUTPUT_DIR: ${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ github.event.repository.name }}
+        run: |
+          mkdir -p $OUTPUT_DIR
+          cd ${{ github.workspace }}/stats-repo
+          python .github/scripts/track_traffic_central.py
+      
+      - name: Commit and push to stats repository
+        run: |
+          cd ${{ github.workspace }}/stats-repo
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update traffic statistics for ${{ github.repository_owner }}/${{ github.event.repository.name }}"
+          git push
